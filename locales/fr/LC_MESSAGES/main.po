@@ -1,0 +1,97 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: \n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2022-05-13 09:57+0200\n"
+"PO-Revision-Date: 2022-05-13 10:06+0200\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"Language: fr\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Poedit 3.0.1\n"
+
+#: main.py:47
+msgid "Cancel"
+msgstr "Annuler"
+
+#: main.py:63
+msgid ""
+"Commands:\n"
+" /start - Start a conversation\n"
+" /stop - Stop a current action and return to start menu"
+msgstr ""
+"Commandes:\n"
+"/start - Démarrer une conversation\n"
+"/stop - Arrête l'action courante et renvoie au menu de départ"
+
+#: main.py:79 main.py:89 main.py:98
+#, python-format
+msgid ""
+"Hey, I'm %s !\n"
+"I will help you to handle Zabbix problems !\n"
+"I'm connected to the server : *%s*\n"
+"Type /help to show all commands\n"
+"   Choose an option:"
+msgstr ""
+"Bonjour, je suis %s !\n"
+"Je vais vous aider à gérer les problèmes de Zabbix !\n"
+"Je suis connecté au serveur : *%s* \n"
+"Ecrivez /help Pour voir l'ensemble des commandes possibles\n"
+"   Choisissez une option:"
+
+#: main.py:104 main.py:111
+msgid "Settings"
+msgstr "Paramètres"
+
+#: main.py:105 main.py:113
+msgid "Done"
+msgstr "Terminer"
+
+#: main.py:109
+msgid "The server is incorrect. Please change the name in setting."
+msgstr ""
+"Le serveur est incorrect. Veuillez changer son nom dans les "
+"paramètres."
+
+#: main.py:127
+msgid "Change language"
+msgstr "Changer la langue"
+
+#: main.py:128
+msgid "Change server"
+msgstr "Changer de serveur"
+
+#: main.py:131
+msgid "Choose what you want to change"
+msgstr "Choisissez ce que vous souhaitez modifier"
+
+#: main.py:141
+msgid "Please choose your language"
+msgstr "Veuillez choisir votre langue"
+
+#: main.py:166
+msgid "Choose one server or cancel"
+msgstr "Veuillez choisir un serveur ou annuler"
+
+#: main.py:168
+msgid ""
+"The file *config.yaml* doesn't exists. Create file or use environment "
+"variables."
+msgstr ""
+"Le fichier *config.yaml* n'existe pas. Créez le fichier ou utilisez "
+"des variables d’environnements."
+
+#: main.py:193
+msgid "Okay, bye."
+msgstr "Okay, au revoir."
+
+#: main.py:207
+msgid "See you !"
+msgstr "Au revoir !"

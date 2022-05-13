@@ -1,0 +1,95 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: \n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2022-05-13 09:57+0200\n"
+"PO-Revision-Date: 2022-05-13 10:08+0200\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"Language: en\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Poedit 3.0.1\n"
+
+#: main.py:47
+msgid "Cancel"
+msgstr "Cancel"
+
+#: main.py:63
+msgid ""
+"Commands:\n"
+" /start - Start a conversation\n"
+" /stop - Stop a current action and return to start menu"
+msgstr ""
+"Commands:\n"
+" /start - Start a conversation\n"
+" /stop - Stop a current action and return to start menu"
+
+#: main.py:79 main.py:89 main.py:98
+#, python-format
+msgid ""
+"Hey, I'm %s !\n"
+"I will help you to handle Zabbix problems !\n"
+"I'm connected to the server : *%s*\n"
+"Type /help to show all commands\n"
+"   Choose an option:"
+msgstr ""
+"Hey, I'm %s !\n"
+"I will help you to handle Zabbix problems !\n"
+"I'm connected to the server : *%s*\n"
+"Type /help to show all commands\n"
+"   Choose an option:"
+
+#: main.py:104 main.py:111
+msgid "Settings"
+msgstr "Settings"
+
+#: main.py:105 main.py:113
+msgid "Done"
+msgstr "Done"
+
+#: main.py:109
+msgid "The server is incorrect. Please change the name in setting."
+msgstr "The server is incorrect. Please change the name in setting."
+
+#: main.py:127
+msgid "Change language"
+msgstr "Change language"
+
+#: main.py:128
+msgid "Change server"
+msgstr "Change server"
+
+#: main.py:131
+msgid "Choose what you want to change"
+msgstr "Choose what you want to change"
+
+#: main.py:141
+msgid "Please choose your language"
+msgstr "Please choose your language"
+
+#: main.py:166
+msgid "Choose one server or cancel"
+msgstr "Choose one server or cancel"
+
+#: main.py:168
+msgid ""
+"The file *config.yaml* doesn't exists. Create file or use environment "
+"variables."
+msgstr ""
+"The file *config.yaml* doesn't exists. Create file or use environment "
+"variables."
+
+#: main.py:193
+msgid "Okay, bye."
+msgstr "Okay, bye."
+
+#: main.py:207
+msgid "See you !"
+msgstr "See you !"

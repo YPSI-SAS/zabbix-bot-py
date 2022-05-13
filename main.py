@@ -27,6 +27,7 @@ ALL_MENU, CHOOSE_HOST = map(chr, range(12,14))
 PRECEDENT, NEXT = map(chr, range(14,16))
 HOST_MENU_NAME, NAME_HOST = map(chr, range(16,18))
 HOST_MENU_TAG, TAG_HOST = map(chr, range(18,20))
+HOST_GROUP_MENU, CHOOSE_HOSTGROUP = map(chr, range(20,22))
 
 LANG = 'en'
 NAME_SERVER=""
@@ -76,18 +77,22 @@ def help_msg(update,context):
 def navigation_host(update,context):
     ud = context.user_data
     if ud['TYPE_REQUEST'] == "all_host":
-        host_list= ud[API_VAR].get_list_hosts()
+        elements_list= ud[API_VAR].get_list_hosts()
     elif ud['TYPE_REQUEST'] == "all_host_name":
-        host_list= ud[API_VAR].get_list_hosts_with_name(ud['NAME_HOST'])
+        elements_list= ud[API_VAR].get_list_hosts_with_name(ud['NAME_HOST'])
     elif ud['TYPE_REQUEST'] == "all_host_tag":
-        host_list= ud[API_VAR].get_list_hosts_with_tag(ud['TAG_HOST'])    
+        elements_list= ud[API_VAR].get_list_hosts_with_tag(ud['TAG_HOST'])
+    elif ud['TYPE_REQUEST'] == "all_hostgroup":
+        elements_list= ud[API_VAR].get_list_hostgroups()
+    elif ud['TYPE_REQUEST'] == "all_host_hostgroup":
+        elements_list= ud[API_VAR].get_list_hosts_with_hostgroup(ud['ID_HOSTGROUP'])  
     numberHostDisplay = 26
-    numberPages = int(len(host_list)/numberHostDisplay)
+    numberPages = int(len(elements_list)/numberHostDisplay)
     if ud['NUMBER'] < numberPages:
-        host_list = host_list[ud['NUMBER']*numberHostDisplay:(ud['NUMBER']+1)*numberHostDisplay]
+        elements_list = elements_list[ud['NUMBER']*numberHostDisplay:(ud['NUMBER']+1)*numberHostDisplay]
     else:
-        host_list = host_list[ud['NUMBER']*numberHostDisplay:]
-    message, button_list = display_object_button("host",host_list,LANG)
+        elements_list = elements_list[ud['NUMBER']*numberHostDisplay:]
+    message, button_list = display_object_button(ud['OBJECT'],elements_list,LANG)
     
     footer_buttons =list()
     if ud['NUMBER']>0:
@@ -107,20 +112,21 @@ def navigation_host(update,context):
 def list_host(update, context):
     ud = context.user_data
     ud['TYPE_REQUEST'] = 'all_host'
+    ud['OBJECT'] = "host"
     ud['NUMBER']=0
     navigation_host(update,context)
     return CHOOSE_HOST
 
-#next_host permits to pass at the next page
-def next_host(update,context):
+#next permits to pass at the next page
+def next(update,context):
     ud = context.user_data
     ud['NUMBER']=ud['NUMBER']+1
     
     navigation_host(update,context)
     return CHOOSE_HOST
 
-#precedent_host permits to pass at the precedent page
-def precedent_host(update,context):
+#precedent permits to pass at the precedent page
+def precedent(update,context):
     ud = context.user_data
     ud['NUMBER']=ud['NUMBER']-1
     
@@ -144,6 +150,7 @@ def list_host_with_name(update, context):
     ud = context.user_data
     ud['NAME_HOST']=update.message.text
     ud['TYPE_REQUEST'] = "all_host_name"
+    ud['OBJECT'] = "host"
     ud['NUMBER']=0
     navigation_host(update,context)    
     return CHOOSE_HOST
@@ -153,8 +160,30 @@ def list_host_with_tag(update, context):
     ud = context.user_data
     ud['TAG_HOST']=update.message.text
     ud['TYPE_REQUEST'] = "all_host_tag"
+    ud['OBJECT'] = "host"
     ud['NUMBER']=0
     navigation_host(update,context)    
+    return CHOOSE_HOST
+
+#list_hostgroups permits to recovery and display hostgroups
+def list_hostgroups(update,context):
+    ud = context.user_data
+    ud['TYPE_REQUEST'] = "all_hostgroup"
+    ud['OBJECT'] = "HG"
+    ud['NUMBER']=0
+    navigation_host(update,context) 
+    return CHOOSE_HOSTGROUP 
+
+#select_hostgroups permits to display host belonging to hostgroup
+def select_hostgroups(update,context):
+    ud = context.user_data
+    ud['HOSTGROUP_INFO']=update.callback_query.data
+    Cdata=json.loads(ud['HOSTGROUP_INFO'])
+    ud['ID_HOSTGROUP'] = Cdata['HGID']
+    ud['TYPE_REQUEST'] = "all_host_hostgroup"
+    ud['OBJECT'] = "host"
+    ud['NUMBER']=0
+    navigation_host(update,context) 
     return CHOOSE_HOST
 
 #start display the start message
@@ -196,6 +225,7 @@ def start(update,context):
                 InlineKeyboardButton(text=telegramEmojiDict['magnifying glass tilted left']+telegramEmojiDict['laptop']+_('Search host tag'), callback_data=str(HOST_MENU_TAG)),
             ],
             [
+                InlineKeyboardButton(text=telegramEmojiDict['laptop']+telegramEmojiDict['laptop']+_('Hostgroups'), callback_data=str(HOST_GROUP_MENU)),
                 InlineKeyboardButton(text=telegramEmojiDict['large blue diamond']+_('All Hosts'), callback_data=str(ALL_MENU)),
             ],
             [
@@ -343,8 +373,8 @@ def main():
         states={
             CHOOSE_HOST:[
                 CallbackQueryHandler(cancel, pattern='^' + str(CANCEL) + '$'),
-                CallbackQueryHandler(precedent_host, pattern='^' + str(PRECEDENT) + '$'),
-                CallbackQueryHandler(next_host, pattern='^' + str(NEXT) + '$'),
+                CallbackQueryHandler(precedent, pattern='^' + str(PRECEDENT) + '$'),
+                CallbackQueryHandler(next, pattern='^' + str(NEXT) + '$'),
             ]
         },
         fallbacks=[CommandHandler('stop', stop_nested)],
@@ -361,8 +391,8 @@ def main():
             NAME_HOST:[MessageHandler(Filters.regex(r'^[^\/]'), list_host_with_name)],
             CHOOSE_HOST:[
                 CallbackQueryHandler(cancel, pattern='^' + str(CANCEL) + '$'),
-                CallbackQueryHandler(precedent_host, pattern='^' + str(PRECEDENT) + '$'),
-                CallbackQueryHandler(next_host, pattern='^' + str(NEXT) + '$'),
+                CallbackQueryHandler(precedent, pattern='^' + str(PRECEDENT) + '$'),
+                CallbackQueryHandler(next, pattern='^' + str(NEXT) + '$'),
             ]
         },
         fallbacks=[CommandHandler('stop', stop_nested)],
@@ -379,8 +409,31 @@ def main():
             TAG_HOST:[MessageHandler(Filters.regex(r'^[a-zA-Z0-9\-]+=[a-zA-Z0-9\-]+$'), list_host_with_tag)],
             CHOOSE_HOST:[
                 CallbackQueryHandler(cancel, pattern='^' + str(CANCEL) + '$'),
-                CallbackQueryHandler(precedent_host, pattern='^' + str(PRECEDENT) + '$'),
-                CallbackQueryHandler(next_host, pattern='^' + str(NEXT) + '$'),
+                CallbackQueryHandler(precedent, pattern='^' + str(PRECEDENT) + '$'),
+                CallbackQueryHandler(next, pattern='^' + str(NEXT) + '$'),
+            ]
+        },
+        fallbacks=[CommandHandler('stop', stop_nested)],
+        map_to_parent={
+            END: ACTION_START,
+            STOPPING: ACTION_START
+        }
+    )
+
+    # Add conversation handler for host group menu
+    host_group_conv = ConversationHandler(
+        entry_points=[CallbackQueryHandler(list_hostgroups, pattern='^'+str(HOST_GROUP_MENU))],
+        states={
+            CHOOSE_HOSTGROUP:[
+                CallbackQueryHandler(select_hostgroups, pattern='^{"HGID*'),
+                CallbackQueryHandler(cancel, pattern='^' + str(CANCEL) + '$'),
+                CallbackQueryHandler(precedent, pattern='^' + str(PRECEDENT) + '$'),
+                CallbackQueryHandler(next, pattern='^' + str(NEXT) + '$'),
+            ],
+            CHOOSE_HOST:[
+                CallbackQueryHandler(cancel, pattern='^' + str(CANCEL) + '$'),
+                CallbackQueryHandler(precedent, pattern='^' + str(PRECEDENT) + '$'),
+                CallbackQueryHandler(next, pattern='^' + str(NEXT) + '$'),
             ]
         },
         fallbacks=[CommandHandler('stop', stop_nested)],
@@ -418,6 +471,7 @@ def main():
             ACTION_START: [
                 search_host_name_conv,
                 search_host_tag_conv,
+                host_group_conv,
                 all_conv,
                 setting_conv,
                 CallbackQueryHandler(end, pattern='^' + str(END) + '$'),

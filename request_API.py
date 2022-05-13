@@ -17,7 +17,7 @@ class API:
 
   def get_list_hosts(self):
     params = {
-      'output': ['name','status'],
+      'output': ['name','status', 'hostid'],
       'sortfield':'name'
     }
     status_code, text = self.request_post(params=params, method='host.get')
@@ -29,7 +29,7 @@ class API:
 
   def get_list_hosts_with_name(self, name):
     params = {
-      'output': ['name','status'],
+      'output': ['name','status', 'hostid'],
       'sortfield':'name',
       'search': {
             'host': '*'+name+'*'
@@ -46,7 +46,7 @@ class API:
   def get_list_hosts_with_tag(self, tag):
     tags = tag.split("=")
     params = {
-      'output': ['name','status'],
+      'output': ['name','status', 'hostid'],
       'sortfield':'name',
       'tags': [
             {
@@ -54,6 +54,30 @@ class API:
                 'value': tags[1]
             }
         ]
+    }
+    status_code, text = self.request_post(params=params, method='host.get')
+    json_data = json.loads(text)
+    if status_code==200:
+      return json_data['result']
+    else:
+      return {}
+
+  def get_list_hostgroups(self):
+    params = {
+      'output': ['name','groupid']
+    }
+    status_code, text = self.request_post(params=params, method='hostgroup.get')
+    json_data = json.loads(text)
+    if status_code==200:
+      return json_data['result']
+    else:
+      return {}
+  
+  def get_list_hosts_with_hostgroup(self, id_hostgroup):
+    params = {
+      'output': ['name','status', 'hostid'],
+      'sortfield':'name',
+      'groupids': id_hostgroup
     }
     status_code, text = self.request_post(params=params, method='host.get')
     json_data = json.loads(text)

@@ -31,7 +31,18 @@ def display_object_button(object, object_list,LANG):
                 message = _('I found many hosts. Please choose one host or cancel\n')
             for host in object_list:
                 button_list.append (InlineKeyboardButton(text=get_status_emoji_host(host['status'])+host['name'], 
-                callback_data='{"HI":"'+host['hostid']+'"}'))
+                callback_data='{"HID":"'+host['hostid']+'"}'))
+    elif object=="HG":
+        if not object_list:
+            message = _('I didn\'t find any hostgroups. Please cancel\n')
+        else:
+            if len(object_list)==1:
+                message = _('I found one hostgroup. Please choose a hostgroup or cancel\n')
+            else:
+                message = _('I found many hostgroups. Please choose one hostgroup or cancel\n')
+            for hostgroup in object_list:
+                button_list.append(InlineKeyboardButton(text=hostgroup['name'],
+                callback_data='{"HGID":"'+hostgroup['groupid']+'"}'))
 
     return message, button_list
 

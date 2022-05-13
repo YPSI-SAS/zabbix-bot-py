@@ -11,6 +11,7 @@ telegramEmojiDict = {
     'gear' : u'\U00002699',
     'spiral notepad' : u'\U0001f5d2',
     'magnifying glass tilted' : u'\U0001f50e',
+    'magnifying glass tilted left' : u'\U0001f50d',
     'laptop' : u'\U0001f4bb',
     'level slider' : u'\U0001f39a',
     'stopwatch' : u'\U000023f1',

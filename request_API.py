@@ -1,3 +1,4 @@
+from posixpath import split, splitext
 from pytest import param
 import requests
 import json
@@ -30,10 +31,29 @@ class API:
     params = {
       'output': ['name','status'],
       'sortfield':'name',
-      "search": {
-            "host": "*"+name+"*"
+      'search': {
+            'host': '*'+name+'*'
         },
-      "searchWildcardsEnabled": True,
+      'searchWildcardsEnabled': True
+    }
+    status_code, text = self.request_post(params=params, method='host.get')
+    json_data = json.loads(text)
+    if status_code==200:
+      return json_data['result']
+    else:
+      return {}
+  
+  def get_list_hosts_with_tag(self, tag):
+    tags = tag.split("=")
+    params = {
+      'output': ['name','status'],
+      'sortfield':'name',
+      'tags': [
+            {
+                'tag': tags[0],
+                'value': tags[1]
+            }
+        ]
     }
     status_code, text = self.request_post(params=params, method='host.get')
     json_data = json.loads(text)

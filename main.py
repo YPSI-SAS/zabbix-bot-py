@@ -26,6 +26,7 @@ SETTING,CHOOSE_SETTING,CHOOSE_LANG, SERVER, STOPPING = map(chr,range(7,12))
 ALL_MENU, CHOOSE_HOST = map(chr, range(12,14))
 PRECEDENT, NEXT = map(chr, range(14,16))
 HOST_MENU_NAME, NAME_HOST = map(chr, range(16,18))
+HOST_MENU_TAG, TAG_HOST = map(chr, range(18,20))
 
 LANG = 'en'
 NAME_SERVER=""
@@ -74,10 +75,12 @@ def help_msg(update,context):
 @send_typing_action
 def navigation_host(update,context):
     ud = context.user_data
-    if ud['TYPE_REQUEST'] == "all":
+    if ud['TYPE_REQUEST'] == "all_host":
         host_list= ud[API_VAR].get_list_hosts()
-    elif ud['TYPE_REQUEST'] == "all_name":
+    elif ud['TYPE_REQUEST'] == "all_host_name":
         host_list= ud[API_VAR].get_list_hosts_with_name(ud['NAME_HOST'])
+    elif ud['TYPE_REQUEST'] == "all_host_tag":
+        host_list= ud[API_VAR].get_list_hosts_with_tag(ud['TAG_HOST'])    
     numberHostDisplay = 26
     numberPages = int(len(host_list)/numberHostDisplay)
     if ud['NUMBER'] < numberPages:
@@ -103,7 +106,7 @@ def navigation_host(update,context):
 #list_host display a page of hosts
 def list_host(update, context):
     ud = context.user_data
-    ud['TYPE_REQUEST'] = 'all'
+    ud['TYPE_REQUEST'] = 'all_host'
     ud['NUMBER']=0
     navigation_host(update,context)
     return CHOOSE_HOST
@@ -130,11 +133,26 @@ def get_name_host(update,context):
     context.user_data[START_OVER] = True
     return NAME_HOST
 
+#get_tag_host recovery the tag enter by the user
+def get_tag_host(update,context):
+    update.callback_query.edit_message_text(text=_('Okay, give me the tag of the host (NAME=VALUE)'))
+    context.user_data[START_OVER] = True
+    return TAG_HOST
+
 #list_host_with_name display the list of host which contains the name of the host enter by the user
 def list_host_with_name(update, context):
     ud = context.user_data
     ud['NAME_HOST']=update.message.text
-    ud['TYPE_REQUEST'] = "all_name"
+    ud['TYPE_REQUEST'] = "all_host_name"
+    ud['NUMBER']=0
+    navigation_host(update,context)    
+    return CHOOSE_HOST
+
+#list_host_with_tag display the list of host which contains the tag of the host enter by the user
+def list_host_with_tag(update, context):
+    ud = context.user_data
+    ud['TAG_HOST']=update.message.text
+    ud['TYPE_REQUEST'] = "all_host_tag"
     ud['NUMBER']=0
     navigation_host(update,context)    
     return CHOOSE_HOST
@@ -175,6 +193,7 @@ def start(update,context):
         buttons = [
             [
                 InlineKeyboardButton(text=telegramEmojiDict['magnifying glass tilted']+telegramEmojiDict['laptop']+_('Search host name'), callback_data=str(HOST_MENU_NAME)),
+                InlineKeyboardButton(text=telegramEmojiDict['magnifying glass tilted left']+telegramEmojiDict['laptop']+_('Search host tag'), callback_data=str(HOST_MENU_TAG)),
             ],
             [
                 InlineKeyboardButton(text=telegramEmojiDict['large blue diamond']+_('All Hosts'), callback_data=str(ALL_MENU)),
@@ -335,11 +354,29 @@ def main():
         }
     )
 
-    # Add conversation handler for search host menu
+    # Add conversation handler for search host menu with name
     search_host_name_conv = ConversationHandler(
         entry_points=[CallbackQueryHandler(get_name_host, pattern='^'+str(HOST_MENU_NAME))],
         states={
             NAME_HOST:[MessageHandler(Filters.regex(r'^[^\/]'), list_host_with_name)],
+            CHOOSE_HOST:[
+                CallbackQueryHandler(cancel, pattern='^' + str(CANCEL) + '$'),
+                CallbackQueryHandler(precedent_host, pattern='^' + str(PRECEDENT) + '$'),
+                CallbackQueryHandler(next_host, pattern='^' + str(NEXT) + '$'),
+            ]
+        },
+        fallbacks=[CommandHandler('stop', stop_nested)],
+        map_to_parent={
+            END: ACTION_START,
+            STOPPING: ACTION_START
+        }
+    )
+
+    # Add conversation handler for search host menu with tag
+    search_host_tag_conv = ConversationHandler(
+        entry_points=[CallbackQueryHandler(get_tag_host, pattern='^'+str(HOST_MENU_TAG))],
+        states={
+            TAG_HOST:[MessageHandler(Filters.regex(r'^[a-zA-Z0-9\-]+=[a-zA-Z0-9\-]+$'), list_host_with_tag)],
             CHOOSE_HOST:[
                 CallbackQueryHandler(cancel, pattern='^' + str(CANCEL) + '$'),
                 CallbackQueryHandler(precedent_host, pattern='^' + str(PRECEDENT) + '$'),
@@ -380,6 +417,7 @@ def main():
         states={
             ACTION_START: [
                 search_host_name_conv,
+                search_host_tag_conv,
                 all_conv,
                 setting_conv,
                 CallbackQueryHandler(end, pattern='^' + str(END) + '$'),

@@ -3,13 +3,15 @@
 import logging
 from telegram.ext import (Updater, CommandHandler, CallbackQueryHandler,ConversationHandler,MessageHandler,Filters,RegexHandler)
 from telegram import InlineKeyboardMarkup,InlineKeyboardButton,ReplyKeyboardRemove,ChatAction,ReplyKeyboardMarkup,ParseMode
-from action import build_menu
+from action import build_menu, display_object_button
 from functools import wraps
 import gettext
 from emojiDict import telegramEmojiDict
 import json
 import yaml
 import os
+
+from request_API import API
 
 #log Management
 logging.basicConfig(
@@ -19,8 +21,10 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 #Global variables
-ACTION_START, START_OVER, ZABBIX_URL, ZABBIX_TOKEN, TYPING, CANCEL = map(chr, range(6))
-SETTING,CHOOSE_SETTING,CHOOSE_LANG, SERVER, STOPPING = map(chr,range(6,11))
+ACTION_START, START_OVER, ZABBIX_URL, ZABBIX_TOKEN, API_VAR, TYPING, CANCEL = map(chr, range(7))
+SETTING,CHOOSE_SETTING,CHOOSE_LANG, SERVER, STOPPING = map(chr,range(7,12))
+ALL_MENU, CHOOSE_HOST = map(chr, range(12,14))
+PRECEDENT, NEXT = map(chr, range(14,16))
 
 LANG = 'en'
 NAME_SERVER=""
@@ -47,8 +51,6 @@ def get_cancel_button():
     cancel_button.append(InlineKeyboardButton(text=telegramEmojiDict['cross mark']+_('Cancel'), callback_data=str(CANCEL)))
     return cancel_button
 
-
-
 #display_message_bot display message en keyboard to conversation
 def display_message_bot(update,context,message,reply_markup):
     if not context.user_data.get(START_OVER):
@@ -66,6 +68,56 @@ def help_msg(update,context):
     else: 
         update.message.reply_text(text=message, parse_mode=ParseMode.MARKDOWN)
     context.user_data[START_OVER]= False
+
+#navigation_host permits to navigate in the pages of hosts 
+@send_typing_action
+def navigation_host(update,context):
+    ud = context.user_data
+    host_list= ud[API_VAR].get_list_hosts()
+    numberHostDisplay = 26
+    numberPages = int(len(host_list)/numberHostDisplay)
+    if ud['NUMBER'] < numberPages:
+        host_list = host_list[ud['NUMBER']*numberHostDisplay:(ud['NUMBER']+1)*numberHostDisplay]
+    else:
+        host_list = host_list[ud['NUMBER']*numberHostDisplay:]
+    message, button_list = display_object_button("host",host_list,LANG)
+    
+    footer_buttons =list()
+    if ud['NUMBER']>0:
+        footer_buttons.append(InlineKeyboardButton(text='<<', callback_data=str(PRECEDENT)))
+    
+    text_button=_('Page %s') % (str(ud['NUMBER']+1))
+    footer_buttons.append(InlineKeyboardButton(text=text_button, callback_data=str(ud['NUMBER'])))
+
+    if ud['NUMBER']<numberPages:
+        footer_buttons.append(InlineKeyboardButton(text='>>', callback_data=str(NEXT)))
+
+    cancel_button = get_cancel_button()
+    reply_markup = InlineKeyboardMarkup(build_menu(button_list,n_cols=2,footer_buttons=footer_buttons,cancel_button=cancel_button))
+    display_message_bot(update,context,message,reply_markup)
+
+#list_host display a page of hosts
+def list_host(update, context):
+    ud = context.user_data
+    ud['NUMBER']=0
+    navigation_host(update,context)
+    return CHOOSE_HOST
+
+#next_host permits to pass at the next page
+def next_host(update,context):
+    ud = context.user_data
+    ud['NUMBER']=ud['NUMBER']+1
+    
+    navigation_host(update,context)
+    return CHOOSE_HOST
+
+#precedent_host permits to pass at the precedent page
+def precedent_host(update,context):
+    ud = context.user_data
+    ud['NUMBER']=ud['NUMBER']-1
+    
+    navigation_host(update,context)
+    return CHOOSE_HOST
 
 #start display the start message
 def start(update,context):
@@ -101,10 +153,15 @@ def start(update,context):
     # Create initial message:
     if findServ==True:
         buttons = [[
+            InlineKeyboardButton(text=telegramEmojiDict['large blue diamond']+_('All Hosts'), callback_data=str(ALL_MENU)),
+        ],
+            [
             InlineKeyboardButton(text=telegramEmojiDict['gear']+_('Settings'), callback_data=str(SETTING)),
             InlineKeyboardButton(text=telegramEmojiDict['waving hand']+_('Done'), callback_data=str(END))
         ]]
         reply_markup = InlineKeyboardMarkup(buttons)
+        context.user_data[API_VAR] = API(context.user_data[str(ZABBIX_URL)], context.user_data[str(ZABBIX_TOKEN)])
+
     else:
         message = _('The server is incorrect. Please change the name in setting.')
         buttons = [[
@@ -236,6 +293,23 @@ def main():
         }
     )
 
+    # Add conversation handler for all menu
+    all_conv = ConversationHandler(
+        entry_points=[CallbackQueryHandler(list_host, pattern='^' + str(ALL_MENU))],
+        states={
+            CHOOSE_HOST:[
+                CallbackQueryHandler(cancel, pattern='^' + str(CANCEL) + '$'),
+                CallbackQueryHandler(precedent_host, pattern='^' + str(PRECEDENT) + '$'),
+                CallbackQueryHandler(next_host, pattern='^' + str(NEXT) + '$'),
+            ]
+        },
+        fallbacks=[CommandHandler('stop', stop_nested)],
+        map_to_parent={
+            END: ACTION_START,
+            STOPPING: ACTION_START
+        }
+    )
+
     # Add conversation handler for setting menu
     setting_conv = ConversationHandler(
         entry_points=[CallbackQueryHandler(list_setting, pattern='^'+str(SETTING))],
@@ -262,6 +336,7 @@ def main():
 
         states={
             ACTION_START: [
+                all_conv,
                 setting_conv,
                 CallbackQueryHandler(end, pattern='^' + str(END) + '$'),
             ]

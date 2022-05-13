@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-05-13 11:25+0200\n"
+"POT-Creation-Date: 2022-05-13 14:01+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,18 +17,27 @@ msgstr ""
 "Content-Type: text/plain; charset=CHARSET\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: main.py:50
+#: main.py:52
 msgid "Cancel"
 msgstr ""
 
-#: main.py:64
+#: main.py:66
 msgid ""
 "Commands:\n"
 " /start - Start a conversation\n"
 " /stop - Stop a current action and return to start menu"
 msgstr ""
 
-#: main.py:108 main.py:118 main.py:127
+#: main.py:93
+#, python-format
+msgid "Page %s"
+msgstr ""
+
+#: main.py:129
+msgid "Okay, give me the name of the host"
+msgstr ""
+
+#: main.py:151 main.py:161 main.py:170
 #, python-format
 msgid ""
 "Hey, I'm %s !\n"
@@ -38,52 +47,56 @@ msgid ""
 "   Choose an option:"
 msgstr ""
 
-#: main.py:133
+#: main.py:177
+msgid "Search host name"
+msgstr ""
+
+#: main.py:180
 msgid "All Hosts"
 msgstr ""
 
-#: main.py:136 main.py:145
+#: main.py:183 main.py:193
 msgid "Settings"
 msgstr ""
 
-#: main.py:137 main.py:147
+#: main.py:184 main.py:195
 msgid "Done"
 msgstr ""
 
-#: main.py:143
+#: main.py:191
 msgid "The server is incorrect. Please change the name in setting."
 msgstr ""
 
-#: main.py:161
+#: main.py:209
 msgid "Change language"
 msgstr ""
 
-#: main.py:162
+#: main.py:210
 msgid "Change server"
 msgstr ""
 
-#: main.py:165
+#: main.py:213
 msgid "Choose what you want to change"
 msgstr ""
 
-#: main.py:175
+#: main.py:223
 msgid "Please choose your language"
 msgstr ""
 
-#: main.py:200
+#: main.py:248
 msgid "Choose one server or cancel"
 msgstr ""
 
-#: main.py:202
+#: main.py:250
 msgid ""
 "The file *config.yaml* doesn't exists. Create file or use environment "
 "variables."
 msgstr ""
 
-#: main.py:227
+#: main.py:275
 msgid "Okay, bye."
 msgstr ""
 
-#: main.py:241
+#: main.py:289
 msgid "See you !"
 msgstr ""

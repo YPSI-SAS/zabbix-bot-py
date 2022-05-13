@@ -25,3 +25,19 @@ class API:
       return json_data['result']
     else:
       return {}
+
+  def get_list_hosts_with_name(self, name):
+    params = {
+      'output': ['name','status'],
+      'sortfield':'name',
+      "search": {
+            "host": "*"+name+"*"
+        },
+      "searchWildcardsEnabled": True,
+    }
+    status_code, text = self.request_post(params=params, method='host.get')
+    json_data = json.loads(text)
+    if status_code==200:
+      return json_data['result']
+    else:
+      return {}

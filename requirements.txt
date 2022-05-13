@@ -1,0 +1,7 @@
+wheel
+python-telegram-bot
+responses
+pytest==5.4.3
+pyyaml
+numpy
+matplotlib==3.2.2

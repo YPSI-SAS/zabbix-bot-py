@@ -1,0 +1,30 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: \n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2022-05-13 11:19+0200\n"
+"PO-Revision-Date: 2022-05-13 11:20+0200\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"Language: en\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Poedit 3.0.1\n"
+
+#: action.py:26
+msgid "I didn't find any hosts. Please cancel\n"
+msgstr "I didn't find any hosts. Please cancel\n"
+
+#: action.py:29
+msgid "I found one host. Please choose a host or cancel\n"
+msgstr "I found one host. Please choose a host or cancel\n"
+
+#: action.py:31
+msgid "I found many hosts. Please choose one host or cancel\n"
+msgstr "I found many hosts. Please choose one host or cancel\n"

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-05-13 09:57+0200\n"
+"POT-Creation-Date: 2022-05-13 11:25+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,18 +17,18 @@ msgstr ""
 "Content-Type: text/plain; charset=CHARSET\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: main.py:47
+#: main.py:50
 msgid "Cancel"
 msgstr ""
 
-#: main.py:63
+#: main.py:64
 msgid ""
 "Commands:\n"
 " /start - Start a conversation\n"
 " /stop - Stop a current action and return to start menu"
 msgstr ""
 
-#: main.py:79 main.py:89 main.py:98
+#: main.py:108 main.py:118 main.py:127
 #, python-format
 msgid ""
 "Hey, I'm %s !\n"
@@ -38,48 +38,52 @@ msgid ""
 "   Choose an option:"
 msgstr ""
 
-#: main.py:104 main.py:111
+#: main.py:133
+msgid "All Hosts"
+msgstr ""
+
+#: main.py:136 main.py:145
 msgid "Settings"
 msgstr ""
 
-#: main.py:105 main.py:113
+#: main.py:137 main.py:147
 msgid "Done"
 msgstr ""
 
-#: main.py:109
+#: main.py:143
 msgid "The server is incorrect. Please change the name in setting."
 msgstr ""
 
-#: main.py:127
+#: main.py:161
 msgid "Change language"
 msgstr ""
 
-#: main.py:128
+#: main.py:162
 msgid "Change server"
 msgstr ""
 
-#: main.py:131
+#: main.py:165
 msgid "Choose what you want to change"
 msgstr ""
 
-#: main.py:141
+#: main.py:175
 msgid "Please choose your language"
 msgstr ""
 
-#: main.py:166
+#: main.py:200
 msgid "Choose one server or cancel"
 msgstr ""
 
-#: main.py:168
+#: main.py:202
 msgid ""
 "The file *config.yaml* doesn't exists. Create file or use environment "
 "variables."
 msgstr ""
 
-#: main.py:193
+#: main.py:227
 msgid "Okay, bye."
 msgstr ""
 
-#: main.py:207
+#: main.py:241
 msgid "See you !"
 msgstr ""

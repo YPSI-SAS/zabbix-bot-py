@@ -3,7 +3,7 @@
 import logging
 from telegram.ext import (Updater, CommandHandler, CallbackQueryHandler,ConversationHandler,MessageHandler,Filters,RegexHandler)
 from telegram import InlineKeyboardMarkup,InlineKeyboardButton,ReplyKeyboardRemove,ChatAction,ReplyKeyboardMarkup,ParseMode
-from action import build_menu, display_object_button, display_host_characteristics
+from action import build_menu, display_object_button, display_host_characteristics,display_item_characteristics
 from functools import wraps
 import gettext
 from emojiDict import telegramEmojiDict
@@ -32,6 +32,8 @@ HOST_MENU_TAG, TAG_HOST = map(chr, range(18,20))
 HOST_GROUP_MENU, CHOOSE_HOSTGROUP = map(chr, range(20,22))
 DISPLAY_ACTION = map(chr, range(22,23))
 DISABLE_HOST, ENABLE_HOST, ITEM_MENU, TRIGGER_MENU, PROBLEM_MENU = map(chr, range(23,28))
+CHOOSE_ITEM, DISABLE_ITEM, ENABLE_ITEM, GRAPH_MENU = map(chr,range(28,32))
+DISPLAY_ACTION_ITEM = map(chr, range(32,33))
 
 LANG = 'en'
 NAME_SERVER=""
@@ -76,9 +78,9 @@ def help_msg(update,context):
         update.message.reply_text(text=message, parse_mode=ParseMode.MARKDOWN)
     context.user_data[START_OVER]= False
 
-#navigation_host permits to navigate in the pages of hosts 
+#navigation_elements permits to navigate in the pages of elements 
 @send_typing_action
-def navigation_host(update,context):
+def navigation_elements(update,context):
     ud = context.user_data
     if ud['TYPE_REQUEST'] == "all_host":
         elements_list= ud[API_VAR].get_list_hosts()
@@ -89,7 +91,9 @@ def navigation_host(update,context):
     elif ud['TYPE_REQUEST'] == "all_hostgroup":
         elements_list= ud[API_VAR].get_list_hostgroups()
     elif ud['TYPE_REQUEST'] == "all_host_hostgroup":
-        elements_list= ud[API_VAR].get_list_hosts_with_hostgroup(ud['ID_HOSTGROUP'])  
+        elements_list= ud[API_VAR].get_list_hosts_with_hostgroup(ud['ID_HOSTGROUP'])
+    elif ud['TYPE_REQUEST'] == "all_item":
+        elements_list= ud[API_VAR].get_list_items(ud['ID_HOST'])
     numberHostDisplay = 26
     numberPages = int(len(elements_list)/numberHostDisplay)
     if ud['NUMBER'] < numberPages:
@@ -118,23 +122,21 @@ def list_host(update, context):
     ud['TYPE_REQUEST'] = 'all_host'
     ud['OBJECT'] = "host"
     ud['NUMBER']=0
-    navigation_host(update,context)
+    navigation_elements(update,context)
     return CHOOSE_HOST
 
 #next permits to pass at the next page
 def next(update,context):
     ud = context.user_data
-    ud['NUMBER']=ud['NUMBER']+1
-    
-    navigation_host(update,context)
+    ud['NUMBER']=ud['NUMBER']+1    
+    navigation_elements(update,context)
     return CHOOSE_HOST
 
 #precedent permits to pass at the precedent page
 def precedent(update,context):
     ud = context.user_data
     ud['NUMBER']=ud['NUMBER']-1
-    
-    navigation_host(update,context)
+    navigation_elements(update,context)
     return CHOOSE_HOST
 
 #get_name_host recovery the name enter by the user
@@ -156,7 +158,7 @@ def list_host_with_name(update, context):
     ud['TYPE_REQUEST'] = "all_host_name"
     ud['OBJECT'] = "host"
     ud['NUMBER']=0
-    navigation_host(update,context)    
+    navigation_elements(update,context)    
     return CHOOSE_HOST
 
 #list_host_with_tag display the list of host which contains the tag of the host enter by the user
@@ -166,8 +168,19 @@ def list_host_with_tag(update, context):
     ud['TYPE_REQUEST'] = "all_host_tag"
     ud['OBJECT'] = "host"
     ud['NUMBER']=0
-    navigation_host(update,context)    
+    navigation_elements(update,context)    
     return CHOOSE_HOST
+
+#list_item display the list of item of the host selected by the user
+def list_item(update, context):
+    ud = context.user_data
+    ud['TYPE_REQUEST'] = "all_item"
+    Cdata=json.loads(ud['HOST_INFO'])
+    ud['ID_HOST']=Cdata['HID']
+    ud['OBJECT'] = "item"
+    ud['NUMBER']=0
+    navigation_elements(update,context)    
+    return CHOOSE_ITEM
 
 #list_hostgroups permits to recovery and display hostgroups
 def list_hostgroups(update,context):
@@ -175,7 +188,7 @@ def list_hostgroups(update,context):
     ud['TYPE_REQUEST'] = "all_hostgroup"
     ud['OBJECT'] = "HG"
     ud['NUMBER']=0
-    navigation_host(update,context) 
+    navigation_elements(update,context) 
     return CHOOSE_HOSTGROUP 
 
 #select_hostgroups permits to display host belonging to hostgroup
@@ -187,7 +200,7 @@ def select_hostgroups(update,context):
     ud['TYPE_REQUEST'] = "all_host_hostgroup"
     ud['OBJECT'] = "host"
     ud['NUMBER']=0
-    navigation_host(update,context) 
+    navigation_elements(update,context) 
     return CHOOSE_HOST
 
 #display_action_host return a list of buttons for make the sub-menu
@@ -216,6 +229,31 @@ def display_action_host(context):
     cancel_button = get_cancel_button()
     return button_list,cancel_button
 
+#display_action_item return a list of buttons for make the sub-menu
+def display_action_item(context):
+    ud = context.user_data
+    button_list = list()
+    Cdata=json.loads(ud['ITEM_INFO'])
+    itemID=Cdata['IID']
+    list_item=ud[API_VAR].get_item_info(itemID)
+
+    for item in list_item:
+         #Display active checks or not
+        if item["status"]=='0':
+            button_list.append(InlineKeyboardButton(text=telegramEmojiDict['prohibited']+_('Disable'),callback_data=str(DISABLE_ITEM)))
+        else:
+            button_list.append(InlineKeyboardButton(text=telegramEmojiDict['check mark button']+_('Enable'), callback_data=str(ENABLE_ITEM)))
+    
+        if item['value_type']=='0' or item['value_type']=='3':
+            button_list.append(InlineKeyboardButton(text=telegramEmojiDict['chart decreasing']+_('Graphs'),callback_data=str(GRAPH_MENU)))
+        if len(item["triggers"])!=0:
+            button_list.append(InlineKeyboardButton(text=telegramEmojiDict['vertical traffic light']+_('Triggers'),callback_data=str(TRIGGER_MENU)))
+        if len(item['hosts'])!=0:
+            button_list.append(InlineKeyboardButton(text=telegramEmojiDict['laptop']+_('Host'),callback_data='{"HID":"'+item['hosts'][0]['hostid']+'"}'))
+    
+    cancel_button = get_cancel_button()
+    return button_list,cancel_button
+
 #select_host permits to display the informations and the sub-menu for the host selected
 @send_typing_action
 def select_host(update,context):
@@ -227,13 +265,24 @@ def select_host(update,context):
     display_message_bot(update,context,message,reply_markup)
     return DISPLAY_ACTION
 
+#select_item permits to display the informations and the sub-menu for the item selected
+@send_typing_action
+def select_item(update,context):
+    ud = context.user_data
+    ud['ITEM_INFO']=update.callback_query.data
+    message=display_item_characteristics(context,LANG, ud[API_VAR])
+    button_list, cancel_button = display_action_item(context)
+    reply_markup = InlineKeyboardMarkup(build_menu(button_list,n_cols=2,cancel_button=cancel_button)) 
+    display_message_bot(update,context,message,reply_markup)
+    return DISPLAY_ACTION_ITEM
+
 #enable_host permits to enable the host selected
 @send_typing_action
 def enable_host(update,context):
     ud = context.user_data
     Cdata=json.loads(ud['HOST_INFO'])
-    hostID=Cdata['HID']
-    ud[API_VAR].update_host_status(hostID, 0)
+    host_ID=Cdata['HID']
+    ud[API_VAR].update_host_status(host_ID, 0)
     message_update = _('Host enabled OK\n')
     button_list, cancel_button = display_action_host(context)
     reply_markup = InlineKeyboardMarkup(build_menu(button_list,n_cols=2,cancel_button=cancel_button)) 
@@ -245,12 +294,38 @@ def enable_host(update,context):
 def disable_host(update,context):
     ud = context.user_data
     Cdata=json.loads(ud['HOST_INFO'])
-    hostID=Cdata['HID']
-    ud[API_VAR].update_host_status(hostID, 1)
+    host_ID=Cdata['HID']
+    ud[API_VAR].update_host_status(host_ID, 1)
     message_update = _('Host disabled OK\n')
     button_list, cancel_button = display_action_host(context)
     reply_markup = InlineKeyboardMarkup(build_menu(button_list,n_cols=2,cancel_button=cancel_button)) 
     message_object=display_host_characteristics(context,LANG, ud[API_VAR])
+    update.callback_query.edit_message_text(text=message_update+message_object,parse_mode=ParseMode.MARKDOWN,reply_markup=reply_markup)
+
+#enable_item permits to enable the item selected
+@send_typing_action
+def enable_item(update,context):
+    ud = context.user_data
+    Cdata=json.loads(ud['ITEM_INFO'])
+    item_ID=Cdata['IID']
+    ud[API_VAR].update_item_status(item_ID, 0)
+    message_update = _('Item enabled OK\n')
+    button_list, cancel_button = display_action_item(context)
+    reply_markup = InlineKeyboardMarkup(build_menu(button_list,n_cols=2,cancel_button=cancel_button)) 
+    message_object=display_item_characteristics(context,LANG, ud[API_VAR])
+    update.callback_query.edit_message_text(text=message_update+message_object,parse_mode=ParseMode.MARKDOWN,reply_markup=reply_markup)
+
+#disable_item permits to disable the item selected
+@send_typing_action
+def disable_item(update,context):
+    ud = context.user_data
+    Cdata=json.loads(ud['ITEM_INFO'])
+    item_ID=Cdata['IID']
+    ud[API_VAR].update_item_status(item_ID, 1)
+    message_update = _('Item disabled OK\n')
+    button_list, cancel_button = display_action_item(context)
+    reply_markup = InlineKeyboardMarkup(build_menu(button_list,n_cols=2,cancel_button=cancel_button)) 
+    message_object=display_item_characteristics(context,LANG, ud[API_VAR])
     update.callback_query.edit_message_text(text=message_update+message_object,parse_mode=ParseMode.MARKDOWN,reply_markup=reply_markup)
 
 #start display the start message
@@ -422,8 +497,19 @@ def main():
         entry_points=[CallbackQueryHandler(select_host, pattern='^{"HID*')],
         states={
             DISPLAY_ACTION:[
+                CallbackQueryHandler(list_item, pattern='^' + str(ITEM_MENU) + '$'),
                 CallbackQueryHandler(enable_host, pattern='^' + str(ENABLE_HOST) + '$'),
                 CallbackQueryHandler(disable_host, pattern='^' + str(DISABLE_HOST) + '$'),
+                CallbackQueryHandler(cancel, pattern='^' + str(CANCEL) + '$'),
+            ],
+            CHOOSE_ITEM:[
+                CallbackQueryHandler(select_item, pattern='^{"IID*'),
+                CallbackQueryHandler(cancel, pattern='^' + str(CANCEL) + '$'),
+            ],
+            DISPLAY_ACTION_ITEM:[
+                CallbackQueryHandler(select_host, pattern='^{"HID*'),
+                CallbackQueryHandler(enable_item, pattern='^' + str(ENABLE_ITEM) + '$'),
+                CallbackQueryHandler(disable_item, pattern='^' + str(DISABLE_ITEM) + '$'),
                 CallbackQueryHandler(cancel, pattern='^' + str(CANCEL) + '$'),
             ]
         },

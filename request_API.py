@@ -132,3 +132,46 @@ class API:
       return json_data['result']
     else:
       return {}
+  
+  #get_list_items permits to get all items of the selected host
+  def get_list_items(self, id_host):
+    params = {
+      "hostids":id_host,
+      "sortfield":"name",
+      "output":["name","itemid","status"],
+    }
+    status_code, text = self.request_post(params=params, method='item.get')
+    json_data = json.loads(text)
+    if status_code==200:
+      return json_data['result']
+    else:
+      return {}
+  
+  #get_item_info permits to get all information of the selected item
+  def get_item_info(self, id_item):
+    params = {
+      "itemids":id_item,
+      "output":["name","itemid","lastclock","lastvalue","status", "value_type","units"],
+      "selectHosts":["hostid","name"],
+      "selectTriggers": ["triggerid","description","value","priority"],
+      "selectTags": ["tag","value"]
+    }
+    status_code, text = self.request_post(params=params, method='item.get')
+    json_data = json.loads(text)
+    if status_code==200:
+      return json_data['result']
+    else:
+      return {}
+
+  #update_item_status permits to update status of item
+  def update_item_status(self, id_item, status):
+    params = {
+      "itemid":id_item,
+      "status": status
+    }
+    status_code, text = self.request_post(params=params, method='item.update')
+    json_data = json.loads(text)
+    if status_code==200:
+      return json_data['result']
+    else:
+      return {}

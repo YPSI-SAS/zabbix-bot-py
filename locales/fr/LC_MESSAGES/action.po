@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-05-16 10:59+0200\n"
-"PO-Revision-Date: 2022-05-16 11:00+0200\n"
+"POT-Creation-Date: 2022-05-16 15:29+0200\n"
+"PO-Revision-Date: 2022-05-16 15:32+0200\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: fr\n"
@@ -17,35 +17,48 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "X-Generator: Poedit 3.0.1\n"
 
-#: action.py:28
+#: action.py:29
 msgid "I didn't find any hosts. Please cancel\n"
 msgstr "Je n'ai pas trouvé d'hôte. Veuillez annuler\n"
 
-#: action.py:31
+#: action.py:32
 msgid "I found one host. Please choose a host or cancel\n"
 msgstr "J’ai trouvé un hôte. Veuillez choisir l'hôte ou annuler\n"
 
-#: action.py:33
+#: action.py:34
 msgid "I found many hosts. Please choose one host or cancel\n"
 msgstr "J’ai trouvé plusieurs hôtes. Veuillez choisir un hôte ou annuler\n"
 
-#: action.py:39
+#: action.py:40
 msgid "I didn't find any hostgroups. Please cancel\n"
 msgstr "Je n'ai pas trouvé de groupe d'hôtes. Veuillez annuler\n"
 
-#: action.py:42
+#: action.py:43
 msgid "I found one hostgroup. Please choose a hostgroup or cancel\n"
 msgstr ""
 "J’ai trouvé un groupe d'hôtes. Veuillez choisir le groupe d'hôtes ou "
 "annuler\n"
 
-#: action.py:44
+#: action.py:45
 msgid "I found many hostgroups. Please choose one hostgroup or cancel\n"
 msgstr ""
 "J’ai trouvé plusieurs groupe d'hôtes. Veuillez choisir un groupe d'hôtes ou "
 "annuler\n"
 
-#: action.py:75
+#: action.py:51
+msgid "I didn't find any items. Please cancel\n"
+msgstr "Je n'ai pas trouvé d'élément. Veuillez annuler\n"
+
+#: action.py:54
+msgid "I found one item. Please choose a item or cancel\n"
+msgstr "J’ai trouvé un élément. Veuillez choisir l'élément ou annuler\n"
+
+#: action.py:56
+msgid "I found many items. Please choose one item or cancel\n"
+msgstr ""
+"J’ai trouvé plusieurs éléments. Veuillez choisir un élément ou annuler\n"
+
+#: action.py:86
 #, python-format
 msgid ""
 "Host *%s* is *%s*\n"
@@ -54,10 +67,25 @@ msgstr ""
 "L'hôte *%s* est *%s*\n"
 " %s"
 
-#: action.py:81
+#: action.py:107
+#, python-format
+msgid ""
+"Host *%s*\n"
+"Item *%s* is *%s*\n"
+"Last value: *%s %s*\n"
+"Last check: *%s*\n"
+" %s"
+msgstr ""
+"Hôte *%s*\n"
+"L'élément *%s* est *%s*\n"
+"Dernière valeur: *%s %s*\n"
+"Dernière vérification: *%s*\n"
+" %s"
+
+#: action.py:114
 msgid "enabled"
 msgstr "activé"
 
-#: action.py:82
+#: action.py:115
 msgid "disabled"
 msgstr "désactivé"

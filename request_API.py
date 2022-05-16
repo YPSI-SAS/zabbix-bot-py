@@ -15,6 +15,7 @@ class API:
     r=requests.post(self.url+'/api_jsonrpc.php',headers=headers,json=payload)
     return r.status_code,r.text
 
+  #get_list_hosts permits to get all hosts
   def get_list_hosts(self):
     params = {
       'output': ['name','status', 'hostid'],
@@ -27,6 +28,7 @@ class API:
     else:
       return {}
 
+  #get_list_hosts_with_name permits to get all hosts with a specific name
   def get_list_hosts_with_name(self, name):
     params = {
       'output': ['name','status', 'hostid'],
@@ -43,6 +45,7 @@ class API:
     else:
       return {}
   
+  #get_list_hosts_with_tag permits to get all hosts with a specific tag
   def get_list_hosts_with_tag(self, tag):
     tags = tag.split("=")
     params = {
@@ -62,6 +65,7 @@ class API:
     else:
       return {}
 
+  #get_list_hostgroups permits to get all hosts groups
   def get_list_hostgroups(self):
     params = {
       'output': ['name','groupid']
@@ -73,6 +77,7 @@ class API:
     else:
       return {}
   
+  #get_list_hosts_with_hostgroup permits to get all hosts in hosts group
   def get_list_hosts_with_hostgroup(self, id_hostgroup):
     params = {
       'output': ['name','status', 'hostid'],
@@ -80,6 +85,48 @@ class API:
       'groupids': id_hostgroup
     }
     status_code, text = self.request_post(params=params, method='host.get')
+    json_data = json.loads(text)
+    if status_code==200:
+      return json_data['result']
+    else:
+      return {}
+
+  #get_host_info permits to get all information of the selected host
+  def get_host_info(self, id_host):
+    params = {
+      "hostids":id_host,
+        "output": ["name","status","hostid"],
+        "selectItems": ["name","itemid"],
+        "selectTriggers": ["triggerid","description","value","priority"],
+        "selectTags": ["tag","value"]
+    }
+    status_code, text = self.request_post(params=params, method='host.get')
+    json_data = json.loads(text)
+    if status_code==200:
+      return json_data['result']
+    else:
+      return {}
+  
+  #get_host_problem permits to get all problems of the selected host
+  def get_host_problem(self, id_host):
+    params = {
+      "hostids":id_host,
+      "output": ["eventid","name","clock","acknowledged","severity"]
+    }
+    status_code, text = self.request_post(params=params, method='problem.get')
+    json_data = json.loads(text)
+    if status_code==200:
+      return json_data['result']
+    else:
+      return {}
+
+  #update_host_status permits to update status of host
+  def update_host_status(self, id_host, status):
+    params = {
+      "hostid":id_host,
+      "status": status
+    }
+    status_code, text = self.request_post(params=params, method='host.update')
     json_data = json.loads(text)
     if status_code==200:
       return json_data['result']

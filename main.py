@@ -3,13 +3,15 @@
 import logging
 from telegram.ext import (Updater, CommandHandler, CallbackQueryHandler,ConversationHandler,MessageHandler,Filters,RegexHandler)
 from telegram import InlineKeyboardMarkup,InlineKeyboardButton,ReplyKeyboardRemove,ChatAction,ReplyKeyboardMarkup,ParseMode
-from action import build_menu, display_object_button
+from action import build_menu, display_object_button, display_host_characteristics
 from functools import wraps
 import gettext
 from emojiDict import telegramEmojiDict
 import json
 import yaml
 import os
+import time
+
 
 from request_API import API
 
@@ -28,6 +30,8 @@ PRECEDENT, NEXT = map(chr, range(14,16))
 HOST_MENU_NAME, NAME_HOST = map(chr, range(16,18))
 HOST_MENU_TAG, TAG_HOST = map(chr, range(18,20))
 HOST_GROUP_MENU, CHOOSE_HOSTGROUP = map(chr, range(20,22))
+DISPLAY_ACTION = map(chr, range(22,23))
+DISABLE_HOST, ENABLE_HOST, ITEM_MENU, TRIGGER_MENU, PROBLEM_MENU = map(chr, range(23,28))
 
 LANG = 'en'
 NAME_SERVER=""
@@ -185,6 +189,69 @@ def select_hostgroups(update,context):
     ud['NUMBER']=0
     navigation_host(update,context) 
     return CHOOSE_HOST
+
+#display_action_host return a list of buttons for make the sub-menu
+def display_action_host(context):
+    ud = context.user_data
+    button_list = list()
+    Cdata=json.loads(ud['HOST_INFO'])
+    hostID=Cdata['HID']
+    list_host=ud[API_VAR].get_host_info(hostID)
+    list_host_problems=ud[API_VAR].get_host_problem(hostID)
+
+    for host in list_host:
+         #Display active checks or not
+        if host["status"]=='0':
+            button_list.append(InlineKeyboardButton(text=telegramEmojiDict['prohibited']+_('Disable'),callback_data=str(DISABLE_HOST)))
+        else:
+            button_list.append(InlineKeyboardButton(text=telegramEmojiDict['check mark button']+_('Enable'), callback_data=str(ENABLE_HOST)))
+    
+        if len(host["items"])!=0:
+            button_list.append(InlineKeyboardButton(text=telegramEmojiDict['spiral notepad']+_('Items'),callback_data=str(ITEM_MENU)))
+        if len(host["triggers"])!=0:
+            button_list.append(InlineKeyboardButton(text=telegramEmojiDict['vertical traffic light']+_('Triggers'),callback_data=str(TRIGGER_MENU)))
+        if len(list_host_problems)!=0:
+            button_list.append(InlineKeyboardButton(text=telegramEmojiDict['police car light']+_('Problems'),callback_data=str(PROBLEM_MENU)))
+    
+    cancel_button = get_cancel_button()
+    return button_list,cancel_button
+
+#select_host permits to display the informations and the sub-menu for the host selected
+@send_typing_action
+def select_host(update,context):
+    ud = context.user_data
+    ud['HOST_INFO']=update.callback_query.data
+    message=display_host_characteristics(context,LANG, ud[API_VAR])
+    button_list, cancel_button = display_action_host(context)
+    reply_markup = InlineKeyboardMarkup(build_menu(button_list,n_cols=2,cancel_button=cancel_button)) 
+    display_message_bot(update,context,message,reply_markup)
+    return DISPLAY_ACTION
+
+#enable_host permits to enable the host selected
+@send_typing_action
+def enable_host(update,context):
+    ud = context.user_data
+    Cdata=json.loads(ud['HOST_INFO'])
+    hostID=Cdata['HID']
+    ud[API_VAR].update_host_status(hostID, 0)
+    message_update = _('Host enabled OK\n')
+    button_list, cancel_button = display_action_host(context)
+    reply_markup = InlineKeyboardMarkup(build_menu(button_list,n_cols=2,cancel_button=cancel_button)) 
+    message_object=display_host_characteristics(context,LANG, ud[API_VAR])
+    update.callback_query.edit_message_text(text=message_update+message_object,parse_mode=ParseMode.MARKDOWN,reply_markup=reply_markup)
+
+#disable_host permits to disable the host selected
+@send_typing_action
+def disable_host(update,context):
+    ud = context.user_data
+    Cdata=json.loads(ud['HOST_INFO'])
+    hostID=Cdata['HID']
+    ud[API_VAR].update_host_status(hostID, 1)
+    message_update = _('Host disabled OK\n')
+    button_list, cancel_button = display_action_host(context)
+    reply_markup = InlineKeyboardMarkup(build_menu(button_list,n_cols=2,cancel_button=cancel_button)) 
+    message_object=display_host_characteristics(context,LANG, ud[API_VAR])
+    update.callback_query.edit_message_text(text=message_update+message_object,parse_mode=ParseMode.MARKDOWN,reply_markup=reply_markup)
 
 #start display the start message
 def start(update,context):
@@ -350,6 +417,21 @@ def main():
     # Get the dispatcher to register handlers
     dp = updater.dispatcher
 
+    #Add conversation handler for host
+    host_conv = ConversationHandler(
+        entry_points=[CallbackQueryHandler(select_host, pattern='^{"HID*')],
+        states={
+            DISPLAY_ACTION:[
+                CallbackQueryHandler(enable_host, pattern='^' + str(ENABLE_HOST) + '$'),
+                CallbackQueryHandler(disable_host, pattern='^' + str(DISABLE_HOST) + '$'),
+                CallbackQueryHandler(cancel, pattern='^' + str(CANCEL) + '$'),
+            ]
+        },
+        fallbacks=[CommandHandler('stop', stop_nested)],
+        map_to_parent={
+            STOPPING: STOPPING,
+        }
+    )
 
     # Add conversation handler for change server
     change_server_conv = ConversationHandler(
@@ -372,6 +454,7 @@ def main():
         entry_points=[CallbackQueryHandler(list_host, pattern='^' + str(ALL_MENU))],
         states={
             CHOOSE_HOST:[
+                host_conv,
                 CallbackQueryHandler(cancel, pattern='^' + str(CANCEL) + '$'),
                 CallbackQueryHandler(precedent, pattern='^' + str(PRECEDENT) + '$'),
                 CallbackQueryHandler(next, pattern='^' + str(NEXT) + '$'),
@@ -390,6 +473,7 @@ def main():
         states={
             NAME_HOST:[MessageHandler(Filters.regex(r'^[^\/]'), list_host_with_name)],
             CHOOSE_HOST:[
+                host_conv,
                 CallbackQueryHandler(cancel, pattern='^' + str(CANCEL) + '$'),
                 CallbackQueryHandler(precedent, pattern='^' + str(PRECEDENT) + '$'),
                 CallbackQueryHandler(next, pattern='^' + str(NEXT) + '$'),
@@ -408,6 +492,7 @@ def main():
         states={
             TAG_HOST:[MessageHandler(Filters.regex(r'^[a-zA-Z0-9\-]+=[a-zA-Z0-9\-]+$'), list_host_with_tag)],
             CHOOSE_HOST:[
+                host_conv,
                 CallbackQueryHandler(cancel, pattern='^' + str(CANCEL) + '$'),
                 CallbackQueryHandler(precedent, pattern='^' + str(PRECEDENT) + '$'),
                 CallbackQueryHandler(next, pattern='^' + str(NEXT) + '$'),
@@ -431,6 +516,7 @@ def main():
                 CallbackQueryHandler(next, pattern='^' + str(NEXT) + '$'),
             ],
             CHOOSE_HOST:[
+                host_conv,
                 CallbackQueryHandler(cancel, pattern='^' + str(CANCEL) + '$'),
                 CallbackQueryHandler(precedent, pattern='^' + str(PRECEDENT) + '$'),
                 CallbackQueryHandler(next, pattern='^' + str(NEXT) + '$'),

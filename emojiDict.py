@@ -27,5 +27,7 @@ telegramEmojiDict = {
     'electric plug' : u'\U0001f50c',
     'check mark' : u'\U00002714',
     'chart decreasing' : u'\U0001f4c9',
-    'large orange diamond' : u'\U0001f536'
+    'large orange diamond' : u'\U0001f536',
+    'vertical traffic light' : u'\U0001f6a6',
+    'police car light': u'\U0001f6a8'
 }

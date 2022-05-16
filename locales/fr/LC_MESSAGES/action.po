@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-05-13 15:18+0200\n"
-"PO-Revision-Date: 2022-05-13 15:20+0200\n"
+"POT-Creation-Date: 2022-05-16 10:59+0200\n"
+"PO-Revision-Date: 2022-05-16 11:00+0200\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: fr\n"
@@ -17,26 +17,47 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "X-Generator: Poedit 3.0.1\n"
 
-#: action.py:26
+#: action.py:28
 msgid "I didn't find any hosts. Please cancel\n"
 msgstr "Je n'ai pas trouvé d'hôte. Veuillez annuler\n"
 
-#: action.py:29
+#: action.py:31
 msgid "I found one host. Please choose a host or cancel\n"
 msgstr "J’ai trouvé un hôte. Veuillez choisir l'hôte ou annuler\n"
 
-#: action.py:31
+#: action.py:33
 msgid "I found many hosts. Please choose one host or cancel\n"
 msgstr "J’ai trouvé plusieurs hôtes. Veuillez choisir un hôte ou annuler\n"
 
-#: action.py:37
+#: action.py:39
 msgid "I didn't find any hostgroups. Please cancel\n"
 msgstr "Je n'ai pas trouvé de groupe d'hôtes. Veuillez annuler\n"
 
-#: action.py:40
-msgid "I found one hostgroup. Please choose a hostgroup or cancel\n"
-msgstr "J’ai trouvé un groupe d'hôtes. Veuillez choisir le groupe d'hôtes ou annuler\n"
-
 #: action.py:42
+msgid "I found one hostgroup. Please choose a hostgroup or cancel\n"
+msgstr ""
+"J’ai trouvé un groupe d'hôtes. Veuillez choisir le groupe d'hôtes ou "
+"annuler\n"
+
+#: action.py:44
 msgid "I found many hostgroups. Please choose one hostgroup or cancel\n"
-msgstr "J’ai trouvé plusieurs groupe d'hôtes. Veuillez choisir un groupe d'hôtes ou annuler\n"
+msgstr ""
+"J’ai trouvé plusieurs groupe d'hôtes. Veuillez choisir un groupe d'hôtes ou "
+"annuler\n"
+
+#: action.py:75
+#, python-format
+msgid ""
+"Host *%s* is *%s*\n"
+" %s"
+msgstr ""
+"L'hôte *%s* est *%s*\n"
+" %s"
+
+#: action.py:81
+msgid "enabled"
+msgstr "activé"
+
+#: action.py:82
+msgid "disabled"
+msgstr "désactivé"

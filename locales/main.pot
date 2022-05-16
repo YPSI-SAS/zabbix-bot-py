@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-05-13 15:18+0200\n"
+"POT-Creation-Date: 2022-05-16 10:54+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,31 +17,59 @@ msgstr ""
 "Content-Type: text/plain; charset=CHARSET\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: main.py:54
+#: main.py:58
 msgid "Cancel"
 msgstr ""
 
-#: main.py:68
+#: main.py:72
 msgid ""
 "Commands:\n"
 " /start - Start a conversation\n"
 " /stop - Stop a current action and return to start menu"
 msgstr ""
 
-#: main.py:101
+#: main.py:105
 #, python-format
 msgid "Page %s"
 msgstr ""
 
-#: main.py:138
+#: main.py:142
 msgid "Okay, give me the name of the host"
 msgstr ""
 
-#: main.py:144
+#: main.py:148
 msgid "Okay, give me the tag of the host (NAME=VALUE)"
 msgstr ""
 
-#: main.py:197 main.py:207 main.py:216
+#: main.py:205
+msgid "Disable"
+msgstr ""
+
+#: main.py:207
+msgid "Enable"
+msgstr ""
+
+#: main.py:210
+msgid "Items"
+msgstr ""
+
+#: main.py:212
+msgid "Triggers"
+msgstr ""
+
+#: main.py:214
+msgid "Problems"
+msgstr ""
+
+#: main.py:237
+msgid "Host enabled OK\n"
+msgstr ""
+
+#: main.py:250
+msgid "Host disabled OK\n"
+msgstr ""
+
+#: main.py:265 main.py:275 main.py:284
 #, python-format
 msgid ""
 "Hey, I'm %s !\n"
@@ -51,64 +79,64 @@ msgid ""
 "   Choose an option:"
 msgstr ""
 
-#: main.py:223
+#: main.py:291
 msgid "Search host name"
 msgstr ""
 
-#: main.py:224
+#: main.py:292
 msgid "Search host tag"
 msgstr ""
 
-#: main.py:227
+#: main.py:295
 msgid "Hostgroups"
 msgstr ""
 
-#: main.py:228
+#: main.py:296
 msgid "All Hosts"
 msgstr ""
 
-#: main.py:231 main.py:241
+#: main.py:299 main.py:309
 msgid "Settings"
 msgstr ""
 
-#: main.py:232 main.py:243
+#: main.py:300 main.py:311
 msgid "Done"
 msgstr ""
 
-#: main.py:239
+#: main.py:307
 msgid "The server is incorrect. Please change the name in setting."
 msgstr ""
 
-#: main.py:257
+#: main.py:325
 msgid "Change language"
 msgstr ""
 
-#: main.py:258
+#: main.py:326
 msgid "Change server"
 msgstr ""
 
-#: main.py:261
+#: main.py:329
 msgid "Choose what you want to change"
 msgstr ""
 
-#: main.py:271
+#: main.py:339
 msgid "Please choose your language"
 msgstr ""
 
-#: main.py:296
+#: main.py:364
 msgid "Choose one server or cancel"
 msgstr ""
 
-#: main.py:298
+#: main.py:366
 msgid ""
 "The file *config.yaml* doesn't exists. Create file or use environment "
 "variables."
 msgstr ""
 
-#: main.py:323
+#: main.py:391
 msgid "Okay, bye."
 msgstr ""
 
-#: main.py:337
+#: main.py:405
 msgid "See you !"
 msgstr ""

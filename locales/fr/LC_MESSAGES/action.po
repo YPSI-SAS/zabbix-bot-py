@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-05-16 16:31+0200\n"
-"PO-Revision-Date: 2022-05-16 16:36+0200\n"
+"POT-Creation-Date: 2022-05-17 11:35+0200\n"
+"PO-Revision-Date: 2022-05-17 11:38+0200\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: fr\n"
@@ -73,7 +73,24 @@ msgstr ""
 "J’ai trouvé plusieurs déclencheurs. Veuillez choisir un déclencheur ou "
 "annuler\n"
 
-#: action.py:97
+#: action.py:73
+msgid "I didn't find any problems. Please cancel\n"
+msgstr "Je n'ai pas trouvé de problème. Veuillez annuler\n"
+
+#: action.py:76
+msgid "I found one problem. Please choose a problem or cancel\n"
+msgstr "J’ai trouvé un problème. Veuillez choisir le problème ou annuler\n"
+
+#: action.py:78
+msgid "I found many problems. Please choose one problem or cancel\n"
+msgstr ""
+"J’ai trouvé plusieurs problèmes. Veuillez choisir un problème ou annuler\n"
+
+#: action.py:80
+msgid " since "
+msgstr " depuis "
+
+#: action.py:108
 #, python-format
 msgid ""
 "Host *%s* is *%s*\n"
@@ -82,7 +99,7 @@ msgstr ""
 "L'hôte *%s* est *%s*\n"
 " %s"
 
-#: action.py:118
+#: action.py:129
 #, python-format
 msgid ""
 "Host *%s*\n"
@@ -97,7 +114,7 @@ msgstr ""
 "Dernière vérification: *%s*\n"
 " %s"
 
-#: action.py:140
+#: action.py:151
 #, python-format
 msgid ""
 "Host *%s*\n"
@@ -114,42 +131,55 @@ msgstr ""
 "Valeur: *%s* depuis *%s*\n"
 " %s"
 
-#: action.py:146
+#: action.py:171
+#, python-format
+msgid ""
+"Problem on *%s*\t\t*%s*\n"
+"Since: *%s*\n"
+"Acknowledged: *%s*\n"
+"%s"
+msgstr ""
+"Problème sur *%s*\t\t*%s*\n"
+"Depuis: *%s*\n"
+"Acquitté: *%s*\n"
+"%s"
+
+#: action.py:177
 msgid "enabled"
 msgstr "activé"
 
-#: action.py:147
+#: action.py:178
 msgid "disabled"
 msgstr "désactivé"
 
-#: action.py:154
+#: action.py:185
 msgid "Not classified"
 msgstr "Non classé"
 
-#: action.py:155
+#: action.py:186
 msgid "Information"
 msgstr "Information"
 
-#: action.py:156
+#: action.py:187
 msgid "Warning"
 msgstr "Avertissement"
 
-#: action.py:157
+#: action.py:188
 msgid "Average"
 msgstr "Moyen"
 
-#: action.py:158
+#: action.py:189
 msgid "High"
 msgstr "Haut"
 
-#: action.py:159
+#: action.py:190
 msgid "Disaster"
 msgstr "Désastre"
 
-#: action.py:166
+#: action.py:217
 msgid "OK"
 msgstr "OK"
 
-#: action.py:167
+#: action.py:218
 msgid "PROBLEM"
 msgstr "PROBLÈME"

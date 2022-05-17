@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-05-16 15:29+0200\n"
+"POT-Creation-Date: 2022-05-16 16:31+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,75 +17,87 @@ msgstr ""
 "Content-Type: text/plain; charset=CHARSET\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: main.py:60
+#: main.py:61
 msgid "Cancel"
 msgstr ""
 
-#: main.py:74
+#: main.py:75
 msgid ""
 "Commands:\n"
 " /start - Start a conversation\n"
 " /stop - Stop a current action and return to start menu"
 msgstr ""
 
-#: main.py:109
+#: main.py:114
 #, python-format
 msgid "Page %s"
 msgstr ""
 
-#: main.py:144
+#: main.py:149
 msgid "Okay, give me the name of the host"
 msgstr ""
 
-#: main.py:150
+#: main.py:155
 msgid "Okay, give me the tag of the host (NAME=VALUE)"
 msgstr ""
 
-#: main.py:218 main.py:243
+#: main.py:245 main.py:270 main.py:296
 msgid "Disable"
 msgstr ""
 
-#: main.py:220 main.py:245
+#: main.py:247 main.py:272 main.py:298
 msgid "Enable"
 msgstr ""
 
-#: main.py:223
+#: main.py:250
 msgid "Items"
 msgstr ""
 
-#: main.py:225 main.py:250
+#: main.py:252 main.py:277
 msgid "Triggers"
 msgstr ""
 
-#: main.py:227
+#: main.py:254 main.py:305
 msgid "Problems"
 msgstr ""
 
-#: main.py:248
+#: main.py:275
 msgid "Graphs"
 msgstr ""
 
-#: main.py:252
+#: main.py:279 main.py:303
 msgid "Host"
 msgstr ""
 
-#: main.py:286
+#: main.py:301
+msgid "Item"
+msgstr ""
+
+#: main.py:350
 msgid "Host enabled OK\n"
 msgstr ""
 
-#: main.py:299
+#: main.py:363
 msgid "Host disabled OK\n"
 msgstr ""
 
-#: main.py:312
+#: main.py:376
 msgid "Item enabled OK\n"
 msgstr ""
 
-#: main.py:325
+#: main.py:389
 msgid "Item disabled OK\n"
 msgstr ""
 
-#: main.py:340 main.py:350 main.py:359
+#: main.py:403
+msgid "Trigger enabled OK\n"
+msgstr ""
+
+#: main.py:416
+msgid "Trigger disabled OK\n"
+msgstr ""
+
+#: main.py:431 main.py:441 main.py:450
 #, python-format
 msgid ""
 "Hey, I'm %s !\n"
@@ -95,64 +107,64 @@ msgid ""
 "   Choose an option:"
 msgstr ""
 
-#: main.py:366
+#: main.py:457
 msgid "Search host name"
 msgstr ""
 
-#: main.py:367
+#: main.py:458
 msgid "Search host tag"
 msgstr ""
 
-#: main.py:370
+#: main.py:461
 msgid "Hostgroups"
 msgstr ""
 
-#: main.py:371
+#: main.py:462
 msgid "All Hosts"
 msgstr ""
 
-#: main.py:374 main.py:384
+#: main.py:465 main.py:475
 msgid "Settings"
 msgstr ""
 
-#: main.py:375 main.py:386
+#: main.py:466 main.py:477
 msgid "Done"
 msgstr ""
 
-#: main.py:382
+#: main.py:473
 msgid "The server is incorrect. Please change the name in setting."
 msgstr ""
 
-#: main.py:400
+#: main.py:491
 msgid "Change language"
 msgstr ""
 
-#: main.py:401
+#: main.py:492
 msgid "Change server"
 msgstr ""
 
-#: main.py:404
+#: main.py:495
 msgid "Choose what you want to change"
 msgstr ""
 
-#: main.py:414
+#: main.py:505
 msgid "Please choose your language"
 msgstr ""
 
-#: main.py:439
+#: main.py:530
 msgid "Choose one server or cancel"
 msgstr ""
 
-#: main.py:441
+#: main.py:532
 msgid ""
 "The file *config.yaml* doesn't exists. Create file or use environment "
 "variables."
 msgstr ""
 
-#: main.py:466
+#: main.py:557
 msgid "Okay, bye."
 msgstr ""
 
-#: main.py:480
+#: main.py:571
 msgid "See you !"
 msgstr ""

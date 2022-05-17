@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-05-16 15:29+0200\n"
-"PO-Revision-Date: 2022-05-16 15:32+0200\n"
+"POT-Creation-Date: 2022-05-16 16:31+0200\n"
+"PO-Revision-Date: 2022-05-16 16:36+0200\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: fr\n"
@@ -58,7 +58,22 @@ msgid "I found many items. Please choose one item or cancel\n"
 msgstr ""
 "J’ai trouvé plusieurs éléments. Veuillez choisir un élément ou annuler\n"
 
-#: action.py:86
+#: action.py:62
+msgid "I didn't find any triggers. Please cancel\n"
+msgstr "Je n'ai pas trouvé de déclencheurs. Veuillez annuler\n"
+
+#: action.py:65
+msgid "I found one trigger. Please choose a trigger or cancel\n"
+msgstr ""
+"J’ai trouvé un déclencheur. Veuillez choisir le déclencheur ou annuler\n"
+
+#: action.py:67
+msgid "I found many triggers. Please choose one trigger or cancel\n"
+msgstr ""
+"J’ai trouvé plusieurs déclencheurs. Veuillez choisir un déclencheur ou "
+"annuler\n"
+
+#: action.py:97
 #, python-format
 msgid ""
 "Host *%s* is *%s*\n"
@@ -67,7 +82,7 @@ msgstr ""
 "L'hôte *%s* est *%s*\n"
 " %s"
 
-#: action.py:107
+#: action.py:118
 #, python-format
 msgid ""
 "Host *%s*\n"
@@ -82,10 +97,59 @@ msgstr ""
 "Dernière vérification: *%s*\n"
 " %s"
 
-#: action.py:114
+#: action.py:140
+#, python-format
+msgid ""
+"Host *%s*\n"
+"Trigger *%s* is *%s*\n"
+"Expression: *%s*\n"
+"Severity: *%s*\n"
+"Value: *%s* since *%s*\n"
+" %s"
+msgstr ""
+"Hôte *%s*\n"
+"Le déclencheur *%s* est *%s*\n"
+"Expression: *%s*\n"
+"Sévérité: *%s*\n"
+"Valeur: *%s* depuis *%s*\n"
+" %s"
+
+#: action.py:146
 msgid "enabled"
 msgstr "activé"
 
-#: action.py:115
+#: action.py:147
 msgid "disabled"
 msgstr "désactivé"
+
+#: action.py:154
+msgid "Not classified"
+msgstr "Non classé"
+
+#: action.py:155
+msgid "Information"
+msgstr "Information"
+
+#: action.py:156
+msgid "Warning"
+msgstr "Avertissement"
+
+#: action.py:157
+msgid "Average"
+msgstr "Moyen"
+
+#: action.py:158
+msgid "High"
+msgstr "Haut"
+
+#: action.py:159
+msgid "Disaster"
+msgstr "Désastre"
+
+#: action.py:166
+msgid "OK"
+msgstr "OK"
+
+#: action.py:167
+msgid "PROBLEM"
+msgstr "PROBLÈME"

@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-05-16 15:29+0200\n"
-"PO-Revision-Date: 2022-05-16 15:31+0200\n"
+"POT-Creation-Date: 2022-05-16 16:31+0200\n"
+"PO-Revision-Date: 2022-05-16 16:33+0200\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: en\n"
@@ -55,7 +55,23 @@ msgstr ""
 msgid "I found many items. Please choose one item or cancel\n"
 msgstr "I found many items. Please choose one item or cancel\n"
 
-#: action.py:86
+#: action.py:62
+msgid "I didn't find any triggers. Please cancel\n"
+msgstr ""
+"I didn't find any triggers. Please cancel\n"
+"\n"
+
+#: action.py:65
+msgid "I found one trigger. Please choose a trigger or cancel\n"
+msgstr "I found one trigger. Please choose a trigger or cancel\n"
+
+#: action.py:67
+msgid "I found many triggers. Please choose one trigger or cancel\n"
+msgstr ""
+"I found many triggers. Please choose one trigger or cancel\n"
+"\n"
+
+#: action.py:97
 #, python-format
 msgid ""
 "Host *%s* is *%s*\n"
@@ -64,7 +80,7 @@ msgstr ""
 "Host *%s* is *%s*\n"
 " %s"
 
-#: action.py:107
+#: action.py:118
 #, python-format
 msgid ""
 "Host *%s*\n"
@@ -79,10 +95,59 @@ msgstr ""
 "Last check: *%s*\n"
 " %s"
 
-#: action.py:114
+#: action.py:140
+#, python-format
+msgid ""
+"Host *%s*\n"
+"Trigger *%s* is *%s*\n"
+"Expression: *%s*\n"
+"Severity: *%s*\n"
+"Value: *%s* since *%s*\n"
+" %s"
+msgstr ""
+"Host *%s*\n"
+"Trigger *%s* is *%s*\n"
+"Expression: *%s*\n"
+"Severity: *%s*\n"
+"Value: *%s* since *%s*\n"
+" %s"
+
+#: action.py:146
 msgid "enabled"
 msgstr "enabled"
 
-#: action.py:115
+#: action.py:147
 msgid "disabled"
 msgstr "disabled"
+
+#: action.py:154
+msgid "Not classified"
+msgstr "Not classified"
+
+#: action.py:155
+msgid "Information"
+msgstr "Information"
+
+#: action.py:156
+msgid "Warning"
+msgstr "Warning"
+
+#: action.py:157
+msgid "Average"
+msgstr "Average"
+
+#: action.py:158
+msgid "High"
+msgstr "High"
+
+#: action.py:159
+msgid "Disaster"
+msgstr "Disaster"
+
+#: action.py:166
+msgid "OK"
+msgstr "OK"
+
+#: action.py:167
+msgid "PROBLEM"
+msgstr "PROBLEM"

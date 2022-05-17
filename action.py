@@ -68,6 +68,17 @@ def display_object_button(object, object_list,LANG):
             for trigger in object_list:
                 button_list.append(InlineKeyboardButton(text=get_status_emoji(trigger['status'])+trigger['description'],
                 callback_data='{"TID":"'+trigger['triggerid']+'"}'))
+    elif object=="problem":
+        if not object_list:
+            message = _('I didn\'t find any problems. Please cancel\n')
+        else:
+            if len(object_list)==1:
+                message = _('I found one problem. Please choose a problem or cancel\n')
+            else:
+                message = _('I found many problems. Please choose one problem or cancel\n')
+            for problem in object_list:
+                button_list.append(InlineKeyboardButton(text=get_severity_emoji(problem['severity'])+problem['name']+_(' since ')+get_time(problem['clock']),
+                callback_data='{"PID":"'+problem['eventid']+'"}'))
     return message, button_list
 
 #get_status_emoji converts the status number to the status emoji
@@ -140,6 +151,26 @@ def display_trigger_characteristics(context,LANG,API_VAR):
         message = _('Host *%s*\nTrigger *%s* is *%s*\nExpression: *%s*\nSeverity: *%s*\nValue: *%s* since *%s*\n %s') % (trigger['hosts'][0]['name'],trigger['description'],stateV,trigger['expression'],severityV,valueV,get_time(trigger['lastchange']),message_tag)
     return message
 
+#display_problem_characteristics recovery the characteristics of problem selected by the user
+def display_problem_characteristics(context,LANG,API_VAR):
+    lang_translations = gettext.translation('action', localedir='locales', languages=[LANG])
+    lang_translations.install()
+    _ = lang_translations.gettext
+    ud = context.user_data
+    message = str()
+    
+    Cdata=json.loads(ud['PROBLEM_INFO'])
+    problemID=Cdata['PID']
+    list_problem=API_VAR.get_event_info(problemID)
+    for problem in list_problem:
+        severityV=get_severity_string(problem['severity'], _)
+        acknowledgedV = get_acknowledged_emoji(problem['acknowledged'],_)
+        message_tag = ('Tags:')
+        for tag in problem["tags"]:
+            message_tag = message_tag + '\n\t\t' + tag['tag']+' : '+ ('*%s*') % tag['value']
+        message = _('Problem on *%s*\t\t*%s*\nSince: *%s*\nAcknowledged: *%s*\n%s') % (problem['hosts'][0]['name'],severityV,get_time(problem['clock']),acknowledgedV,message_tag)
+    return message
+
 #get_state_string converts the status number to the status text
 def get_state_string(status, _):
     switcher = {
@@ -159,6 +190,26 @@ def get_severity_string(severity, _):
         "5": telegramEmojiDict['red square']+_("Disaster"),
     }
     return switcher.get(severity,"invalid severity")
+
+#get_severity_emoji converts the severity number to the severity text
+def get_severity_emoji(severity):
+    switcher = {
+        "0": telegramEmojiDict['white large square'],
+        "1": telegramEmojiDict['blue square'],
+        "2": telegramEmojiDict['yellow square'],
+        "3": telegramEmojiDict['orange square'],
+        "4": telegramEmojiDict['brown square'],
+        "5": telegramEmojiDict['red square'],
+    }
+    return switcher.get(severity,"invalid severity")
+
+#get_acknowledged_emoji converts the acknowledged number to the acknowledged text
+def get_acknowledged_emoji(acknowledged, _):
+    switcher = {
+        "0": telegramEmojiDict['cross mark'],
+        "1": telegramEmojiDict['check mark button'],
+    }
+    return switcher.get(acknowledged,"invalid acknowledged")
 
 #get_value_string converts the value number to the value text
 def get_value_string(value, _):

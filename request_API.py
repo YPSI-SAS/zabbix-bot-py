@@ -246,3 +246,44 @@ class API:
       return json_data['result']
     else:
       return {}
+
+  #get_list_problems_by_host permits to get all problems of the selected host
+  def get_list_problems_by_host(self, id_host):
+    params = {
+      "hostids":id_host,
+      "output": ["eventid","name","clock","acknowledged","severity"],
+    }
+    status_code, text = self.request_post(params=params, method='problem.get')
+    json_data = json.loads(text)
+    if status_code==200:
+      return json_data['result']
+    else:
+      return {}
+  
+  #get_list_problems_by_trigger permits to get all problems of the selected trigger
+  def get_list_problems_by_trigger(self, id_trigger):
+    params = {
+      "objectids":id_trigger,
+      "output": ["eventid","name","clock","acknowledged","severity"],
+    }
+    status_code, text = self.request_post(params=params, method='problem.get')
+    json_data = json.loads(text)
+    if status_code==200:
+      return json_data['result']
+    else:
+      return {}
+
+  #get_event_info permits to get all information of the selected event
+  def get_event_info(self, id_event):
+    params = {
+      "eventids":id_event,
+      "output": ["eventid", "object", "objectid", "name", "clock", "acknowledged", "severity"],
+      "selectTags": ["tag", "value"],
+      "selectHosts":["hostid","name"]
+    }
+    status_code, text = self.request_post(params=params, method='event.get')
+    json_data = json.loads(text)
+    if status_code==200:
+      return json_data['result']
+    else:
+      return {}

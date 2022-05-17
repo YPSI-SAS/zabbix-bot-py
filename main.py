@@ -3,7 +3,7 @@
 import logging
 from telegram.ext import (Updater, CommandHandler, CallbackQueryHandler,ConversationHandler,MessageHandler,Filters,RegexHandler)
 from telegram import InlineKeyboardMarkup,InlineKeyboardButton,ReplyKeyboardRemove,ChatAction,ReplyKeyboardMarkup,ParseMode
-from action import build_menu, display_object_button, display_host_characteristics,display_item_characteristics, display_trigger_characteristics
+from action import build_menu, display_object_button, display_host_characteristics,display_item_characteristics, display_trigger_characteristics, display_problem_characteristics
 from functools import wraps
 import gettext
 from emojiDict import telegramEmojiDict
@@ -35,6 +35,7 @@ DISABLE_HOST, ENABLE_HOST, ITEM_MENU, TRIGGER_MENU, PROBLEM_MENU = map(chr, rang
 CHOOSE_ITEM, DISABLE_ITEM, ENABLE_ITEM, GRAPH_MENU = map(chr,range(28,32))
 DISPLAY_ACTION_ITEM = map(chr, range(32,33))
 CHOOSE_TRIGGER, DISABLE_TRIGGER, ENABLE_TRIGGER, DISPLAY_ACTION_TRIGGER = map(chr, range(33,37))
+CHOOSE_PROBLEM, DISPLAY_ACTION_PROBLEM = map(chr, range(37,39))
 
 LANG = 'en'
 NAME_SERVER=""
@@ -99,6 +100,10 @@ def navigation_elements(update,context):
         elements_list= ud[API_VAR].get_list_triggers_by_host(ud['ID_HOST'])
     elif ud['TYPE_REQUEST'] == "all_trigger_item":
         elements_list= ud[API_VAR].get_list_triggers_by_item(ud['ID_ITEM'])
+    elif ud['TYPE_REQUEST'] == "all_problem_host":
+        elements_list= ud[API_VAR].get_list_problems_by_host(ud['ID_HOST'])
+    elif ud['TYPE_REQUEST'] == "all_problem_trigger":
+        elements_list= ud[API_VAR].get_list_problems_by_trigger(ud['ID_TRIGGER'])
     numberHostDisplay = 26
     numberPages = int(len(elements_list)/numberHostDisplay)
     if ud['NUMBER'] < numberPages:
@@ -118,7 +123,10 @@ def navigation_elements(update,context):
         footer_buttons.append(InlineKeyboardButton(text='>>', callback_data=str(NEXT)))
 
     cancel_button = get_cancel_button()
-    reply_markup = InlineKeyboardMarkup(build_menu(button_list,n_cols=2,footer_buttons=footer_buttons,cancel_button=cancel_button))
+    if ud['OBJECT']=='problem':
+        reply_markup = InlineKeyboardMarkup(build_menu(button_list,n_cols=1,footer_buttons=footer_buttons,cancel_button=cancel_button))
+    else:
+        reply_markup = InlineKeyboardMarkup(build_menu(button_list,n_cols=2,footer_buttons=footer_buttons,cancel_button=cancel_button))
     display_message_bot(update,context,message,reply_markup)
 
 #list_host display a page of hosts
@@ -230,6 +238,28 @@ def select_hostgroups(update,context):
     navigation_elements(update,context) 
     return CHOOSE_HOST
 
+#list_problem_by_host display the list of problem of the host selected by the user
+def list_problem_by_host(update, context):
+    ud = context.user_data
+    ud['TYPE_REQUEST'] = "all_problem_host"
+    Cdata=json.loads(ud['HOST_INFO'])
+    ud['ID_HOST']=Cdata['HID']
+    ud['OBJECT'] = "problem"
+    ud['NUMBER']=0
+    navigation_elements(update,context)    
+    return CHOOSE_PROBLEM
+
+#list_problem_by_trigger display the list of problem of the trigger selected by the user
+def list_problem_by_trigger(update, context):
+    ud = context.user_data
+    ud['TYPE_REQUEST'] = "all_problem_trigger"
+    Cdata=json.loads(ud['TRIGGER_INFO'])
+    ud['ID_TRIGGER']=Cdata['TID']
+    ud['OBJECT'] = "problem"
+    ud['NUMBER']=0
+    navigation_elements(update,context)    
+    return CHOOSE_PROBLEM
+
 #display_action_host return a list of buttons for make the sub-menu
 def display_action_host(context):
     ud = context.user_data
@@ -307,6 +337,22 @@ def display_action_trigger(context):
     cancel_button = get_cancel_button()
     return button_list,cancel_button
 
+#display_action_problem return a list of buttons for make the sub-menu
+def display_action_problem(context):
+    ud = context.user_data
+    button_list = list()
+    Cdata=json.loads(ud['PROBLEM_INFO'])
+    problemID=Cdata['PID']
+    list_problem=ud[API_VAR].get_event_info(problemID)
+    for problem in list_problem:
+        if problem["object"]=="0":
+            button_list.append(InlineKeyboardButton(text=telegramEmojiDict['vertical traffic light']+_('Trigger'),callback_data='{"TID":"'+problem['objectid']+'"}'))
+        if len(problem['hosts'])!=0:
+            button_list.append(InlineKeyboardButton(text=telegramEmojiDict['laptop']+_('Host'),callback_data='{"HID":"'+problem['hosts'][0]['hostid']+'"}'))
+        
+    cancel_button = get_cancel_button()
+    return button_list,cancel_button
+
 #select_host permits to display the informations and the sub-menu for the host selected
 @send_typing_action
 def select_host(update,context):
@@ -339,6 +385,17 @@ def select_trigger(update,context):
     reply_markup = InlineKeyboardMarkup(build_menu(button_list,n_cols=2,cancel_button=cancel_button)) 
     display_message_bot(update,context,message,reply_markup)
     return DISPLAY_ACTION_TRIGGER
+
+#select_problem permits to display the informations and the sub-menu for the problem selected
+@send_typing_action
+def select_problem(update,context):
+    ud = context.user_data
+    ud['PROBLEM_INFO']=update.callback_query.data
+    message=display_problem_characteristics(context,LANG, ud[API_VAR])
+    button_list, cancel_button = display_action_problem(context)
+    reply_markup = InlineKeyboardMarkup(build_menu(button_list,n_cols=2,cancel_button=cancel_button)) 
+    display_message_bot(update,context,message,reply_markup)
+    return DISPLAY_ACTION_PROBLEM
 
 #enable_host permits to enable the host selected
 @send_typing_action
@@ -590,6 +647,7 @@ def main():
             DISPLAY_ACTION:[
                 CallbackQueryHandler(list_item, pattern='^' + str(ITEM_MENU) + '$'),
                 CallbackQueryHandler(list_trigger_by_host, pattern='^' + str(TRIGGER_MENU) + '$'),
+                CallbackQueryHandler(list_problem_by_host, pattern='^' + str(PROBLEM_MENU) + '$'),
                 CallbackQueryHandler(enable_host, pattern='^' + str(ENABLE_HOST) + '$'),
                 CallbackQueryHandler(disable_host, pattern='^' + str(DISABLE_HOST) + '$'),
                 CallbackQueryHandler(cancel, pattern='^' + str(CANCEL) + '$'),
@@ -612,8 +670,18 @@ def main():
             DISPLAY_ACTION_TRIGGER:[
                 CallbackQueryHandler(select_host, pattern='^{"HID*'),
                 CallbackQueryHandler(select_item, pattern='^{"IID*'),
+                CallbackQueryHandler(list_problem_by_trigger, pattern='^' + str(PROBLEM_MENU) + '$'),
                 CallbackQueryHandler(enable_trigger, pattern='^' + str(ENABLE_TRIGGER) + '$'),
                 CallbackQueryHandler(disable_trigger, pattern='^' + str(DISABLE_TRIGGER) + '$'),
+                CallbackQueryHandler(cancel, pattern='^' + str(CANCEL) + '$'),
+            ],
+            CHOOSE_PROBLEM:[
+                CallbackQueryHandler(select_problem, pattern='^{"PID*'),
+                CallbackQueryHandler(cancel, pattern='^' + str(CANCEL) + '$'),
+            ],
+            DISPLAY_ACTION_PROBLEM:[
+                CallbackQueryHandler(select_host, pattern='^{"HID*'),
+                CallbackQueryHandler(select_trigger, pattern='^{"TID*'),
                 CallbackQueryHandler(cancel, pattern='^' + str(CANCEL) + '$'),
             ]
         },

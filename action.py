@@ -57,6 +57,17 @@ def display_object_button(object, object_list,LANG):
             for item in object_list:
                 button_list.append(InlineKeyboardButton(text=get_status_emoji(item['status'])+item['name'],
                 callback_data='{"IID":"'+item['itemid']+'"}'))
+    elif object=="trigger":
+        if not object_list:
+            message = _('I didn\'t find any triggers. Please cancel\n')
+        else:
+            if len(object_list)==1:
+                message = _('I found one trigger. Please choose a trigger or cancel\n')
+            else:
+                message = _('I found many triggers. Please choose one trigger or cancel\n')
+            for trigger in object_list:
+                button_list.append(InlineKeyboardButton(text=get_status_emoji(trigger['status'])+trigger['description'],
+                callback_data='{"TID":"'+trigger['triggerid']+'"}'))
     return message, button_list
 
 #get_status_emoji converts the status number to the status emoji
@@ -108,6 +119,27 @@ def display_item_characteristics(context,LANG,API_VAR):
     
     return message
 
+#display_trigger_characteristics recovery the characteristics of trigger selected by the user
+def display_trigger_characteristics(context,LANG,API_VAR):
+    lang_translations = gettext.translation('action', localedir='locales', languages=[LANG])
+    lang_translations.install()
+    _ = lang_translations.gettext
+    ud = context.user_data
+    message = str()
+    
+    Cdata=json.loads(ud['TRIGGER_INFO'])
+    triggerID=Cdata['TID']
+    list_trigger=API_VAR.get_trigger_info(triggerID)
+    for trigger in list_trigger:
+        stateV=get_state_string(trigger['status'], _)
+        severityV=get_severity_string(trigger['priority'], _)
+        valueV = get_value_string(trigger['value'],_)
+        message_tag = ('Tags:')
+        for tag in trigger["tags"]:
+            message_tag = message_tag + '\n\t\t' + tag['tag']+' : '+ ('*%s*') % tag['value']
+        message = _('Host *%s*\nTrigger *%s* is *%s*\nExpression: *%s*\nSeverity: *%s*\nValue: *%s* since *%s*\n %s') % (trigger['hosts'][0]['name'],trigger['description'],stateV,trigger['expression'],severityV,valueV,get_time(trigger['lastchange']),message_tag)
+    return message
+
 #get_state_string converts the status number to the status text
 def get_state_string(status, _):
     switcher = {
@@ -115,6 +147,26 @@ def get_state_string(status, _):
         "1": _("disabled")
     }
     return switcher.get(status,"invalid status")
+
+#get_severity_string converts the severity number to the severity text
+def get_severity_string(severity, _):
+    switcher = {
+        "0": telegramEmojiDict['white large square']+_("Not classified"),
+        "1": telegramEmojiDict['blue square']+_("Information"),
+        "2": telegramEmojiDict['yellow square']+_("Warning"),
+        "3": telegramEmojiDict['orange square']+_("Average"),
+        "4": telegramEmojiDict['brown square']+_("High"),
+        "5": telegramEmojiDict['red square']+_("Disaster"),
+    }
+    return switcher.get(severity,"invalid severity")
+
+#get_value_string converts the value number to the value text
+def get_value_string(value, _):
+    switcher = {
+        "0": telegramEmojiDict['green square']+_("OK"),
+        "1": telegramEmojiDict['red square']+_("PROBLEM")
+    }
+    return switcher.get(value,"invalid value")
 
 #get_time permits to convert a timestamp to a datetime
 def get_time(timestamp):

@@ -3,7 +3,7 @@
 import logging
 from telegram.ext import (Updater, CommandHandler, CallbackQueryHandler,ConversationHandler,MessageHandler,Filters,RegexHandler)
 from telegram import InlineKeyboardMarkup,InlineKeyboardButton,ReplyKeyboardRemove,ChatAction,ReplyKeyboardMarkup,ParseMode
-from action import build_menu, display_object_button, display_host_characteristics,display_item_characteristics
+from action import build_menu, display_object_button, display_host_characteristics,display_item_characteristics, display_trigger_characteristics
 from functools import wraps
 import gettext
 from emojiDict import telegramEmojiDict
@@ -34,6 +34,7 @@ DISPLAY_ACTION = map(chr, range(22,23))
 DISABLE_HOST, ENABLE_HOST, ITEM_MENU, TRIGGER_MENU, PROBLEM_MENU = map(chr, range(23,28))
 CHOOSE_ITEM, DISABLE_ITEM, ENABLE_ITEM, GRAPH_MENU = map(chr,range(28,32))
 DISPLAY_ACTION_ITEM = map(chr, range(32,33))
+CHOOSE_TRIGGER, DISABLE_TRIGGER, ENABLE_TRIGGER, DISPLAY_ACTION_TRIGGER = map(chr, range(33,37))
 
 LANG = 'en'
 NAME_SERVER=""
@@ -94,6 +95,10 @@ def navigation_elements(update,context):
         elements_list= ud[API_VAR].get_list_hosts_with_hostgroup(ud['ID_HOSTGROUP'])
     elif ud['TYPE_REQUEST'] == "all_item":
         elements_list= ud[API_VAR].get_list_items(ud['ID_HOST'])
+    elif ud['TYPE_REQUEST'] == "all_trigger_host":
+        elements_list= ud[API_VAR].get_list_triggers_by_host(ud['ID_HOST'])
+    elif ud['TYPE_REQUEST'] == "all_trigger_item":
+        elements_list= ud[API_VAR].get_list_triggers_by_item(ud['ID_ITEM'])
     numberHostDisplay = 26
     numberPages = int(len(elements_list)/numberHostDisplay)
     if ud['NUMBER'] < numberPages:
@@ -191,6 +196,28 @@ def list_hostgroups(update,context):
     navigation_elements(update,context) 
     return CHOOSE_HOSTGROUP 
 
+#list_trigger_by_host display the list of trigger of the host selected by the user
+def list_trigger_by_host(update, context):
+    ud = context.user_data
+    ud['TYPE_REQUEST'] = "all_trigger_host"
+    Cdata=json.loads(ud['HOST_INFO'])
+    ud['ID_HOST']=Cdata['HID']
+    ud['OBJECT'] = "trigger"
+    ud['NUMBER']=0
+    navigation_elements(update,context)    
+    return CHOOSE_TRIGGER
+
+#list_trigger_by_item display the list of trigger of the item selected by the user
+def list_trigger_by_item(update, context):
+    ud = context.user_data
+    ud['TYPE_REQUEST'] = "all_trigger_item"
+    Cdata=json.loads(ud['ITEM_INFO'])
+    ud['ID_ITEM']=Cdata['IID']
+    ud['OBJECT'] = "trigger"
+    ud['NUMBER']=0
+    navigation_elements(update,context)    
+    return CHOOSE_TRIGGER
+
 #select_hostgroups permits to display host belonging to hostgroup
 def select_hostgroups(update,context):
     ud = context.user_data
@@ -254,6 +281,32 @@ def display_action_item(context):
     cancel_button = get_cancel_button()
     return button_list,cancel_button
 
+#display_action_trigger return a list of buttons for make the sub-menu
+def display_action_trigger(context):
+    ud = context.user_data
+    button_list = list()
+    Cdata=json.loads(ud['TRIGGER_INFO'])
+    triggerID=Cdata['TID']
+    list_trigger=ud[API_VAR].get_trigger_info(triggerID)
+    list_trigger_problems=ud[API_VAR].get_trigger_problem(triggerID)
+
+    for trigger in list_trigger:
+         #Display active checks or not
+        if trigger["status"]=='0':
+            button_list.append(InlineKeyboardButton(text=telegramEmojiDict['prohibited']+_('Disable'),callback_data=str(DISABLE_TRIGGER)))
+        else:
+            button_list.append(InlineKeyboardButton(text=telegramEmojiDict['check mark button']+_('Enable'), callback_data=str(ENABLE_TRIGGER)))
+    
+        if len(trigger["items"])!=0:
+            button_list.append(InlineKeyboardButton(text=telegramEmojiDict['spiral notepad']+_('Item'),callback_data='{"IID":"'+trigger['items'][0]['itemid']+'"}'))
+        if len(trigger['hosts'])!=0:
+            button_list.append(InlineKeyboardButton(text=telegramEmojiDict['laptop']+_('Host'),callback_data='{"HID":"'+trigger['hosts'][0]['hostid']+'"}'))
+        if len(list_trigger_problems)!=0:
+            button_list.append(InlineKeyboardButton(text=telegramEmojiDict['police car light']+_('Problems'),callback_data=str(PROBLEM_MENU)))
+
+    cancel_button = get_cancel_button()
+    return button_list,cancel_button
+
 #select_host permits to display the informations and the sub-menu for the host selected
 @send_typing_action
 def select_host(update,context):
@@ -275,6 +328,17 @@ def select_item(update,context):
     reply_markup = InlineKeyboardMarkup(build_menu(button_list,n_cols=2,cancel_button=cancel_button)) 
     display_message_bot(update,context,message,reply_markup)
     return DISPLAY_ACTION_ITEM
+
+#select_trigger permits to display the informations and the sub-menu for the trigger selected
+@send_typing_action
+def select_trigger(update,context):
+    ud = context.user_data
+    ud['TRIGGER_INFO']=update.callback_query.data
+    message=display_trigger_characteristics(context,LANG, ud[API_VAR])
+    button_list, cancel_button = display_action_trigger(context)
+    reply_markup = InlineKeyboardMarkup(build_menu(button_list,n_cols=2,cancel_button=cancel_button)) 
+    display_message_bot(update,context,message,reply_markup)
+    return DISPLAY_ACTION_TRIGGER
 
 #enable_host permits to enable the host selected
 @send_typing_action
@@ -326,6 +390,33 @@ def disable_item(update,context):
     button_list, cancel_button = display_action_item(context)
     reply_markup = InlineKeyboardMarkup(build_menu(button_list,n_cols=2,cancel_button=cancel_button)) 
     message_object=display_item_characteristics(context,LANG, ud[API_VAR])
+    update.callback_query.edit_message_text(text=message_update+message_object,parse_mode=ParseMode.MARKDOWN,reply_markup=reply_markup)
+
+
+#enable_trigger permits to enable the trigger selected
+@send_typing_action
+def enable_trigger(update,context):
+    ud = context.user_data
+    Cdata=json.loads(ud['TRIGGER_INFO'])
+    trigger_ID=Cdata['TID']
+    ud[API_VAR].update_trigger_status(trigger_ID, 0)
+    message_update = _('Trigger enabled OK\n')
+    button_list, cancel_button = display_action_trigger(context)
+    reply_markup = InlineKeyboardMarkup(build_menu(button_list,n_cols=2,cancel_button=cancel_button)) 
+    message_object=display_trigger_characteristics(context,LANG, ud[API_VAR])
+    update.callback_query.edit_message_text(text=message_update+message_object,parse_mode=ParseMode.MARKDOWN,reply_markup=reply_markup)
+
+#disable_trigger permits to disable the trigger selected
+@send_typing_action
+def disable_trigger(update,context):
+    ud = context.user_data
+    Cdata=json.loads(ud['TRIGGER_INFO'])
+    trigger_ID=Cdata['TID']
+    ud[API_VAR].update_trigger_status(trigger_ID, 1)
+    message_update = _('Trigger disabled OK\n')
+    button_list, cancel_button = display_action_trigger(context)
+    reply_markup = InlineKeyboardMarkup(build_menu(button_list,n_cols=2,cancel_button=cancel_button)) 
+    message_object=display_trigger_characteristics(context,LANG, ud[API_VAR])
     update.callback_query.edit_message_text(text=message_update+message_object,parse_mode=ParseMode.MARKDOWN,reply_markup=reply_markup)
 
 #start display the start message
@@ -498,6 +589,7 @@ def main():
         states={
             DISPLAY_ACTION:[
                 CallbackQueryHandler(list_item, pattern='^' + str(ITEM_MENU) + '$'),
+                CallbackQueryHandler(list_trigger_by_host, pattern='^' + str(TRIGGER_MENU) + '$'),
                 CallbackQueryHandler(enable_host, pattern='^' + str(ENABLE_HOST) + '$'),
                 CallbackQueryHandler(disable_host, pattern='^' + str(DISABLE_HOST) + '$'),
                 CallbackQueryHandler(cancel, pattern='^' + str(CANCEL) + '$'),
@@ -508,8 +600,20 @@ def main():
             ],
             DISPLAY_ACTION_ITEM:[
                 CallbackQueryHandler(select_host, pattern='^{"HID*'),
+                CallbackQueryHandler(list_trigger_by_item, pattern='^' + str(TRIGGER_MENU) + '$'),
                 CallbackQueryHandler(enable_item, pattern='^' + str(ENABLE_ITEM) + '$'),
                 CallbackQueryHandler(disable_item, pattern='^' + str(DISABLE_ITEM) + '$'),
+                CallbackQueryHandler(cancel, pattern='^' + str(CANCEL) + '$'),
+            ],
+            CHOOSE_TRIGGER:[
+                CallbackQueryHandler(select_trigger, pattern='^{"TID*'),
+                CallbackQueryHandler(cancel, pattern='^' + str(CANCEL) + '$'),
+            ],
+            DISPLAY_ACTION_TRIGGER:[
+                CallbackQueryHandler(select_host, pattern='^{"HID*'),
+                CallbackQueryHandler(select_item, pattern='^{"IID*'),
+                CallbackQueryHandler(enable_trigger, pattern='^' + str(ENABLE_TRIGGER) + '$'),
+                CallbackQueryHandler(disable_trigger, pattern='^' + str(DISABLE_TRIGGER) + '$'),
                 CallbackQueryHandler(cancel, pattern='^' + str(CANCEL) + '$'),
             ]
         },

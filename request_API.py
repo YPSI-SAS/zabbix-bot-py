@@ -175,3 +175,74 @@ class API:
       return json_data['result']
     else:
       return {}
+
+  #get_list_triggers_by_host permits to get all triggers of the selected host
+  def get_list_triggers_by_host(self, id_host):
+    params = {
+      "hostids":id_host,
+      "sortfield":"description",
+      "output": ["triggerid", "description", "status"],
+    }
+    status_code, text = self.request_post(params=params, method='trigger.get')
+    json_data = json.loads(text)
+    if status_code==200:
+      return json_data['result']
+    else:
+      return {}
+
+  #get_list_triggers_by_item permits to get all triggers of the selected item
+  def get_list_triggers_by_item(self, id_item):
+    params = {
+      "itemids":id_item,
+      "sortfield":"description",
+      "output": ["triggerid", "description", "status"],
+    }
+    status_code, text = self.request_post(params=params, method='trigger.get')
+    json_data = json.loads(text)
+    if status_code==200:
+      return json_data['result']
+    else:
+      return {}
+
+  #get_trigger_info permits to get all information of the selected trigger
+  def get_trigger_info(self, id_trigger):
+    params = {
+      "triggerids":id_trigger,
+      "output": ["triggerid", "description", "status", "value","priority", "lastchange", "expression"],
+      "selectTags": ["tag", "value"],
+      "selectHosts":["hostid","name"],
+      "selectItems":["hostid", "name"],
+      "expandExpression": "true"
+    }
+    status_code, text = self.request_post(params=params, method='trigger.get')
+    json_data = json.loads(text)
+    if status_code==200:
+      return json_data['result']
+    else:
+      return {}
+
+  #get_trigger_problem permits to get all problems of the selected trigger
+  def get_trigger_problem(self, id_trigger):
+    params = {
+      "objectids":id_trigger,
+      "output": ["eventid","name","clock","acknowledged","severity"]
+    }
+    status_code, text = self.request_post(params=params, method='problem.get')
+    json_data = json.loads(text)
+    if status_code==200:
+      return json_data['result']
+    else:
+      return {}
+
+  #update_trigger_status permits to update status of trigger
+  def update_trigger_status(self, id_trigger, status):
+    params = {
+      "triggerid":id_trigger,
+      "status": status
+    }
+    status_code, text = self.request_post(params=params, method='trigger.update')
+    json_data = json.loads(text)
+    if status_code==200:
+      return json_data['result']
+    else:
+      return {}

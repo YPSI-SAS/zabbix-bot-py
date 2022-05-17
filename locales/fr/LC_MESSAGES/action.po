@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-05-17 11:35+0200\n"
-"PO-Revision-Date: 2022-05-17 11:38+0200\n"
+"POT-Creation-Date: 2022-05-17 16:43+0200\n"
+"PO-Revision-Date: 2022-05-17 16:46+0200\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: fr\n"
@@ -90,16 +90,18 @@ msgstr ""
 msgid " since "
 msgstr " depuis "
 
-#: action.py:108
+#: action.py:118
 #, python-format
 msgid ""
 "Host *%s* is *%s*\n"
-" %s"
+"Availability: *%s*\n"
+"%s"
 msgstr ""
 "L'hôte *%s* est *%s*\n"
+"Disponibilité: *%s*\n"
 " %s"
 
-#: action.py:129
+#: action.py:139
 #, python-format
 msgid ""
 "Host *%s*\n"
@@ -114,7 +116,7 @@ msgstr ""
 "Dernière vérification: *%s*\n"
 " %s"
 
-#: action.py:151
+#: action.py:161
 #, python-format
 msgid ""
 "Host *%s*\n"
@@ -131,7 +133,7 @@ msgstr ""
 "Valeur: *%s* depuis *%s*\n"
 " %s"
 
-#: action.py:171
+#: action.py:181
 #, python-format
 msgid ""
 "Problem on *%s*\t\t*%s*\n"
@@ -144,42 +146,87 @@ msgstr ""
 "Acquitté: *%s*\n"
 "%s"
 
-#: action.py:177
-msgid "enabled"
-msgstr "activé"
+#: action.py:225
+#, python-format
+msgid ""
+"*Host availability*\n"
+"%s : %d\n"
+"%s : %d\n"
+"%s : %d\n"
+"TOTAL: %d\n"
+"\n"
+"*Problems by severity*\n"
+"%s : %d\n"
+"%s : %d\n"
+"%s : %d\n"
+"%s : %d\n"
+"%s : %d\n"
+"%s : %d\n"
+"TOTAL: %d"
+msgstr ""
+"*Disponibilité de l'hôte*\n"
+"%s : %d\n"
+"%s : %d\n"
+"%s : %d\n"
+"TOTAL: %d\n"
+"\n"
+"*Problèmes par gravité*\n"
+"%s : %d\n"
+"%s : %d\n"
+"%s : %d\n"
+"%s : %d\n"
+"%s : %d\n"
+"%s : %d\n"
+"TOTAL: %d"
 
-#: action.py:178
-msgid "disabled"
-msgstr "désactivé"
+#: action.py:225 action.py:240
+msgid "Available"
+msgstr "Disponible"
 
-#: action.py:185
-msgid "Not classified"
-msgstr "Non classé"
+#: action.py:225 action.py:241
+msgid "Not available"
+msgstr "Non disponible"
 
-#: action.py:186
-msgid "Information"
-msgstr "Information"
+#: action.py:225 action.py:239
+msgid "Unknown"
+msgstr "Inconnu"
 
-#: action.py:187
-msgid "Warning"
-msgstr "Avertissement"
-
-#: action.py:188
-msgid "Average"
-msgstr "Moyen"
-
-#: action.py:189
-msgid "High"
-msgstr "Haut"
-
-#: action.py:190
+#: action.py:225 action.py:253
 msgid "Disaster"
 msgstr "Désastre"
 
-#: action.py:217
+#: action.py:225 action.py:252
+msgid "High"
+msgstr "Haut"
+
+#: action.py:225 action.py:251
+msgid "Average"
+msgstr "Moyen"
+
+#: action.py:225 action.py:250
+msgid "Warning"
+msgstr "Avertissement"
+
+#: action.py:225 action.py:249
+msgid "Information"
+msgstr "Information"
+
+#: action.py:225 action.py:248
+msgid "Not classified"
+msgstr "Non classé"
+
+#: action.py:231
+msgid "enabled"
+msgstr "activé"
+
+#: action.py:232
+msgid "disabled"
+msgstr "désactivé"
+
+#: action.py:280
 msgid "OK"
 msgstr "OK"
 
-#: action.py:218
+#: action.py:281
 msgid "PROBLEM"
 msgstr "PROBLÈME"

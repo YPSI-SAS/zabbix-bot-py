@@ -3,7 +3,7 @@
 import logging
 from telegram.ext import *
 from telegram import *
-from action import build_menu, display_object_button, display_host_characteristics,display_item_characteristics, display_trigger_characteristics, display_problem_characteristics
+from action import build_menu, display_object_button, display_host_characteristics,display_item_characteristics, display_trigger_characteristics, display_problem_characteristics, display_global_informations
 from functools import wraps
 import gettext
 from emojiDict import telegramEmojiDict
@@ -79,7 +79,41 @@ def display_message_bot(update,context,message,reply_markup):
 
 #help_msg display the help message
 def help_msg(update,context):
-    message = _('Commands:\n /start - Start a conversation\n /stop - Stop a current action and return to start menu')
+    message = _('Commands:\n /start - Start a conversation\n /stop - Stop a current action and return to start menu\n /globalInformations *nameServer* - Get the global information of Zabbix server. You must specify nameServer arguments or environments variables TOKEN and URL if you don\'t pass argument.')
+    if context.user_data.get(START_OVER):
+        update.callback_query.edit_message_text(text=message, parse_mode=ParseMode.MARKDOWN)
+    else: 
+        update.message.reply_text(text=message, parse_mode=ParseMode.MARKDOWN)
+    context.user_data[START_OVER]= False
+
+#global_information display the help message
+def global_information(update,context):
+    servFind=False
+    server_name = ""
+    if len(context.args)!=0:
+        server_name = context.args[0]
+    if server_name=="" and os.getenv('URL')!=None and os.getenv('TOKEN')!=None:
+        servFind = True
+        context.user_data[str(ZABBIX_URL)]=os.getenv('URL')
+        context.user_data[str(ZABBIX_TOKEN)]=os.getenv('TOKEN')
+    elif server_name!="":
+        with open("config.yaml", 'r') as stream:
+            data_loaded = yaml.safe_load(stream)
+        for __, doc in data_loaded.items():
+            for i in range(len(data_loaded["servers"])):
+                if server_name==doc[i]["server"]:
+                    servFind = True
+                    context.user_data[str(ZABBIX_URL)]=doc[i]["url"]
+                    context.user_data[str(ZABBIX_TOKEN)]=doc[i]["token"]
+    
+    if servFind == False and server_name =="":
+        message = _('Can you set environments variables (URL and TOKEN) to use this command with any argument.')
+    elif servFind == False and servFind!="":
+        message = _('The server *%s* was not found in config.yaml file.') % (server_name)
+    else:
+        api = API(context.user_data[str(ZABBIX_URL)], context.user_data[str(ZABBIX_TOKEN)])
+        message = display_global_informations(api, LANG)
+    
     if context.user_data.get(START_OVER):
         update.callback_query.edit_message_text(text=message, parse_mode=ParseMode.MARKDOWN)
     else: 
@@ -534,6 +568,7 @@ def send_message(update,context):
     update.message.reply_markdown(text=message_update+message_object,reply_markup=reply_markup)
     return END
 
+#choose_severity permits to display keyboard with severity
 def choose_severity(update, context):
     msg = _('Choose new severity')
     main_menu_keyboard = [[KeyboardButton(telegramEmojiDict['white large square']+_("Not classified"))], 
@@ -546,6 +581,8 @@ def choose_severity(update, context):
     context.bot.send_message(chat_id=update.effective_chat.id, text=msg, reply_markup=reply_kb_markup)
     return CHANGE_SEVERITY
 
+#change_severity permits to change a severity of a problems
+@send_typing_action
 def change_severity(update, context):
     ud = context.user_data
     text = update.message.text
@@ -954,6 +991,7 @@ def main():
     
     dp.add_handler(CommandHandler("help",help_msg))
     dp.add_handler(start_conv)
+    dp.add_handler(CommandHandler("globalInformations",global_information))
 
     # Log all errors:
     dp.add_error_handler(error)

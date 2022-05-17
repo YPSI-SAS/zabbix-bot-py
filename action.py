@@ -33,7 +33,7 @@ def display_object_button(object, object_list,LANG):
             else:
                 message = _('I found many hosts. Please choose one host or cancel\n')
             for host in object_list:
-                button_list.append (InlineKeyboardButton(text=get_status_emoji(host['status'])+host['name'], 
+                button_list.append (InlineKeyboardButton(text=get_status_host_emoji(host['interfaces'][0]['available'])+host['name'], 
                 callback_data='{"HID":"'+host['hostid']+'"}'))
     elif object=="HG":
         if not object_list:
@@ -81,6 +81,15 @@ def display_object_button(object, object_list,LANG):
                 callback_data='{"PID":"'+problem['eventid']+'"}'))
     return message, button_list
 
+#get_status_host_emoji converts the status number to the status emoji
+def get_status_host_emoji(status):
+    switcher = {
+        "0": telegramEmojiDict['white large square'],
+        "1": telegramEmojiDict['green square'],
+        "2": telegramEmojiDict['red square']
+    }
+    return switcher.get(status,"invalid status")
+
 #get_status_emoji converts the status number to the status emoji
 def get_status_emoji(status):
     switcher = {
@@ -102,10 +111,11 @@ def display_host_characteristics(context,LANG,API_VAR):
     list_host=API_VAR.get_host_info(hostID)
     for host in list_host:
         stateV=get_state_string(host['status'], _)
+        availabilityV=get_status_string(host['interfaces'][0]['available'], _)
         message_tag = ('Tags:')
         for tag in host["tags"]:
             message_tag = message_tag + '\n\t\t' + tag['tag']+' : '+ ('*%s*') % tag['value']
-        message = _('Host *%s* is *%s*\n %s') % (host['name'],stateV,message_tag)
+        message = _('Host *%s* is *%s*\nAvailability: *%s*\n%s') % (host['name'],stateV,availabilityV,message_tag)
     
     return message
 
@@ -171,11 +181,65 @@ def display_problem_characteristics(context,LANG,API_VAR):
         message = _('Problem on *%s*\t\t*%s*\nSince: *%s*\nAcknowledged: *%s*\n%s') % (problem['hosts'][0]['name'],severityV,get_time(problem['clock']),acknowledgedV,message_tag)
     return message
 
+#display_global_informations permits to get all information about a server
+def display_global_informations(api, LANG):
+    lang_translations = gettext.translation('action', localedir='locales', languages=[LANG])
+    lang_translations.install()
+    _ = lang_translations.gettext
+    available_host = 0
+    unavailable_host = 0
+    unknown_host = 0
+    not_classified_problem = 0
+    information_problem = 0
+    warning_problem = 0
+    average_problem = 0
+    high_problem = 0
+    disaster_problem = 0
+
+    list_host = api.get_list_hosts()
+    list_problem = api.get_list_problems()
+
+    for host in list_host:
+        status_host = host['interfaces'][0]['available']
+        if status_host=="0":
+            unknown_host = unknown_host+1
+        elif status_host=="1":
+            available_host = available_host+1
+        elif status_host=="2":
+            unavailable_host = unavailable_host+1
+    
+    for problem in list_problem:
+        status_problem = problem['severity']
+        if status_problem=="0":
+            not_classified_problem = not_classified_problem+1
+        elif status_problem=="1":
+            information_problem = information_problem+1
+        elif status_problem=="2":
+            warning_problem = warning_problem+1
+        elif status_problem=="3":
+            average_problem = average_problem+1
+        elif status_problem=="4":
+            high_problem = high_problem+1
+        elif status_problem=="5":
+            disaster_problem = disaster_problem+1
+    
+    message = _('*Host availability*\n%s : %d\n%s : %d\n%s : %d\nTOTAL: %d\n\n*Problems by severity*\n%s : %d\n%s : %d\n%s : %d\n%s : %d\n%s : %d\n%s : %d\nTOTAL: %d') % (telegramEmojiDict['green square']+_("Available"), available_host, telegramEmojiDict['red square']+_("Not available"), unavailable_host, telegramEmojiDict['white large square']+_("Unknown"),unknown_host,len(list_host),telegramEmojiDict['red square']+_("Disaster"), disaster_problem,telegramEmojiDict['brown square']+_("High"), high_problem,telegramEmojiDict['orange square']+_("Average"),average_problem,telegramEmojiDict['yellow square']+_("Warning"),warning_problem,telegramEmojiDict['blue square']+_("Information"),information_problem,telegramEmojiDict['white large square']+_("Not classified"),not_classified_problem, len(list_problem))
+    return message
+
 #get_state_string converts the status number to the status text
 def get_state_string(status, _):
     switcher = {
         "0": _("enabled"),
         "1": _("disabled")
+    }
+    return switcher.get(status,"invalid status")
+
+#get_status_string converts the status number to the status text
+def get_status_string(status, _):
+    switcher = {
+        "0": telegramEmojiDict['white large square']+_("Unknown"),
+        "1": telegramEmojiDict['green square']+_("Available"),
+        "2": telegramEmojiDict['red square']+_("Not available")
     }
     return switcher.get(status,"invalid status")
 

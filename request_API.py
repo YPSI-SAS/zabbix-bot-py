@@ -19,7 +19,8 @@ class API:
   def get_list_hosts(self):
     params = {
       'output': ['name','status', 'hostid'],
-      'sortfield':'name'
+      'sortfield':'name',
+      "selectInterfaces":["available"]
     }
     status_code, text = self.request_post(params=params, method='host.get')
     json_data = json.loads(text)
@@ -36,7 +37,8 @@ class API:
       'search': {
             'host': '*'+name+'*'
         },
-      'searchWildcardsEnabled': True
+      'searchWildcardsEnabled': True,
+      "selectInterfaces":["available"]
     }
     status_code, text = self.request_post(params=params, method='host.get')
     json_data = json.loads(text)
@@ -56,7 +58,8 @@ class API:
                 'tag': tags[0],
                 'value': tags[1]
             }
-        ]
+        ],
+      "selectInterfaces":["available"]
     }
     status_code, text = self.request_post(params=params, method='host.get')
     json_data = json.loads(text)
@@ -82,7 +85,8 @@ class API:
     params = {
       'output': ['name','status', 'hostid'],
       'sortfield':'name',
-      'groupids': id_hostgroup
+      'groupids': id_hostgroup,
+      "selectInterfaces":["available"]
     }
     status_code, text = self.request_post(params=params, method='host.get')
     json_data = json.loads(text)
@@ -98,7 +102,8 @@ class API:
         "output": ["name","status","hostid"],
         "selectItems": ["name","itemid"],
         "selectTriggers": ["triggerid","description","value","priority"],
-        "selectTags": ["tag","value"]
+        "selectTags": ["tag","value"],
+        "selectInterfaces":["available"]
     }
     status_code, text = self.request_post(params=params, method='host.get')
     json_data = json.loads(text)
@@ -308,6 +313,18 @@ class API:
         "severity":severity
       }
     status_code, text = self.request_post(params=params, method='event.acknowledge')
+    json_data = json.loads(text)
+    if status_code==200:
+      return json_data['result']
+    else:
+      return {}
+  
+  #get_list_problems permits to get all problems
+  def get_list_problems(self):
+    params = {
+      "output": ["eventid","name","clock","acknowledged","severity"],
+    }
+    status_code, text = self.request_post(params=params, method='problem.get')
     json_data = json.loads(text)
     if status_code==200:
       return json_data['result']

@@ -287,3 +287,29 @@ class API:
       return json_data['result']
     else:
       return {}
+
+  #action_event permits to action event
+  def action_event(self, id_event, action, message=None, severity=None):
+    if message==None and severity==None:
+      params = {
+        "eventids":id_event,
+        "action": action
+      }
+    elif message !=None:
+      params = {
+        "eventids":id_event,
+        "action": action,
+        "message":message
+      }
+    elif severity!=None:
+      params = {
+        "eventids":id_event,
+        "action": action,
+        "severity":severity
+      }
+    status_code, text = self.request_post(params=params, method='event.acknowledge')
+    json_data = json.loads(text)
+    if status_code==200:
+      return json_data['result']
+    else:
+      return {}

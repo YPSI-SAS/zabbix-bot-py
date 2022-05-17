@@ -77,7 +77,7 @@ def display_object_button(object, object_list,LANG):
             else:
                 message = _('I found many problems. Please choose one problem or cancel\n')
             for problem in object_list:
-                button_list.append(InlineKeyboardButton(text=get_severity_emoji(problem['severity'])+problem['name']+_(' since ')+get_time(problem['clock']),
+                button_list.append(InlineKeyboardButton(text=get_severity_emoji(problem['severity'])+get_acknowledged_emoji(problem['acknowledged'])+problem['name']+_(' since ')+get_time(problem['clock']),
                 callback_data='{"PID":"'+problem['eventid']+'"}'))
     return message, button_list
 
@@ -164,7 +164,7 @@ def display_problem_characteristics(context,LANG,API_VAR):
     list_problem=API_VAR.get_event_info(problemID)
     for problem in list_problem:
         severityV=get_severity_string(problem['severity'], _)
-        acknowledgedV = get_acknowledged_emoji(problem['acknowledged'],_)
+        acknowledgedV = get_acknowledged_emoji(problem['acknowledged'])
         message_tag = ('Tags:')
         for tag in problem["tags"]:
             message_tag = message_tag + '\n\t\t' + tag['tag']+' : '+ ('*%s*') % tag['value']
@@ -204,7 +204,7 @@ def get_severity_emoji(severity):
     return switcher.get(severity,"invalid severity")
 
 #get_acknowledged_emoji converts the acknowledged number to the acknowledged text
-def get_acknowledged_emoji(acknowledged, _):
+def get_acknowledged_emoji(acknowledged):
     switcher = {
         "0": telegramEmojiDict['cross mark'],
         "1": telegramEmojiDict['check mark button'],

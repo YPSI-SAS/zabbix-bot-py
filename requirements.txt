@@ -1,5 +1,5 @@
 wheel
-python-telegram-bot
+python-telegram-bot==13.11
 responses
 pytest==5.4.3
 pyyaml

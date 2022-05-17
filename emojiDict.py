@@ -32,5 +32,7 @@ telegramEmojiDict = {
     'chart decreasing' : u'\U0001f4c9',
     'large orange diamond' : u'\U0001f536',
     'vertical traffic light' : u'\U0001f6a6',
-    'police car light': u'\U0001f6a8'
+    'police car light': u'\U0001f6a8',
+    'speech balloon' : u'\U0001f4ac',
+    'horizontal traffic light' : u'\U0001f6a5'
 }

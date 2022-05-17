@@ -1,8 +1,8 @@
 #! /usr/bin/python3
 # -*- coding: utf-8 -*-
 import logging
-from telegram.ext import (Updater, CommandHandler, CallbackQueryHandler,ConversationHandler,MessageHandler,Filters,RegexHandler)
-from telegram import InlineKeyboardMarkup,InlineKeyboardButton,ReplyKeyboardRemove,ChatAction,ReplyKeyboardMarkup,ParseMode
+from telegram.ext import *
+from telegram import *
 from action import build_menu, display_object_button, display_host_characteristics,display_item_characteristics, display_trigger_characteristics, display_problem_characteristics
 from functools import wraps
 import gettext
@@ -36,6 +36,12 @@ CHOOSE_ITEM, DISABLE_ITEM, ENABLE_ITEM, GRAPH_MENU = map(chr,range(28,32))
 DISPLAY_ACTION_ITEM = map(chr, range(32,33))
 CHOOSE_TRIGGER, DISABLE_TRIGGER, ENABLE_TRIGGER, DISPLAY_ACTION_TRIGGER = map(chr, range(33,37))
 CHOOSE_PROBLEM, DISPLAY_ACTION_PROBLEM = map(chr, range(37,39))
+ACKNOWLEDGE = map(chr,range(39,40))
+CHANGE_SEVERITY_MENU = map(chr, range(40,41))
+MESSAGE = map(chr, range(41,42))
+UNACKNOWLEDGE = map(chr, range(42,43))
+MESSAGE_MENU = map(chr, range(43,44))
+CHANGE_SEVERITY = map(chr, range(44,45))
 
 LANG = 'en'
 NAME_SERVER=""
@@ -349,7 +355,13 @@ def display_action_problem(context):
             button_list.append(InlineKeyboardButton(text=telegramEmojiDict['vertical traffic light']+_('Trigger'),callback_data='{"TID":"'+problem['objectid']+'"}'))
         if len(problem['hosts'])!=0:
             button_list.append(InlineKeyboardButton(text=telegramEmojiDict['laptop']+_('Host'),callback_data='{"HID":"'+problem['hosts'][0]['hostid']+'"}'))
-        
+        if problem['acknowledged']=="0":
+            button_list.append(InlineKeyboardButton(text=telegramEmojiDict['check mark button']+_('Acknowledge'),callback_data=str(ACKNOWLEDGE)))
+        else:
+            button_list.append(InlineKeyboardButton(text=telegramEmojiDict['cross mark']+_('Unacknowledge'),callback_data=str(UNACKNOWLEDGE)))
+        button_list.append(InlineKeyboardButton(text=telegramEmojiDict['speech balloon']+_('Send message'),callback_data=str(MESSAGE_MENU)))
+        button_list.append(InlineKeyboardButton(text=telegramEmojiDict['horizontal traffic light']+_('Change severity'),callback_data=str(CHANGE_SEVERITY_MENU)))
+
     cancel_button = get_cancel_button()
     return button_list,cancel_button
 
@@ -475,6 +487,90 @@ def disable_trigger(update,context):
     reply_markup = InlineKeyboardMarkup(build_menu(button_list,n_cols=2,cancel_button=cancel_button)) 
     message_object=display_trigger_characteristics(context,LANG, ud[API_VAR])
     update.callback_query.edit_message_text(text=message_update+message_object,parse_mode=ParseMode.MARKDOWN,reply_markup=reply_markup)
+
+#acknowledge_problem permits to acknowledge problem selected
+@send_typing_action
+def acknowledge_problem(update,context):
+    ud = context.user_data
+    Cdata=json.loads(ud['PROBLEM_INFO'])
+    problem_ID=Cdata['PID']
+    ud[API_VAR].action_event(problem_ID, 2)
+    message_update = _('Problem acknowledged OK\n')
+    button_list, cancel_button = display_action_problem(context)
+    reply_markup = InlineKeyboardMarkup(build_menu(button_list,n_cols=2,cancel_button=cancel_button)) 
+    message_object=display_problem_characteristics(context,LANG, ud[API_VAR])
+    update.callback_query.edit_message_text(text=message_update+message_object,parse_mode=ParseMode.MARKDOWN,reply_markup=reply_markup)
+
+#unacknowledge_problem permits to unacknowledge problem selected
+@send_typing_action
+def unacknowledge_problem(update,context):
+    ud = context.user_data
+    Cdata=json.loads(ud['PROBLEM_INFO'])
+    problem_ID=Cdata['PID']
+    ud[API_VAR].action_event(problem_ID, 16)
+    message_update = _('Problem unacknowledged OK\n')
+    button_list, cancel_button = display_action_problem(context)
+    reply_markup = InlineKeyboardMarkup(build_menu(button_list,n_cols=2,cancel_button=cancel_button)) 
+    message_object=display_problem_characteristics(context,LANG, ud[API_VAR])
+    update.callback_query.edit_message_text(text=message_update+message_object,parse_mode=ParseMode.MARKDOWN,reply_markup=reply_markup)
+
+#get_message recovery the message enter by the user
+def get_message(update,context):
+    update.callback_query.edit_message_text(text=_('Okay, give me the message'))
+    return MESSAGE
+
+#send_message send the message for problem selected by the user
+@send_typing_action
+def send_message(update,context):
+    ud = context.user_data
+    ud['MESSAGE_INFO']=update.message.text
+    Cdata=json.loads(ud['PROBLEM_INFO'])
+    problem_ID=Cdata['PID']
+    ud[API_VAR].action_event(problem_ID, 4, ud['MESSAGE_INFO'])
+    message_update = _('Send message to problem OK\n')
+    button_list, cancel_button = display_action_problem(context)
+    reply_markup = InlineKeyboardMarkup(build_menu(button_list,n_cols=2,cancel_button=cancel_button)) 
+    message_object=display_problem_characteristics(context,LANG, ud[API_VAR])
+    update.message.reply_markdown(text=message_update+message_object,reply_markup=reply_markup)
+    return END
+
+def choose_severity(update, context):
+    msg = _('Choose new severity')
+    main_menu_keyboard = [[KeyboardButton(telegramEmojiDict['white large square']+_("Not classified"))], 
+                        [KeyboardButton(telegramEmojiDict['blue square']+_("Information"))],
+                        [KeyboardButton(telegramEmojiDict['yellow square']+_("Warning"))],
+                        [KeyboardButton(telegramEmojiDict['orange square']+_("Average"))],
+                        [KeyboardButton(telegramEmojiDict['brown square']+_("High"))],
+                        [KeyboardButton(telegramEmojiDict['red square']+_("Disaster"))]]
+    reply_kb_markup = ReplyKeyboardMarkup(main_menu_keyboard, resize_keyboard=True, one_time_keyboard=True)
+    context.bot.send_message(chat_id=update.effective_chat.id, text=msg, reply_markup=reply_kb_markup)
+    return CHANGE_SEVERITY
+
+def change_severity(update, context):
+    ud = context.user_data
+    text = update.message.text
+    if telegramEmojiDict['white large square']+_("Not classified") in text:
+        severity = 0
+    elif telegramEmojiDict['blue square']+_("Information") in text:
+        severity = 1
+    elif telegramEmojiDict['yellow square']+_("Warning") in text:
+        severity = 2
+    elif telegramEmojiDict['orange square']+_("Average") in text:
+        severity = 3
+    elif telegramEmojiDict['brown square']+_("High") in text:
+        severity = 4
+    elif telegramEmojiDict['red square']+_("Disaster") in text:
+        severity = 5
+    Cdata=json.loads(ud['PROBLEM_INFO'])
+    problem_ID=Cdata['PID']
+    ud[API_VAR].action_event(problem_ID, 8, severity=severity)
+    message_update = _('Severity change to problem OK\n')
+    button_list, cancel_button = display_action_problem(context)
+    reply_markup = InlineKeyboardMarkup(build_menu(button_list,n_cols=2,cancel_button=cancel_button)) 
+    message_object=display_problem_characteristics(context,LANG, ud[API_VAR])
+    update.message.reply_markdown(text=message_update+message_object,reply_markup=reply_markup)
+    return END
+    
 
 #start display the start message
 def start(update,context):
@@ -640,6 +736,32 @@ def main():
     # Get the dispatcher to register handlers
     dp = updater.dispatcher
 
+    # Add conversation handler for change severity 
+    change_severity_conv = ConversationHandler(
+        entry_points=[CallbackQueryHandler(choose_severity, pattern='^' + str(CHANGE_SEVERITY_MENU) + '$')],
+        states={
+            CHANGE_SEVERITY:[MessageHandler(Filters.text, change_severity)]
+        },
+        fallbacks=[CommandHandler('stop', stop_nested)],
+        map_to_parent={
+            STOPPING: STOPPING,
+            END: DISPLAY_ACTION_PROBLEM
+        }
+    )
+
+    # Add conversation handler for send message 
+    message_conv = ConversationHandler(
+        entry_points=[CallbackQueryHandler(get_message, pattern='^' + str(MESSAGE_MENU) + '$')],
+        states={
+            MESSAGE:[MessageHandler(Filters.regex(r'^[^\/]'), send_message)]
+        },
+        fallbacks=[CommandHandler('stop', stop_nested)],
+        map_to_parent={
+            STOPPING: STOPPING,
+            END: DISPLAY_ACTION_PROBLEM
+        }
+    )
+
     #Add conversation handler for host
     host_conv = ConversationHandler(
         entry_points=[CallbackQueryHandler(select_host, pattern='^{"HID*')],
@@ -682,6 +804,10 @@ def main():
             DISPLAY_ACTION_PROBLEM:[
                 CallbackQueryHandler(select_host, pattern='^{"HID*'),
                 CallbackQueryHandler(select_trigger, pattern='^{"TID*'),
+                CallbackQueryHandler(unacknowledge_problem, pattern='^' + str(UNACKNOWLEDGE) + '$'),
+                CallbackQueryHandler(acknowledge_problem, pattern='^' + str(ACKNOWLEDGE) + '$'),
+                message_conv,
+                change_severity_conv,
                 CallbackQueryHandler(cancel, pattern='^' + str(CANCEL) + '$'),
             ]
         },

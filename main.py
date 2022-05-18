@@ -114,7 +114,7 @@ def display_message_bot(update, context, message, reply_markup):
 # help_msg display the help message
 def help_msg(update, context):
     message = _(
-        "Commands:\n /start - Start a conversation\n /stop - Stop a current action and return to start menu\n /globalInformations *nameServer* - Get the global information of Zabbix server. You must specify nameServer arguments or environments variables TOKEN and URL if you don't pass argument."
+        "Commands:\n /start - Start a conversation\n /stop - Stop a current action and return to start menu\n /global_informations *nameServer* - Get the global information of Zabbix server. You must specify nameServer arguments or environments variables TOKEN and URL if you don't pass argument."
     )
     if context.user_data.get(START_OVER):
         update.callback_query.edit_message_text(

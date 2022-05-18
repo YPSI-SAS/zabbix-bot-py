@@ -571,13 +571,15 @@ def send_message(update,context):
 #choose_severity permits to display keyboard with severity
 def choose_severity(update, context):
     msg = _('Choose new severity')
-    main_menu_keyboard = [[KeyboardButton(telegramEmojiDict['white large square']+_("Not classified"))], 
-                        [KeyboardButton(telegramEmojiDict['blue square']+_("Information"))],
-                        [KeyboardButton(telegramEmojiDict['yellow square']+_("Warning"))],
-                        [KeyboardButton(telegramEmojiDict['orange square']+_("Average"))],
-                        [KeyboardButton(telegramEmojiDict['brown square']+_("High"))],
-                        [KeyboardButton(telegramEmojiDict['red square']+_("Disaster"))]]
-    reply_kb_markup = ReplyKeyboardMarkup(main_menu_keyboard, resize_keyboard=True, one_time_keyboard=True)
+    button_list = list()
+    button_list.append(KeyboardButton(telegramEmojiDict['white large square']+_("Not classified")))
+    button_list.append(KeyboardButton(telegramEmojiDict['blue square']+_("Information")))
+    button_list.append(KeyboardButton(telegramEmojiDict['yellow square']+_("Warning")))
+    button_list.append(KeyboardButton(telegramEmojiDict['orange square']+_("Average")))
+    button_list.append(KeyboardButton(telegramEmojiDict['brown square']+_("High")))
+    button_list.append(KeyboardButton(telegramEmojiDict['red square']+_("Disaster")))
+    
+    reply_kb_markup = ReplyKeyboardMarkup(build_menu(button_list,n_cols=2), resize_keyboard=True, one_time_keyboard=True)
     context.bot.send_message(chat_id=update.effective_chat.id, text=msg, reply_markup=reply_kb_markup)
     return CHANGE_SEVERITY
 

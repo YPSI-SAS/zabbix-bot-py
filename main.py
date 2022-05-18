@@ -131,10 +131,10 @@ def global_information(update, context):
     server_name = ""
     if len(context.args) != 0:
         server_name = context.args[0]
-    if server_name == "" and os.getenv("URL") != None and os.getenv("TOKEN") != None:
+    if server_name == "" and os.getenv("ZABBIX_URL") != None and os.getenv("ZABBIX_TOKEN") != None:
         servFind = True
-        context.user_data[str(ZABBIX_URL)] = os.getenv("URL")
-        context.user_data[str(ZABBIX_TOKEN)] = os.getenv("TOKEN")
+        context.user_data[str(ZABBIX_URL)] = os.getenv("ZABBIX_URL")
+        context.user_data[str(ZABBIX_TOKEN)] = os.getenv("ZABBIX_TOKEN")
     elif server_name != "":
         with open("config.yaml", "r") as stream:
             data_loaded = yaml.safe_load(stream)
@@ -960,13 +960,13 @@ def start(update, context):
     context.user_data['AFTER_GRAPH'] = False
     findServ = False
     bot = context.bot
-    if NAME_SERVER == "" and os.getenv("URL") != None and os.getenv("TOKEN") != None:
+    if NAME_SERVER == "" and os.getenv("ZABBIX_URL") != None and os.getenv("ZABBIX_TOKEN") != None:
         findServ = True
-        context.user_data[str(ZABBIX_URL)] = os.getenv("URL")
-        context.user_data[str(ZABBIX_TOKEN)] = os.getenv("TOKEN")
+        context.user_data[str(ZABBIX_URL)] = os.getenv("ZABBIX_URL")
+        context.user_data[str(ZABBIX_TOKEN)] = os.getenv("ZABBIX_TOKEN")
         message = _(
             "Hey, I'm %s !\nI will help you to handle Zabbix problems !\nI'm connected to the server : *%s*\nType /help to show all commands\n   Choose an option:"
-        ) % (bot.get_me().first_name, os.getenv("URL"))
+        ) % (bot.get_me().first_name, os.getenv("ZABBIX_URL"))
     elif NAME_SERVER != "":
         with open("config.yaml", "r") as stream:
             data_loaded = yaml.safe_load(stream)

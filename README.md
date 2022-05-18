@@ -2,7 +2,7 @@
 
 ## Environment variables
 The variable BOT_TOKEN is obligatory for know the bot.
-The variables URL, TOKEN are obligatory if you won't use the config file and manage only one server
+The variables ZABBIX_URL, ZABBIX_TOKEN are obligatory if you won't use the config file and manage only one server
 
 ## Config file
 The config file is essential for manage many server

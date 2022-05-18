@@ -347,3 +347,20 @@ class API:
             return json_data['result']
         else:
             return {}
+
+    # get_list_history_item permits to get history values for item
+    def get_list_history_item(self, item_id, history):
+        params = {
+            "itemids": item_id,
+            "history": history,
+            "sortfield": "clock",
+            "sortorder": "DESC",
+            "limit": 60
+        }
+        status_code, text = self.request_post(
+            params=params, method='history.get')
+        json_data = json.loads(text)
+        if status_code == 200:
+            return json_data['result']
+        else:
+            return {}

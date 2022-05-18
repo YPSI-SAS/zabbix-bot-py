@@ -11,6 +11,7 @@ from action import (
     display_trigger_characteristics,
     display_problem_characteristics,
     display_global_informations,
+    get_image_data,
 )
 from functools import wraps
 import gettext
@@ -55,6 +56,7 @@ MESSAGE = map(chr, range(41, 42))
 UNACKNOWLEDGE = map(chr, range(42, 43))
 MESSAGE_MENU = map(chr, range(43, 44))
 CHANGE_SEVERITY = map(chr, range(44, 45))
+DISPLAY_ACTION_GRAPH = map(chr, range(45, 46))
 
 LANG = "en"
 NAME_SERVER = ""
@@ -94,6 +96,12 @@ def get_cancel_button():
 
 # display_message_bot display message en keyboard to conversation
 def display_message_bot(update, context, message, reply_markup):
+    if context.user_data['AFTER_GRAPH'] == True:
+        context.user_data['AFTER_GRAPH'] = False
+        context.bot.send_message(update.effective_chat.id, text=message,
+                                 parse_mode=ParseMode.MARKDOWN, reply_markup=reply_markup)
+        context.user_data[START_OVER] = False
+        return
     if not context.user_data.get(START_OVER):
         update.callback_query.edit_message_text(
             text=message, parse_mode=ParseMode.MARKDOWN, reply_markup=reply_markup
@@ -626,6 +634,7 @@ def select_item(update, context):
         build_menu(button_list, n_cols=2, cancel_button=cancel_button)
     )
     display_message_bot(update, context, message, reply_markup)
+
     return DISPLAY_ACTION_ITEM
 
 
@@ -913,9 +922,42 @@ def change_severity(update, context):
     return END
 
 
-# start display the start message
+def display_graph(update, context):
+    """Display graph for item"""
+    ud = context.user_data
+    Cdata = json.loads(ud["ITEM_INFO"])
+    CdataH = json.loads(ud["HOST_INFO"])
+    host_id = CdataH["HID"]
+    item_id = Cdata["IID"]
+    print(host_id)
+    list_item = ud[API_VAR].get_item_info(item_id)
+    data = ud[API_VAR].get_list_history_item(
+        item_id, list_item[0]['value_type'])
+    get_image_data(data, list_item, LANG)
+    button_list = list()
+    button_list.append(
+        InlineKeyboardButton(
+            text=telegramEmojiDict["spiral notepad"] + _("Back to item"),
+            callback_data='{"IID":"' + item_id + '"}',
+        )
+    )
+    button_list.append(
+        InlineKeyboardButton(
+            text=telegramEmojiDict["laptop"] + _("Back to host"),
+            callback_data='{"HID":"' + host_id + '"}',
+        )
+    )
+    reply_markup = InlineKeyboardMarkup(build_menu(
+        button_list, n_cols=2))
+    context.bot.send_photo(update.effective_chat.id, photo=open(
+        'image.png', 'rb'), reply_markup=reply_markup)
+    ud['AFTER_GRAPH'] = True
+    return DISPLAY_ACTION_GRAPH
+
+
 def start(update, context):
-    # Start function. Displayed whenever the /start command is called.
+    """start display the start message"""
+    context.user_data['AFTER_GRAPH'] = False
     findServ = False
     bot = context.bot
     if NAME_SERVER == "" and os.getenv("URL") != None and os.getenv("TOKEN") != None:
@@ -1218,6 +1260,13 @@ def main():
                     disable_item, pattern="^" + str(DISABLE_ITEM) + "$"
                 ),
                 CallbackQueryHandler(cancel, pattern="^" + str(CANCEL) + "$"),
+                CallbackQueryHandler(
+                    display_graph, pattern="^" + str(GRAPH_MENU) + "$"),
+            ],
+            DISPLAY_ACTION_GRAPH: [
+                CallbackQueryHandler(
+                    select_item, pattern='^{"IID*'),
+                CallbackQueryHandler(select_host, pattern='^{"HID*'),
             ],
             CHOOSE_TRIGGER: [
                 CallbackQueryHandler(select_trigger, pattern='^{"TID*'),

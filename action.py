@@ -3,6 +3,11 @@ from telegram import InlineKeyboardButton
 from emojiDict import telegramEmojiDict
 import json
 from datetime import datetime
+import re
+import matplotlib.pyplot as plt
+import matplotlib.ticker as ticker
+import numpy as np
+import os
 
 
 ACK_MENU, CANCEL = map(chr, range(2))
@@ -379,3 +384,67 @@ def get_unity(i):
         6: 's'
     }
     return switcher.get(i, "invalid state")
+
+
+def get_image_data(data, list_item, LANG):
+    lang_translations = gettext.translation(
+        'action', localedir='locales', languages=[LANG])
+    lang_translations.install()
+    _ = lang_translations.gettext
+
+    values = list()
+    time = list()
+    for val in data:
+        time.append(str(datetime.fromtimestamp(int(val["clock"]))))
+        values.append(float(val["value"]))
+
+    values.reverse()
+    time.reverse()
+
+    __, ax = plt.subplots(figsize=(12, 6))
+    ax.plot(time, values, label=list_item[0]['units'])
+
+    # Check if there are values or not
+    if len(values) == 0:
+        plt.ylim(0, 1)
+        plt.figtext(
+            0.5,
+            0.5,
+            _("No values"),
+            horizontalalignment="center",
+            fontsize=35,
+            fontweight="bold",
+        )
+
+    # Display the point if there are one value
+    if len(values) == 1:
+        plt.scatter(time, values)
+
+    # Change the scale of the x axis to see the values
+    start, end = ax.get_xlim()
+    if len(time) > 30:
+        ax.xaxis.set_ticks(np.arange(start, end, len(time) / 30))
+
+    plt.title(list_item[0]['name'])
+    plt.xticks(rotation=90)
+    plt.subplots_adjust(bottom=0.30)
+    if list_item[0]['units'] != "":
+        plt.legend(
+            loc="best", fancybox=True, shadow=True
+        )
+
+    # plt.tight_layout()
+    plt.grid()
+
+    # Save the graph to image
+    if os.path.exists("image.png"):
+        os.remove("image.png")
+    plt.savefig("image.png")
+
+
+def convert_timestamp_get_hour(timestamp):
+    dt_object = str(datetime.fromtimestamp(timestamp))
+    hour = re.search(
+        "((0[0-9]|1[0-9]|2[0-3])[:]([0-5][0-9]|[6][0]))", dt_object
+    ).group()
+    return hour

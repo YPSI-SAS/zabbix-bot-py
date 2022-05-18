@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-05-17 16:43+0200\n"
+"POT-Creation-Date: 2022-05-18 14:56+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,71 +17,71 @@ msgstr ""
 "Content-Type: text/plain; charset=CHARSET\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: action.py:29
+#: action.py:37
 msgid "I didn't find any hosts. Please cancel\n"
 msgstr ""
 
-#: action.py:32
+#: action.py:41
 msgid "I found one host. Please choose a host or cancel\n"
 msgstr ""
 
-#: action.py:34
+#: action.py:44
 msgid "I found many hosts. Please choose one host or cancel\n"
 msgstr ""
 
-#: action.py:40
+#: action.py:50
 msgid "I didn't find any hostgroups. Please cancel\n"
 msgstr ""
 
-#: action.py:43
+#: action.py:54
 msgid "I found one hostgroup. Please choose a hostgroup or cancel\n"
 msgstr ""
 
-#: action.py:45
+#: action.py:57
 msgid "I found many hostgroups. Please choose one hostgroup or cancel\n"
 msgstr ""
 
-#: action.py:51
+#: action.py:63
 msgid "I didn't find any items. Please cancel\n"
 msgstr ""
 
-#: action.py:54
+#: action.py:67
 msgid "I found one item. Please choose a item or cancel\n"
 msgstr ""
 
-#: action.py:56
+#: action.py:70
 msgid "I found many items. Please choose one item or cancel\n"
 msgstr ""
 
-#: action.py:62
+#: action.py:76
 msgid "I didn't find any triggers. Please cancel\n"
 msgstr ""
 
-#: action.py:65
+#: action.py:80
 msgid "I found one trigger. Please choose a trigger or cancel\n"
 msgstr ""
 
-#: action.py:67
+#: action.py:83
 msgid "I found many triggers. Please choose one trigger or cancel\n"
 msgstr ""
 
-#: action.py:73
+#: action.py:89
 msgid "I didn't find any problems. Please cancel\n"
 msgstr ""
 
-#: action.py:76
+#: action.py:93
 msgid "I found one problem. Please choose a problem or cancel\n"
 msgstr ""
 
-#: action.py:78
+#: action.py:96
 msgid "I found many problems. Please choose one problem or cancel\n"
 msgstr ""
 
-#: action.py:80
+#: action.py:98
 msgid " since "
 msgstr ""
 
-#: action.py:118
+#: action.py:145
 #, python-format
 msgid ""
 "Host *%s* is *%s*\n"
@@ -89,7 +89,7 @@ msgid ""
 "%s"
 msgstr ""
 
-#: action.py:139
+#: action.py:171
 #, python-format
 msgid ""
 "Host *%s*\n"
@@ -99,7 +99,7 @@ msgid ""
 " %s"
 msgstr ""
 
-#: action.py:161
+#: action.py:198
 #, python-format
 msgid ""
 "Host *%s*\n"
@@ -110,7 +110,7 @@ msgid ""
 " %s"
 msgstr ""
 
-#: action.py:181
+#: action.py:223
 #, python-format
 msgid ""
 "Problem on *%s*\t\t*%s*\n"
@@ -119,7 +119,7 @@ msgid ""
 "%s"
 msgstr ""
 
-#: action.py:225
+#: action.py:272
 #, python-format
 msgid ""
 "*Host availability*\n"
@@ -138,54 +138,58 @@ msgid ""
 "TOTAL: %d"
 msgstr ""
 
-#: action.py:225 action.py:240
+#: action.py:272 action.py:292
 msgid "Available"
 msgstr ""
 
-#: action.py:225 action.py:241
+#: action.py:272 action.py:293
 msgid "Not available"
 msgstr ""
 
-#: action.py:225 action.py:239
+#: action.py:272 action.py:291
 msgid "Unknown"
 msgstr ""
 
-#: action.py:225 action.py:253
+#: action.py:273 action.py:307
 msgid "Disaster"
 msgstr ""
 
-#: action.py:225 action.py:252
+#: action.py:273 action.py:306
 msgid "High"
 msgstr ""
 
-#: action.py:225 action.py:251
+#: action.py:273 action.py:305
 msgid "Average"
 msgstr ""
 
-#: action.py:225 action.py:250
+#: action.py:273 action.py:304
 msgid "Warning"
 msgstr ""
 
-#: action.py:225 action.py:249
+#: action.py:273 action.py:303
 msgid "Information"
 msgstr ""
 
-#: action.py:225 action.py:248
+#: action.py:273 action.py:302
 msgid "Not classified"
 msgstr ""
 
-#: action.py:231
+#: action.py:281
 msgid "enabled"
 msgstr ""
 
-#: action.py:232
+#: action.py:282
 msgid "disabled"
 msgstr ""
 
-#: action.py:280
+#: action.py:340
 msgid "OK"
 msgstr ""
 
-#: action.py:281
+#: action.py:341
 msgid "PROBLEM"
+msgstr ""
+
+#: action.py:413
+msgid "No values"
 msgstr ""

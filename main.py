@@ -1448,7 +1448,7 @@ def main():
 
     dp.add_handler(CommandHandler("help", help_msg))
     dp.add_handler(start_conv)
-    dp.add_handler(CommandHandler("globalInformations", global_information))
+    dp.add_handler(CommandHandler("global_informations", global_information))
 
     # Log all errors:
     dp.add_error_handler(error)

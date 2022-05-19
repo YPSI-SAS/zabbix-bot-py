@@ -364,3 +364,14 @@ class API:
             return json_data['result']
         else:
             return {}
+
+    def get_list_maintenances(self):
+        """Get all maintenances"""
+        params = {}
+        status_code, text = self.request_post(
+            params=params, method='maintenance.get')
+        json_data = json.loads(text)
+        if status_code == 200:
+            return json_data['result']
+        else:
+            return {}

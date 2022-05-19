@@ -13,6 +13,7 @@ from action import (
     display_global_status,
     get_image_data,
     get_table_information_problem,
+    get_table_information_maintenance,
 )
 from functools import wraps
 import gettext
@@ -114,7 +115,7 @@ def display_message_bot(update, context, message, reply_markup):
 def help_msg(update, context):
     """Display help message"""
     message = _(
-        "Commands:\n /start - Start a conversation\n /stop - Stop a current action and return to start menu\n /problems - Get all problems on Zabbix server\n /global_status *nameServer* - Get the global information of Zabbix server. You must specify nameServer arguments or environments variables TOKEN and URL if you don't pass argument."
+        "Commands:\n /start - Start a conversation\n /stop - Stop a current action and return to start menu\n /maintenances - Get all maintenance periods\n /problems - Get all problems on Zabbix server\n /global_status *nameServer* - Get the global information of Zabbix server. You must specify nameServer arguments or environments variables ZABBIX_TOKEN and ZABBIX_URL if you don't pass argument."
     )
     if context.user_data.get(START_OVER):
         update.callback_query.edit_message_text(
@@ -132,6 +133,7 @@ def global_status(update, context):
     if len(context.args) != 0:
         server_name = context.args[0]
     if server_name == "" and os.getenv("ZABBIX_URL") != None and os.getenv("ZABBIX_TOKEN") != None:
+        server_name = os.getenv("ZABBIX_URL")
         servFind = True
         context.user_data[str(ZABBIX_URL)] = os.getenv("ZABBIX_URL")
         context.user_data[str(ZABBIX_TOKEN)] = os.getenv("ZABBIX_TOKEN")
@@ -158,7 +160,8 @@ def global_status(update, context):
             context.user_data[str(ZABBIX_URL)
                               ], context.user_data[str(ZABBIX_TOKEN)]
         )
-        message = display_global_status(api, LANG)
+        message = _("The server use is *%s*\n") % (server_name)
+        message = message + display_global_status(api, LANG)
 
     if context.user_data.get(START_OVER):
         update.callback_query.edit_message_text(
@@ -176,6 +179,7 @@ def show_problem(update, context):
     if len(context.args) != 0:
         server_name = context.args[0]
     if server_name == "" and os.getenv("ZABBIX_URL") != None and os.getenv("ZABBIX_TOKEN") != None:
+        server_name = os.getenv("ZABBIX_URL")
         servFind = True
         context.user_data[str(ZABBIX_URL)] = os.getenv("ZABBIX_URL")
         context.user_data[str(ZABBIX_TOKEN)] = os.getenv("ZABBIX_TOKEN")
@@ -205,6 +209,47 @@ def show_problem(update, context):
                               ], context.user_data[str(ZABBIX_TOKEN)]
         )
         table = get_table_information_problem(api)
+        update.message.reply_text(
+            f'```{table}```', parse_mode=ParseMode.MARKDOWN_V2)
+
+
+def show_maintenance(update, context):
+    """Get all maintenances on Zabbix server"""
+    servFind = False
+    server_name = ""
+    if len(context.args) != 0:
+        server_name = context.args[0]
+    if server_name == "" and os.getenv("ZABBIX_URL") != None and os.getenv("ZABBIX_TOKEN") != None:
+        server_name = os.getenv("ZABBIX_URL")
+        servFind = True
+        context.user_data[str(ZABBIX_URL)] = os.getenv("ZABBIX_URL")
+        context.user_data[str(ZABBIX_TOKEN)] = os.getenv("ZABBIX_TOKEN")
+    elif server_name != "":
+        with open("config.yaml", "r") as stream:
+            data_loaded = yaml.safe_load(stream)
+        for __, doc in data_loaded.items():
+            for i in range(len(data_loaded["servers"])):
+                if server_name == doc[i]["server"]:
+                    servFind = True
+                    context.user_data[str(ZABBIX_URL)] = doc[i]["url"]
+                    context.user_data[str(ZABBIX_TOKEN)] = doc[i]["token"]
+
+    if servFind == False and server_name == "":
+        message = _(
+            "Can you set environments variables (URL and TOKEN) to use this command with any argument."
+        )
+        update.message.reply_text(text=message, parse_mode=ParseMode.MARKDOWN)
+    elif servFind == False and servFind != "":
+        message = _("The server *%s* was not found in config.yaml file.") % (
+            server_name
+        )
+        update.message.reply_text(text=message, parse_mode=ParseMode.MARKDOWN)
+    else:
+        api = API(
+            context.user_data[str(ZABBIX_URL)
+                              ], context.user_data[str(ZABBIX_TOKEN)]
+        )
+        table = get_table_information_maintenance(api)
         update.message.reply_text(
             f'```{table}```', parse_mode=ParseMode.MARKDOWN_V2)
 
@@ -1517,6 +1562,7 @@ def main():
     dp.add_handler(start_conv)
     dp.add_handler(CommandHandler("global_status", global_status))
     dp.add_handler(CommandHandler("problems", show_problem))
+    dp.add_handler(CommandHandler("maintenances", show_maintenance))
 
     # Log all errors:
     dp.add_error_handler(error)

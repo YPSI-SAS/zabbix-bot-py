@@ -218,7 +218,7 @@ def display_problem_characteristics(context, LANG, API_VAR):
     return message
 
 
-def display_global_informations(api, LANG):
+def display_global_status(api, LANG):
     """Get all informations about a server"""
     lang_translations = gettext.translation(
         'action', localedir='locales', languages=[LANG])

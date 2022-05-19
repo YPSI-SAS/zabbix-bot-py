@@ -10,7 +10,7 @@ from action import (
     display_item_characteristics,
     display_trigger_characteristics,
     display_problem_characteristics,
-    display_global_informations,
+    display_global_status,
     get_image_data,
     get_table_information_problem,
 )
@@ -114,7 +114,7 @@ def display_message_bot(update, context, message, reply_markup):
 def help_msg(update, context):
     """Display help message"""
     message = _(
-        "Commands:\n /start - Start a conversation\n /stop - Stop a current action and return to start menu\n /problems - Get all problems on Zabbix server\n /global_informations *nameServer* - Get the global information of Zabbix server. You must specify nameServer arguments or environments variables TOKEN and URL if you don't pass argument."
+        "Commands:\n /start - Start a conversation\n /stop - Stop a current action and return to start menu\n /problems - Get all problems on Zabbix server\n /global_status *nameServer* - Get the global information of Zabbix server. You must specify nameServer arguments or environments variables TOKEN and URL if you don't pass argument."
     )
     if context.user_data.get(START_OVER):
         update.callback_query.edit_message_text(
@@ -125,7 +125,7 @@ def help_msg(update, context):
     context.user_data[START_OVER] = False
 
 
-def global_information(update, context):
+def global_status(update, context):
     """Diplay all global informations about Zabbix server"""
     servFind = False
     server_name = ""
@@ -158,7 +158,7 @@ def global_information(update, context):
             context.user_data[str(ZABBIX_URL)
                               ], context.user_data[str(ZABBIX_TOKEN)]
         )
-        message = display_global_informations(api, LANG)
+        message = display_global_status(api, LANG)
 
     if context.user_data.get(START_OVER):
         update.callback_query.edit_message_text(
@@ -1515,7 +1515,7 @@ def main():
 
     dp.add_handler(CommandHandler("help", help_msg))
     dp.add_handler(start_conv)
-    dp.add_handler(CommandHandler("global_informations", global_information))
+    dp.add_handler(CommandHandler("global_status", global_status))
     dp.add_handler(CommandHandler("problems", show_problem))
 
     # Log all errors:

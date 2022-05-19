@@ -22,3 +22,19 @@ servers:
      token: "TOKEN"
 ```
 
+## DockerFile
+To use a Zabbix Bot in container use a Dockerfile. Let's start by build an image :
+```sh
+docker build -t zabbix-bot .
+```
+
+Next, you can create container, but you must specify BOT_TOKEN in environment variable. Moreover, if your image doesn't contain à config.yaml file, you must pass ZABBIX_URL and ZABBIX_TOKEN environment variables. <span style="color: #FF0000"> WARNING </span> : your container must be access to your zabbix server. 
+With config.yaml file in image:
+```sh
+docker run --env BOT_TOKEN= zabbix-bot
+```
+
+Without config.yaml file in image:
+```sh
+docker run --env BOT_TOKEN= --env ZABBIX_URL= --env ZABBIX_TOKEN= zabbix-bot
+```

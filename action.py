@@ -8,7 +8,7 @@ import matplotlib.pyplot as plt
 import matplotlib.ticker as ticker
 import numpy as np
 import os
-
+import prettytable as pt
 
 ACK_MENU, CANCEL = map(chr, range(2))
 # build_menu build a menu with buttons
@@ -442,9 +442,17 @@ def get_image_data(data, list_item, LANG):
     plt.savefig("image.png")
 
 
-def convert_timestamp_get_hour(timestamp):
-    dt_object = str(datetime.fromtimestamp(timestamp))
-    hour = re.search(
-        "((0[0-9]|1[0-9]|2[0-3])[:]([0-5][0-9]|[6][0]))", dt_object
-    ).group()
-    return hour
+def get_table_information_problem(api):
+    """"Get problems information about Zabbix server"""
+    table = pt.PrettyTable(['Host', 'Severity-Problem', 'Duration', 'Ack'])
+    table.align['Severity-Problem'] = 'l'
+    table.align['Host'] = 'l'
+    list_problem = api.get_list_problems()
+    for problem in list_problem:
+        host_info = api.get_event_info(problem['eventid'])
+        severity_emoji = get_severity_emoji(problem['severity'])
+        time = get_time(int(problem['clock']))
+        acknowledged_emoji = get_acknowledged_emoji(problem['acknowledged'])
+        table.add_row([host_info[0]["hosts"][0]["name"],
+                      severity_emoji+problem['name'], time, acknowledged_emoji])
+    return table

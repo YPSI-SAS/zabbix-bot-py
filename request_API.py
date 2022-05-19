@@ -9,8 +9,8 @@ class API:
         self.url = url
         self.token = token
 
-    # request_post permits to send a post request to API
     def request_post(self, params, method):
+        """Send a post request to API"""
         payload = {'jsonrpc': '2.0', 'method': method,
                    'params': params, 'auth': self.token, 'id': 1}
         headers = {'content-type': 'application/json'}
@@ -18,8 +18,8 @@ class API:
                           headers=headers, json=payload)
         return r.status_code, r.text
 
-    # get_list_hosts permits to get all hosts
     def get_list_hosts(self):
+        """Get all hosts"""
         params = {
             'output': ['name', 'status', 'hostid'],
             'sortfield': 'name',
@@ -32,8 +32,8 @@ class API:
         else:
             return {}
 
-    # get_list_hosts_with_name permits to get all hosts with a specific name
     def get_list_hosts_with_name(self, name):
+        """Get all hosts with a specific name"""
         params = {
             'output': ['name', 'status', 'hostid'],
             'sortfield': 'name',
@@ -50,8 +50,8 @@ class API:
         else:
             return {}
 
-    # get_list_hosts_with_tag permits to get all hosts with a specific tag
     def get_list_hosts_with_tag(self, tag):
+        """Get all hosts with a specific tag"""
         tags = tag.split("=")
         params = {
             'output': ['name', 'status', 'hostid'],
@@ -71,8 +71,8 @@ class API:
         else:
             return {}
 
-    # get_list_hostgroups permits to get all hosts groups
     def get_list_hostgroups(self):
+        """Get all hosts groups"""
         params = {
             'output': ['name', 'groupid']
         }
@@ -84,8 +84,8 @@ class API:
         else:
             return {}
 
-    # get_list_hosts_with_hostgroup permits to get all hosts in hosts group
     def get_list_hosts_with_hostgroup(self, id_hostgroup):
+        """Get all hosts in hosts group"""
         params = {
             'output': ['name', 'status', 'hostid'],
             'sortfield': 'name',
@@ -99,8 +99,8 @@ class API:
         else:
             return {}
 
-    # get_host_info permits to get all information of the selected host
     def get_host_info(self, id_host):
+        """Get all information of the selected host"""
         params = {
             "hostids": id_host,
             "output": ["name", "status", "hostid"],
@@ -116,8 +116,8 @@ class API:
         else:
             return {}
 
-    # get_host_problem permits to get all problems of the selected host
     def get_host_problem(self, id_host):
+        """Get all problems of the selected host"""
         params = {
             "hostids": id_host,
             "output": ["eventid", "name", "clock", "acknowledged", "severity"]
@@ -130,8 +130,8 @@ class API:
         else:
             return {}
 
-    # update_host_status permits to update status of host
     def update_host_status(self, id_host, status):
+        """Update status of host"""
         params = {
             "hostid": id_host,
             "status": status
@@ -144,8 +144,8 @@ class API:
         else:
             return {}
 
-    # get_list_items permits to get all items of the selected host
     def get_list_items(self, id_host):
+        """Get all items of the selected host"""
         params = {
             "hostids": id_host,
             "sortfield": "name",
@@ -158,8 +158,8 @@ class API:
         else:
             return {}
 
-    # get_item_info permits to get all information of the selected item
     def get_item_info(self, id_item):
+        """Get all information of the selected item"""
         params = {
             "itemids": id_item,
             "output": ["name", "itemid", "lastclock", "lastvalue", "status", "value_type", "units"],
@@ -174,8 +174,8 @@ class API:
         else:
             return {}
 
-    # update_item_status permits to update status of item
     def update_item_status(self, id_item, status):
+        """Update status of item"""
         params = {
             "itemid": id_item,
             "status": status
@@ -188,8 +188,8 @@ class API:
         else:
             return {}
 
-    # get_list_triggers_by_host permits to get all triggers of the selected host
     def get_list_triggers_by_host(self, id_host):
+        """Get all triggers of the selected host"""
         params = {
             "hostids": id_host,
             "sortfield": "description",
@@ -203,8 +203,8 @@ class API:
         else:
             return {}
 
-    # get_list_triggers_by_item permits to get all triggers of the selected item
     def get_list_triggers_by_item(self, id_item):
+        """Get all triggers of the selected item"""
         params = {
             "itemids": id_item,
             "sortfield": "description",
@@ -218,8 +218,8 @@ class API:
         else:
             return {}
 
-    # get_trigger_info permits to get all information of the selected trigger
     def get_trigger_info(self, id_trigger):
+        """Get all information of the selected trigger"""
         params = {
             "triggerids": id_trigger,
             "output": ["triggerid", "description", "status", "value", "priority", "lastchange", "expression"],
@@ -236,8 +236,8 @@ class API:
         else:
             return {}
 
-    # get_trigger_problem permits to get all problems of the selected trigger
     def get_trigger_problem(self, id_trigger):
+        """Get all problems of the selected trigger"""
         params = {
             "objectids": id_trigger,
             "output": ["eventid", "name", "clock", "acknowledged", "severity"]
@@ -250,8 +250,8 @@ class API:
         else:
             return {}
 
-    # update_trigger_status permits to update status of trigger
     def update_trigger_status(self, id_trigger, status):
+        """Update status of trigger"""
         params = {
             "triggerid": id_trigger,
             "status": status
@@ -264,8 +264,8 @@ class API:
         else:
             return {}
 
-    # get_list_problems_by_host permits to get all problems of the selected host
     def get_list_problems_by_host(self, id_host):
+        """Get all problems of the selected host"""
         params = {
             "hostids": id_host,
             "output": ["eventid", "name", "clock", "acknowledged", "severity"],
@@ -278,8 +278,8 @@ class API:
         else:
             return {}
 
-    # get_list_problems_by_trigger permits to get all problems of the selected trigger
     def get_list_problems_by_trigger(self, id_trigger):
+        """Get all problems of the selected trigger"""
         params = {
             "objectids": id_trigger,
             "output": ["eventid", "name", "clock", "acknowledged", "severity"],
@@ -292,8 +292,8 @@ class API:
         else:
             return {}
 
-    # get_event_info permits to get all information of the selected event
     def get_event_info(self, id_event):
+        """Get all information of the selected event"""
         params = {
             "eventids": id_event,
             "output": ["eventid", "object", "objectid", "name", "clock", "acknowledged", "severity"],
@@ -308,8 +308,8 @@ class API:
         else:
             return {}
 
-    # action_event permits to action event
     def action_event(self, id_event, action, message=None, severity=None):
+        """Send action event"""
         if message == None and severity == None:
             params = {
                 "eventids": id_event,
@@ -335,8 +335,8 @@ class API:
         else:
             return {}
 
-    # get_list_problems permits to get all problems
     def get_list_problems(self):
+        """Get all problems"""
         params = {
             "output": ["eventid", "name", "clock", "acknowledged", "severity"],
         }
@@ -348,8 +348,8 @@ class API:
         else:
             return {}
 
-    # get_list_history_item permits to get history values for item
     def get_list_history_item(self, item_id, history):
+        """Get history values for item"""
         params = {
             "itemids": item_id,
             "history": history,

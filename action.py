@@ -11,10 +11,10 @@ import os
 import prettytable as pt
 
 ACK_MENU, CANCEL = map(chr, range(2))
-# build_menu build a menu with buttons
 
 
 def build_menu(buttons, n_cols, footer_buttons=None, cancel_button=None):
+    """Create a menu with buttons"""
     menu = [buttons[i:i + n_cols] for i in range(0, len(buttons), n_cols)]
     if footer_buttons:
         menu.append(footer_buttons)
@@ -22,17 +22,16 @@ def build_menu(buttons, n_cols, footer_buttons=None, cancel_button=None):
         menu.append(cancel_button)
     return menu
 
-# display_object_buttons display all objects in the form of buttons
-
 
 def display_object_button(object, object_list, LANG):
+    """Display all differents objects in the form of buttons"""
     lang_translations = gettext.translation(
         'action', localedir='locales', languages=[LANG])
     lang_translations.install()
     _ = lang_translations.gettext
     button_list = list()
     message = str()
-    if object == "host":
+    if object == "host":  # Display host buttons
         if not object_list:
             message = _('I didn\'t find any hosts. Please cancel\n')
         else:
@@ -45,7 +44,7 @@ def display_object_button(object, object_list, LANG):
             for host in object_list:
                 button_list.append(InlineKeyboardButton(text=get_status_host_emoji(host['interfaces'][0]['available'])+host['name'],
                                                         callback_data='{"HID":"'+host['hostid']+'"}'))
-    elif object == "HG":
+    elif object == "HG":  # Display host group buttons
         if not object_list:
             message = _('I didn\'t find any hostgroups. Please cancel\n')
         else:
@@ -58,7 +57,7 @@ def display_object_button(object, object_list, LANG):
             for hostgroup in object_list:
                 button_list.append(InlineKeyboardButton(text=hostgroup['name'],
                                                         callback_data='{"HGID":"'+hostgroup['groupid']+'"}'))
-    elif object == "item":
+    elif object == "item":  # Display item buttons
         if not object_list:
             message = _('I didn\'t find any items. Please cancel\n')
         else:
@@ -71,7 +70,7 @@ def display_object_button(object, object_list, LANG):
             for item in object_list:
                 button_list.append(InlineKeyboardButton(text=get_status_emoji(item['status'])+item['name'],
                                                         callback_data='{"IID":"'+item['itemid']+'"}'))
-    elif object == "trigger":
+    elif object == "trigger":  # Display trigger buttons
         if not object_list:
             message = _('I didn\'t find any triggers. Please cancel\n')
         else:
@@ -84,7 +83,7 @@ def display_object_button(object, object_list, LANG):
             for trigger in object_list:
                 button_list.append(InlineKeyboardButton(text=get_status_emoji(trigger['status'])+trigger['description'],
                                                         callback_data='{"TID":"'+trigger['triggerid']+'"}'))
-    elif object == "problem":
+    elif object == "problem":  # Display problem buttons
         if not object_list:
             message = _('I didn\'t find any problems. Please cancel\n')
         else:
@@ -99,10 +98,9 @@ def display_object_button(object, object_list, LANG):
                                                         callback_data='{"PID":"'+problem['eventid']+'"}'))
     return message, button_list
 
-# get_status_host_emoji converts the status number to the status emoji
-
 
 def get_status_host_emoji(status):
+    """Convert status number of host to status emoji"""
     switcher = {
         "0": telegramEmojiDict['white large square'],
         "1": telegramEmojiDict['green square'],
@@ -110,20 +108,18 @@ def get_status_host_emoji(status):
     }
     return switcher.get(status, "invalid status")
 
-# get_status_emoji converts the status number to the status emoji
-
 
 def get_status_emoji(status):
+    """Convert status number of object to status emoji"""
     switcher = {
         "0": telegramEmojiDict['green square'],
         "1": telegramEmojiDict['red square']
     }
     return switcher.get(status, "invalid status")
 
-# display_host_characteristics recovery the characteristics of host selected by the user
-
 
 def display_host_characteristics(context, LANG, API_VAR):
+    """Recovery and create message of host selected by the user"""
     lang_translations = gettext.translation(
         'action', localedir='locales', languages=[LANG])
     lang_translations.install()
@@ -147,10 +143,9 @@ def display_host_characteristics(context, LANG, API_VAR):
 
     return message
 
-# display_item_characteristics recovery the characteristics of item selected by the user
-
 
 def display_item_characteristics(context, LANG, API_VAR):
+    """Recovery and create message of item selected by the user"""
     lang_translations = gettext.translation(
         'action', localedir='locales', languages=[LANG])
     lang_translations.install()
@@ -173,10 +168,9 @@ def display_item_characteristics(context, LANG, API_VAR):
 
     return message
 
-# display_trigger_characteristics recovery the characteristics of trigger selected by the user
-
 
 def display_trigger_characteristics(context, LANG, API_VAR):
+    """Recovery and create message of trigger selected by the user"""
     lang_translations = gettext.translation(
         'action', localedir='locales', languages=[LANG])
     lang_translations.install()
@@ -199,10 +193,9 @@ def display_trigger_characteristics(context, LANG, API_VAR):
             trigger['hosts'][0]['name'], trigger['description'], stateV, trigger['expression'], severityV, valueV, get_time(trigger['lastchange']), message_tag)
     return message
 
-# display_problem_characteristics recovery the characteristics of problem selected by the user
-
 
 def display_problem_characteristics(context, LANG, API_VAR):
+    """Recovery and create message of problem selected by the user"""
     lang_translations = gettext.translation(
         'action', localedir='locales', languages=[LANG])
     lang_translations.install()
@@ -224,10 +217,9 @@ def display_problem_characteristics(context, LANG, API_VAR):
             problem['hosts'][0]['name'], severityV, get_time(problem['clock']), acknowledgedV, message_tag)
     return message
 
-# display_global_informations permits to get all information about a server
-
 
 def display_global_informations(api, LANG):
+    """Get all informations about a server"""
     lang_translations = gettext.translation(
         'action', localedir='locales', languages=[LANG])
     lang_translations.install()
@@ -273,20 +265,18 @@ def display_global_informations(api, LANG):
         "Disaster"), disaster_problem, telegramEmojiDict['brown square']+_("High"), high_problem, telegramEmojiDict['orange square']+_("Average"), average_problem, telegramEmojiDict['yellow square']+_("Warning"), warning_problem, telegramEmojiDict['blue square']+_("Information"), information_problem, telegramEmojiDict['white large square']+_("Not classified"), not_classified_problem, len(list_problem))
     return message
 
-# get_state_string converts the status number to the status text
-
 
 def get_state_string(status, _):
+    """Convert status number to status text"""
     switcher = {
         "0": _("enabled"),
         "1": _("disabled")
     }
     return switcher.get(status, "invalid status")
 
-# get_status_string converts the status number to the status text
-
 
 def get_status_string(status, _):
+    """Convert status number of host to status text"""
     switcher = {
         "0": telegramEmojiDict['white large square']+_("Unknown"),
         "1": telegramEmojiDict['green square']+_("Available"),
@@ -294,10 +284,9 @@ def get_status_string(status, _):
     }
     return switcher.get(status, "invalid status")
 
-# get_severity_string converts the severity number to the severity text
-
 
 def get_severity_string(severity, _):
+    """Convert severity number to severity text"""
     switcher = {
         "0": telegramEmojiDict['white large square']+_("Not classified"),
         "1": telegramEmojiDict['blue square']+_("Information"),
@@ -308,10 +297,9 @@ def get_severity_string(severity, _):
     }
     return switcher.get(severity, "invalid severity")
 
-# get_severity_emoji converts the severity number to the severity text
-
 
 def get_severity_emoji(severity):
+    """Convert severity number to severity emoji"""
     switcher = {
         "0": telegramEmojiDict['white large square'],
         "1": telegramEmojiDict['blue square'],
@@ -322,30 +310,27 @@ def get_severity_emoji(severity):
     }
     return switcher.get(severity, "invalid severity")
 
-# get_acknowledged_emoji converts the acknowledged number to the acknowledged text
-
 
 def get_acknowledged_emoji(acknowledged):
+    """Convert acknowledged number to the acknowledged text"""
     switcher = {
         "0": telegramEmojiDict['cross mark'],
         "1": telegramEmojiDict['check mark button'],
     }
     return switcher.get(acknowledged, "invalid acknowledged")
 
-# get_value_string converts the value number to the value text
-
 
 def get_value_string(value, _):
+    """Convert value number for problem to value text"""
     switcher = {
         "0": telegramEmojiDict['green square']+_("OK"),
         "1": telegramEmojiDict['red square']+_("PROBLEM")
     }
     return switcher.get(value, "invalid value")
 
-# get_time permits to convert a timestamp to a datetime
-
 
 def get_time(timestamp):
+    """Convert timestamp to a datetime for know duration"""
     if timestamp == None:
         return "N/A"
     date = datetime.fromtimestamp(int(timestamp))
@@ -370,10 +355,9 @@ def get_time(timestamp):
             break
     return "{} {}".format(firstVal, secondVal)
 
-# get_unity permits to obtain the unity of the time
-
 
 def get_unity(i):
+    """Obtain the unity of the time"""
     switcher = {
         0: 'y',
         1: 'M',
@@ -387,6 +371,7 @@ def get_unity(i):
 
 
 def get_image_data(data, list_item, LANG):
+    """Create graph for item and save at image"""
     lang_translations = gettext.translation(
         'action', localedir='locales', languages=[LANG])
     lang_translations.install()

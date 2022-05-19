@@ -72,7 +72,6 @@ END = ConversationHandler.END
 
 def send_typing_action(func):
     """Sends typing action while processing func command."""
-
     @wraps(func)
     def command_func(update, context, *args, **kwargs):
         context.bot.send_chat_action(
@@ -83,8 +82,8 @@ def send_typing_action(func):
     return command_func
 
 
-# get_cancel_button return the button cancel in a list
 def get_cancel_button():
+    """Return cancel button in list"""
     cancel_button = list()
     cancel_button.append(
         InlineKeyboardButton(
@@ -95,8 +94,8 @@ def get_cancel_button():
     return cancel_button
 
 
-# display_message_bot display message en keyboard to conversation
 def display_message_bot(update, context, message, reply_markup):
+    """Display message and keyboard in conversation"""
     if context.user_data['AFTER_GRAPH'] == True:
         context.user_data['AFTER_GRAPH'] = False
         context.bot.send_message(update.effective_chat.id, text=message,
@@ -112,8 +111,8 @@ def display_message_bot(update, context, message, reply_markup):
     context.user_data[START_OVER] = False
 
 
-# help_msg display the help message
 def help_msg(update, context):
+    """Display help message"""
     message = _(
         "Commands:\n /start - Start a conversation\n /stop - Stop a current action and return to start menu\n /problems - Get all problems on Zabbix server\n /global_informations *nameServer* - Get the global information of Zabbix server. You must specify nameServer arguments or environments variables TOKEN and URL if you don't pass argument."
     )
@@ -126,8 +125,8 @@ def help_msg(update, context):
     context.user_data[START_OVER] = False
 
 
-# global_information display the help message
 def global_information(update, context):
+    """Diplay all global informations about Zabbix server"""
     servFind = False
     server_name = ""
     if len(context.args) != 0:
@@ -210,12 +209,11 @@ def show_problem(update, context):
             f'```{table}```', parse_mode=ParseMode.MARKDOWN_V2)
 
 
-# navigation_elements permits to navigate in the pages of elements
-
-
 @send_typing_action
 def navigation_elements(update, context):
+    """Navigate in differents pages of elements"""
     ud = context.user_data
+    # Get the correct list of objects depending to type request
     if ud["TYPE_REQUEST"] == "all_host":
         elements_list = ud[API_VAR].get_list_hosts()
     elif ud["TYPE_REQUEST"] == "all_host_name":
@@ -238,32 +236,36 @@ def navigation_elements(update, context):
     elif ud["TYPE_REQUEST"] == "all_problem_trigger":
         elements_list = ud[API_VAR].get_list_problems_by_trigger(
             ud["ID_TRIGGER"])
-    numberHostDisplay = 26
+    numberHostDisplay = 26  # Max number of objects by pages
     numberPages = int(len(elements_list) / numberHostDisplay)
+
+    # Get correct elements depending the selected page
     if ud["NUMBER"] < numberPages:
         elements_list = elements_list[
             ud["NUMBER"] * numberHostDisplay: (ud["NUMBER"] + 1) * numberHostDisplay
         ]
     else:
         elements_list = elements_list[ud["NUMBER"] * numberHostDisplay:]
+
+    # Get elements in button_list
     message, button_list = display_object_button(
         ud["OBJECT"], elements_list, LANG)
 
+    # Create footer elements
     footer_buttons = list()
     if ud["NUMBER"] > 0:
         footer_buttons.append(
             InlineKeyboardButton(text="<<", callback_data=str(PRECEDENT))
         )
-
     text_button = _("Page %s") % (str(ud["NUMBER"] + 1))
     footer_buttons.append(
         InlineKeyboardButton(text=text_button, callback_data=str(ud["NUMBER"]))
     )
-
     if ud["NUMBER"] < numberPages:
         footer_buttons.append(InlineKeyboardButton(
             text=">>", callback_data=str(NEXT)))
 
+    # Create cancel button
     cancel_button = get_cancel_button()
     if ud["OBJECT"] == "problem":
         reply_markup = InlineKeyboardMarkup(
@@ -286,8 +288,8 @@ def navigation_elements(update, context):
     display_message_bot(update, context, message, reply_markup)
 
 
-# list_host display a page of hosts
 def list_host(update, context):
+    """Display all hosts"""
     ud = context.user_data
     ud["TYPE_REQUEST"] = "all_host"
     ud["OBJECT"] = "host"
@@ -296,24 +298,24 @@ def list_host(update, context):
     return CHOOSE_HOST
 
 
-# next permits to pass at the next page
 def next(update, context):
+    """Pass at the next page"""
     ud = context.user_data
     ud["NUMBER"] = ud["NUMBER"] + 1
     navigation_elements(update, context)
     return CHOOSE_HOST
 
 
-# precedent permits to pass at the precedent page
 def precedent(update, context):
+    """Pass at the precedent page"""
     ud = context.user_data
     ud["NUMBER"] = ud["NUMBER"] - 1
     navigation_elements(update, context)
     return CHOOSE_HOST
 
 
-# get_name_host recovery the name enter by the user
 def get_name_host(update, context):
+    """Ask people to enter host name"""
     update.callback_query.edit_message_text(
         text=_("Okay, give me the name of the host")
     )
@@ -321,8 +323,8 @@ def get_name_host(update, context):
     return NAME_HOST
 
 
-# get_tag_host recovery the tag enter by the user
 def get_tag_host(update, context):
+    """Ask people to enter tag values"""
     update.callback_query.edit_message_text(
         text=_("Okay, give me the tag of the host (NAME=VALUE)")
     )
@@ -330,8 +332,8 @@ def get_tag_host(update, context):
     return TAG_HOST
 
 
-# list_host_with_name display the list of host which contains the name of the host enter by the user
 def list_host_with_name(update, context):
+    """Display the list of host which contains the name of the host enter by the user"""
     ud = context.user_data
     ud["NAME_HOST"] = update.message.text
     ud["TYPE_REQUEST"] = "all_host_name"
@@ -341,8 +343,8 @@ def list_host_with_name(update, context):
     return CHOOSE_HOST
 
 
-# list_host_with_tag display the list of host which contains the tag of the host enter by the user
 def list_host_with_tag(update, context):
+    """Display the list of host which contains the tag of the host enter by the user"""
     ud = context.user_data
     ud["TAG_HOST"] = update.message.text
     ud["TYPE_REQUEST"] = "all_host_tag"
@@ -352,8 +354,8 @@ def list_host_with_tag(update, context):
     return CHOOSE_HOST
 
 
-# list_item display the list of item of the host selected by the user
 def list_item(update, context):
+    """Display the list of item for the host selected by the user"""
     ud = context.user_data
     ud["TYPE_REQUEST"] = "all_item"
     Cdata = json.loads(ud["HOST_INFO"])
@@ -364,8 +366,8 @@ def list_item(update, context):
     return CHOOSE_ITEM
 
 
-# list_hostgroups permits to recovery and display hostgroups
 def list_hostgroups(update, context):
+    """Display all hostgroups"""
     ud = context.user_data
     ud["TYPE_REQUEST"] = "all_hostgroup"
     ud["OBJECT"] = "HG"
@@ -374,8 +376,8 @@ def list_hostgroups(update, context):
     return CHOOSE_HOSTGROUP
 
 
-# list_trigger_by_host display the list of trigger of the host selected by the user
 def list_trigger_by_host(update, context):
+    """Display the list of trigger for the host selected by the user"""
     ud = context.user_data
     ud["TYPE_REQUEST"] = "all_trigger_host"
     Cdata = json.loads(ud["HOST_INFO"])
@@ -386,8 +388,8 @@ def list_trigger_by_host(update, context):
     return CHOOSE_TRIGGER
 
 
-# list_trigger_by_item display the list of trigger of the item selected by the user
 def list_trigger_by_item(update, context):
+    """Display the list of trigger for the item selected by the user"""
     ud = context.user_data
     ud["TYPE_REQUEST"] = "all_trigger_item"
     Cdata = json.loads(ud["ITEM_INFO"])
@@ -398,8 +400,8 @@ def list_trigger_by_item(update, context):
     return CHOOSE_TRIGGER
 
 
-# select_hostgroups permits to display host belonging to hostgroup
 def select_hostgroups(update, context):
+    """Display host belonging to hostgroup"""
     ud = context.user_data
     ud["HOSTGROUP_INFO"] = update.callback_query.data
     Cdata = json.loads(ud["HOSTGROUP_INFO"])
@@ -411,8 +413,8 @@ def select_hostgroups(update, context):
     return CHOOSE_HOST
 
 
-# list_problem_by_host display the list of problem of the host selected by the user
 def list_problem_by_host(update, context):
+    """Display the list of problem for the host selected by the user"""
     ud = context.user_data
     ud["TYPE_REQUEST"] = "all_problem_host"
     Cdata = json.loads(ud["HOST_INFO"])
@@ -423,8 +425,8 @@ def list_problem_by_host(update, context):
     return CHOOSE_PROBLEM
 
 
-# list_problem_by_trigger display the list of problem of the trigger selected by the user
 def list_problem_by_trigger(update, context):
+    """Display the list of problem for the trigger selected by the user"""
     ud = context.user_data
     ud["TYPE_REQUEST"] = "all_problem_trigger"
     Cdata = json.loads(ud["TRIGGER_INFO"])
@@ -435,8 +437,8 @@ def list_problem_by_trigger(update, context):
     return CHOOSE_PROBLEM
 
 
-# display_action_host return a list of buttons for make the sub-menu
 def display_action_host(context):
+    """Return buttons list for create host menu"""
     ud = context.user_data
     button_list = list()
     Cdata = json.loads(ud["HOST_INFO"])
@@ -445,7 +447,7 @@ def display_action_host(context):
     list_host_problems = ud[API_VAR].get_host_problem(hostID)
 
     for host in list_host:
-        # Display active checks or not
+        # Display enable or not
         if host["status"] == "0":
             button_list.append(
                 InlineKeyboardButton(
@@ -461,6 +463,7 @@ def display_action_host(context):
                 )
             )
 
+        # Display items button if it has item
         if len(host["items"]) != 0:
             button_list.append(
                 InlineKeyboardButton(
@@ -468,6 +471,8 @@ def display_action_host(context):
                     callback_data=str(ITEM_MENU),
                 )
             )
+
+        # Display triggers button if it has trigger
         if len(host["triggers"]) != 0:
             button_list.append(
                 InlineKeyboardButton(
@@ -476,6 +481,8 @@ def display_action_host(context):
                     callback_data=str(TRIGGER_MENU),
                 )
             )
+
+        # Display problems button if it has problem
         if len(list_host_problems) != 0:
             button_list.append(
                 InlineKeyboardButton(
@@ -488,8 +495,8 @@ def display_action_host(context):
     return button_list, cancel_button
 
 
-# display_action_item return a list of buttons for make the sub-menu
 def display_action_item(context):
+    """Return buttons list for create item menu"""
     ud = context.user_data
     button_list = list()
     Cdata = json.loads(ud["ITEM_INFO"])
@@ -497,7 +504,7 @@ def display_action_item(context):
     list_item = ud[API_VAR].get_item_info(itemID)
 
     for item in list_item:
-        # Display active checks or not
+        # Display enable or not
         if item["status"] == "0":
             button_list.append(
                 InlineKeyboardButton(
@@ -513,6 +520,7 @@ def display_action_item(context):
                 )
             )
 
+        # Display graph button if his value type in unsigned or float
         if item["value_type"] == "0" or item["value_type"] == "3":
             button_list.append(
                 InlineKeyboardButton(
@@ -520,6 +528,8 @@ def display_action_item(context):
                     callback_data=str(GRAPH_MENU),
                 )
             )
+
+        # Display triggers button if it has trigger
         if len(item["triggers"]) != 0:
             button_list.append(
                 InlineKeyboardButton(
@@ -528,6 +538,8 @@ def display_action_item(context):
                     callback_data=str(TRIGGER_MENU),
                 )
             )
+
+        # Display host button if it has one
         if len(item["hosts"]) != 0:
             button_list.append(
                 InlineKeyboardButton(
@@ -541,8 +553,8 @@ def display_action_item(context):
     return button_list, cancel_button
 
 
-# display_action_trigger return a list of buttons for make the sub-menu
 def display_action_trigger(context):
+    """Return buttons list for create trigger menu"""
     ud = context.user_data
     button_list = list()
     Cdata = json.loads(ud["TRIGGER_INFO"])
@@ -551,7 +563,7 @@ def display_action_trigger(context):
     list_trigger_problems = ud[API_VAR].get_trigger_problem(triggerID)
 
     for trigger in list_trigger:
-        # Display active checks or not
+        # Display enable or not
         if trigger["status"] == "0":
             button_list.append(
                 InlineKeyboardButton(
@@ -567,6 +579,7 @@ def display_action_trigger(context):
                 )
             )
 
+        # Display items button if it has item
         if len(trigger["items"]) != 0:
             button_list.append(
                 InlineKeyboardButton(
@@ -575,6 +588,8 @@ def display_action_trigger(context):
                     trigger["items"][0]["itemid"] + '"}',
                 )
             )
+
+        # Display host button if it has one
         if len(trigger["hosts"]) != 0:
             button_list.append(
                 InlineKeyboardButton(
@@ -583,6 +598,8 @@ def display_action_trigger(context):
                     trigger["hosts"][0]["hostid"] + '"}',
                 )
             )
+
+        # Display problems button if it has problem
         if len(list_trigger_problems) != 0:
             button_list.append(
                 InlineKeyboardButton(
@@ -595,14 +612,15 @@ def display_action_trigger(context):
     return button_list, cancel_button
 
 
-# display_action_problem return a list of buttons for make the sub-menu
 def display_action_problem(context):
+    """Return buttons list for create problem menu"""
     ud = context.user_data
     button_list = list()
     Cdata = json.loads(ud["PROBLEM_INFO"])
     problemID = Cdata["PID"]
     list_problem = ud[API_VAR].get_event_info(problemID)
     for problem in list_problem:
+        # Display trigger buttons if problem is bind to trigger
         if problem["object"] == "0":
             button_list.append(
                 InlineKeyboardButton(
@@ -611,6 +629,8 @@ def display_action_problem(context):
                     callback_data='{"TID":"' + problem["objectid"] + '"}',
                 )
             )
+
+        # Display host button if it has one
         if len(problem["hosts"]) != 0:
             button_list.append(
                 InlineKeyboardButton(
@@ -619,6 +639,8 @@ def display_action_problem(context):
                     problem["hosts"][0]["hostid"] + '"}',
                 )
             )
+
+        # Display acknowledge or unacknowledge button
         if problem["acknowledged"] == "0":
             button_list.append(
                 InlineKeyboardButton(
@@ -634,12 +656,16 @@ def display_action_problem(context):
                     callback_data=str(UNACKNOWLEDGE),
                 )
             )
+
+        # Display send messsage button
         button_list.append(
             InlineKeyboardButton(
                 text=telegramEmojiDict["speech balloon"] + _("Send message"),
                 callback_data=str(MESSAGE_MENU),
             )
         )
+
+        # Display change severity button
         button_list.append(
             InlineKeyboardButton(
                 text=telegramEmojiDict["horizontal traffic light"]
@@ -652,9 +678,9 @@ def display_action_problem(context):
     return button_list, cancel_button
 
 
-# select_host permits to display the informations and the sub-menu for the host selected
 @send_typing_action
 def select_host(update, context):
+    """Display all informations and button about host selected"""
     ud = context.user_data
     ud["HOST_INFO"] = update.callback_query.data
     message = display_host_characteristics(context, LANG, ud[API_VAR])
@@ -666,9 +692,9 @@ def select_host(update, context):
     return DISPLAY_ACTION
 
 
-# select_item permits to display the informations and the sub-menu for the item selected
 @send_typing_action
 def select_item(update, context):
+    """Display all informations and button about item selected"""
     ud = context.user_data
     ud["ITEM_INFO"] = update.callback_query.data
     message = display_item_characteristics(context, LANG, ud[API_VAR])
@@ -681,9 +707,9 @@ def select_item(update, context):
     return DISPLAY_ACTION_ITEM
 
 
-# select_trigger permits to display the informations and the sub-menu for the trigger selected
 @send_typing_action
 def select_trigger(update, context):
+    """Display all informations and button about trigger selected"""
     ud = context.user_data
     ud["TRIGGER_INFO"] = update.callback_query.data
     message = display_trigger_characteristics(context, LANG, ud[API_VAR])
@@ -695,9 +721,9 @@ def select_trigger(update, context):
     return DISPLAY_ACTION_TRIGGER
 
 
-# select_problem permits to display the informations and the sub-menu for the problem selected
 @send_typing_action
 def select_problem(update, context):
+    """Display all informations and button about problem selected"""
     ud = context.user_data
     ud["PROBLEM_INFO"] = update.callback_query.data
     message = display_problem_characteristics(context, LANG, ud[API_VAR])
@@ -709,9 +735,9 @@ def select_problem(update, context):
     return DISPLAY_ACTION_PROBLEM
 
 
-# enable_host permits to enable the host selected
 @send_typing_action
 def enable_host(update, context):
+    """Enable host selected by user"""
     ud = context.user_data
     Cdata = json.loads(ud["HOST_INFO"])
     host_ID = Cdata["HID"]
@@ -729,9 +755,9 @@ def enable_host(update, context):
     )
 
 
-# disable_host permits to disable the host selected
 @send_typing_action
 def disable_host(update, context):
+    """Disable host selected by user"""
     ud = context.user_data
     Cdata = json.loads(ud["HOST_INFO"])
     host_ID = Cdata["HID"]
@@ -749,9 +775,9 @@ def disable_host(update, context):
     )
 
 
-# enable_item permits to enable the item selected
 @send_typing_action
 def enable_item(update, context):
+    """Enable item selected by user"""
     ud = context.user_data
     Cdata = json.loads(ud["ITEM_INFO"])
     item_ID = Cdata["IID"]
@@ -769,9 +795,9 @@ def enable_item(update, context):
     )
 
 
-# disable_item permits to disable the item selected
 @send_typing_action
 def disable_item(update, context):
+    """Disable item selected by user"""
     ud = context.user_data
     Cdata = json.loads(ud["ITEM_INFO"])
     item_ID = Cdata["IID"]
@@ -789,9 +815,9 @@ def disable_item(update, context):
     )
 
 
-# enable_trigger permits to enable the trigger selected
 @send_typing_action
 def enable_trigger(update, context):
+    """Enable trigger selected by user"""
     ud = context.user_data
     Cdata = json.loads(ud["TRIGGER_INFO"])
     trigger_ID = Cdata["TID"]
@@ -810,9 +836,9 @@ def enable_trigger(update, context):
     )
 
 
-# disable_trigger permits to disable the trigger selected
 @send_typing_action
 def disable_trigger(update, context):
+    """Disable trigger selected by user"""
     ud = context.user_data
     Cdata = json.loads(ud["TRIGGER_INFO"])
     trigger_ID = Cdata["TID"]
@@ -831,9 +857,9 @@ def disable_trigger(update, context):
     )
 
 
-# acknowledge_problem permits to acknowledge problem selected
 @send_typing_action
 def acknowledge_problem(update, context):
+    """Acknowledge problem selected by user"""
     ud = context.user_data
     Cdata = json.loads(ud["PROBLEM_INFO"])
     problem_ID = Cdata["PID"]
@@ -852,9 +878,9 @@ def acknowledge_problem(update, context):
     )
 
 
-# unacknowledge_problem permits to unacknowledge problem selected
 @send_typing_action
 def unacknowledge_problem(update, context):
+    """Unaknowledge problem selected by user"""
     ud = context.user_data
     Cdata = json.loads(ud["PROBLEM_INFO"])
     problem_ID = Cdata["PID"]
@@ -873,16 +899,16 @@ def unacknowledge_problem(update, context):
     )
 
 
-# get_message recovery the message enter by the user
 def get_message(update, context):
+    """Ask message to user"""
     update.callback_query.edit_message_text(
         text=_("Okay, give me the message"))
     return MESSAGE
 
 
-# send_message send the message for problem selected by the user
 @send_typing_action
 def send_message(update, context):
+    """Send message for problem selected by the user"""
     ud = context.user_data
     ud["MESSAGE_INFO"] = update.message.text
     Cdata = json.loads(ud["PROBLEM_INFO"])
@@ -901,8 +927,8 @@ def send_message(update, context):
     return END
 
 
-# choose_severity permits to display keyboard with severity
 def choose_severity(update, context):
+    """Display keyboard with differents severity"""
     msg = _("Choose new severity")
     button_list = list()
     button_list.append(
@@ -932,9 +958,9 @@ def choose_severity(update, context):
     return CHANGE_SEVERITY
 
 
-# change_severity permits to change a severity of a problems
 @send_typing_action
 def change_severity(update, context):
+    """Change severty on problem"""
     ud = context.user_data
     text = update.message.text
     if telegramEmojiDict["white large square"] + _("Not classified") in text:
@@ -1003,6 +1029,7 @@ def start(update, context):
     context.user_data['AFTER_GRAPH'] = False
     findServ = False
     bot = context.bot
+    # If information of server are in environment variables
     if NAME_SERVER == "" and os.getenv("ZABBIX_URL") != None and os.getenv("ZABBIX_TOKEN") != None:
         findServ = True
         context.user_data[str(ZABBIX_URL)] = os.getenv("ZABBIX_URL")
@@ -1010,7 +1037,7 @@ def start(update, context):
         message = _(
             "Hey, I'm %s !\nI will help you to handle Zabbix problems !\nI'm connected to the server : *%s*\nType /help to show all commands\n   Choose an option:"
         ) % (bot.get_me().first_name, os.getenv("ZABBIX_URL"))
-    elif NAME_SERVER != "":
+    elif NAME_SERVER != "":  # If server already set
         with open("config.yaml", "r") as stream:
             data_loaded = yaml.safe_load(stream)
         for __, doc in data_loaded.items():
@@ -1022,7 +1049,7 @@ def start(update, context):
         message = _(
             "Hey, I'm %s !\nI will help you to handle Zabbix problems !\nI'm connected to the server : *%s*\nType /help to show all commands\n   Choose an option:"
         ) % (bot.get_me().first_name, NAME_SERVER)
-    else:
+    else:  # If server not set, get the first on configuration file
         if os.path.exists("config.yaml"):
             with open("config.yaml", "r") as stream:
                 data_loaded = yaml.safe_load(stream)
@@ -1110,8 +1137,8 @@ def start(update, context):
     return ACTION_START
 
 
-# list_setting display the action possible in the menu setting
 def list_setting(update, context):
+    """Create buttons for actions in menu setting"""
     button_list = list()
     button_list.append(
         InlineKeyboardButton(
@@ -1134,8 +1161,8 @@ def list_setting(update, context):
     return CHOOSE_SETTING
 
 
-# select_lang display the possibles languages
 def select_lang(update, context):
+    """Create buttons for select languages"""
     button_list = list()
     button_list.append(InlineKeyboardButton(
         text="🇬🇧 English", callback_data="en"))
@@ -1147,8 +1174,8 @@ def select_lang(update, context):
     return CHOOSE_LANG
 
 
-# choose_lang recovery the language choose by the user and change the language of the bot
 def choose_lang(update, context):
+    """Get the language choose by the user and change the language of the bot"""
     context.user_data["LANG"] = update.callback_query.data
     global LANG, lang_translations, _
     LANG = context.user_data["LANG"]
@@ -1162,8 +1189,8 @@ def choose_lang(update, context):
     return END
 
 
-# get_name_server recovery the name of the server enter by the user
 def get_name_server(update, context):
+    """Create buttons list for each server in configuration file"""
     button_list = list()
     if os.path.exists("config.yaml"):
         with open("config.yaml", "r") as stream:
@@ -1189,8 +1216,8 @@ def get_name_server(update, context):
     return SERVER
 
 
-# change_server change the server where the bot is connected
 def change_server(update, context):
+    """Get the server that the user has choose"""
     global NAME_SERVER
     Cdata = json.loads(update.callback_query.data)
     NAME_SERVER = Cdata["SE"]
@@ -1199,14 +1226,13 @@ def change_server(update, context):
     return STOPPING
 
 
-# cancel stop the conversation and display the main menu
 def cancel(update, context):
+    """Stop the conversation and display the main menu"""
     context.user_data[START_OVER] = True
     start(update, context)
     return STOPPING
 
 
-# stop stop all conversations
 def stop(update, context):
     """End Conversation by command."""
     context.user_data.clear()
@@ -1214,15 +1240,14 @@ def stop(update, context):
     return END
 
 
-# stop_nested end conversation child and return to start menu
 def stop_nested(update, context):
+    """End conversation child and return to start menu"""
     context.user_data[START_OVER] = False
     update.message.reply_text("STOP okay.")
     start(update, context)
     return STOPPING
 
 
-# end stop all conversations
 def end(update, context):
     """End conversation from InlineKeyboardButton."""
     context.user_data.clear()
@@ -1230,7 +1255,6 @@ def end(update, context):
     return END
 
 
-# error log the errors that the bot meet
 def error(update, context):
     """Log Errors caused by Updates."""
     logger.warning('Update "%s" caused error "%s"', update, context.error)

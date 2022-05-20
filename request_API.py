@@ -107,7 +107,8 @@ class API:
             "selectItems": ["name", "itemid"],
             "selectTriggers": ["triggerid", "description", "value", "priority"],
             "selectTags": ["tag", "value"],
-            "selectInterfaces": ["available"]
+            "selectInterfaces": ["available"],
+            "selectGroups": ["name", "groupid"]
         }
         status_code, text = self.request_post(params=params, method='host.get')
         json_data = json.loads(text)

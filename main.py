@@ -281,7 +281,10 @@ def navigation_elements(update, context):
     elif ud["TYPE_REQUEST"] == "all_problem_trigger":
         elements_list = ud[API_VAR].get_list_problems_by_trigger(
             ud["ID_TRIGGER"])
-    numberHostDisplay = 26  # Max number of objects by pages
+    if ud['OBJECT'] == 'problem':
+        numberHostDisplay = 15
+    else:
+        numberHostDisplay = 26  # Max number of objects by pages
     numberPages = int(len(elements_list) / numberHostDisplay)
 
     # Get correct elements depending the selected page
@@ -524,6 +527,18 @@ def display_action_host(context):
                     text=telegramEmojiDict["vertical traffic light"] +
                     _("Triggers"),
                     callback_data=str(TRIGGER_MENU),
+                )
+            )
+
+        # Display groups button if it has group
+        if len(host["groups"]) != 0:
+            button_list.append(
+                InlineKeyboardButton(
+                    text=telegramEmojiDict["laptop"]
+                    + telegramEmojiDict["laptop"] +
+                    _("Back to group"),
+                    callback_data='{"HGID":"' +
+                    host['groups'][0]['groupid']+'"}',
                 )
             )
 
@@ -1356,6 +1371,14 @@ def main():
                     disable_host, pattern="^" + str(DISABLE_HOST) + "$"
                 ),
                 CallbackQueryHandler(cancel, pattern="^" + str(CANCEL) + "$"),
+                CallbackQueryHandler(select_hostgroups, pattern='^{"HGID*'),
+            ],
+            CHOOSE_HOST: [
+                CallbackQueryHandler(select_host, pattern='^{"HID*'),
+                CallbackQueryHandler(cancel, pattern="^" + str(CANCEL) + "$"),
+                CallbackQueryHandler(
+                    precedent, pattern="^" + str(PRECEDENT) + "$"),
+                CallbackQueryHandler(next, pattern="^" + str(NEXT) + "$"),
             ],
             CHOOSE_ITEM: [
                 CallbackQueryHandler(select_item, pattern='^{"IID*'),

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-05-19 09:12+0200\n"
+"POT-Creation-Date: 2022-05-19 16:06+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -26,169 +26,175 @@ msgid ""
 "Commands:\n"
 " /start - Start a conversation\n"
 " /stop - Stop a current action and return to start menu\n"
+" /maintenances - Get all maintenance periods\n"
 " /problems - Get all problems on Zabbix server\n"
-" /global_informations *nameServer* - Get the global information of Zabbix "
-"server. You must specify nameServer arguments or environments variables "
-"TOKEN and URL if you don't pass argument."
+" /global_status *nameServer* - Get the global information of Zabbix server. "
+"You must specify nameServer arguments or environments variables ZABBIX_TOKEN "
+"and ZABBIX_URL if you don't pass argument."
 msgstr ""
 
-#: main.py:151 main.py:195
+#: main.py:152 main.py:198 main.py:239
 msgid ""
 "Can you set environments variables (URL and TOKEN) to use this command with "
 "any argument."
 msgstr ""
 
-#: main.py:154 main.py:199
+#: main.py:155 main.py:202 main.py:243
 #, python-format
 msgid "The server *%s* was not found in config.yaml file."
 msgstr ""
 
-#: main.py:258
+#: main.py:163
+#, python-format
+msgid "The server use is *%s*\n"
+msgstr ""
+
+#: main.py:305
 #, python-format
 msgid "Page %s"
 msgstr ""
 
-#: main.py:318
+#: main.py:365
 msgid "Okay, give me the name of the host"
 msgstr ""
 
-#: main.py:327
+#: main.py:374
 msgid "Okay, give me the tag of the host (NAME=VALUE)"
 msgstr ""
 
-#: main.py:452 main.py:504 main.py:558
+#: main.py:499 main.py:556 main.py:615
 msgid "Disable"
 msgstr ""
 
-#: main.py:459 main.py:511 main.py:565
+#: main.py:506 main.py:563 main.py:622
 msgid "Enable"
 msgstr ""
 
-#: main.py:467
+#: main.py:515
 msgid "Items"
 msgstr ""
 
-#: main.py:475 main.py:527
+#: main.py:525 main.py:582
 msgid "Triggers"
 msgstr ""
 
-#: main.py:482 main.py:589
+#: main.py:534 main.py:651
 msgid "Problems"
 msgstr ""
 
-#: main.py:519
+#: main.py:572
 msgid "Graph"
 msgstr ""
 
-#: main.py:534 main.py:581 main.py:617
+#: main.py:591 main.py:641 main.py:682
 msgid "Host"
 msgstr ""
 
-#: main.py:573
+#: main.py:631
 msgid "Item"
 msgstr ""
 
-#: main.py:610
+#: main.py:673
 msgid "Trigger"
 msgstr ""
 
-#: main.py:626
+#: main.py:693
 msgid "Acknowledge"
 msgstr ""
 
-#: main.py:633
+#: main.py:700
 msgid "Unacknowledge"
 msgstr ""
 
-#: main.py:639
+#: main.py:708
 msgid "Send message"
 msgstr ""
 
-#: main.py:646
+#: main.py:717
 msgid "Change severity"
 msgstr ""
 
-#: main.py:719
+#: main.py:790
 msgid "Host enabled OK\n"
 msgstr ""
 
-#: main.py:739
+#: main.py:810
 msgid "Host disabled OK\n"
 msgstr ""
 
-#: main.py:759
+#: main.py:830
 msgid "Item enabled OK\n"
 msgstr ""
 
-#: main.py:779
+#: main.py:850
 msgid "Item disabled OK\n"
 msgstr ""
 
-#: main.py:799
+#: main.py:870
 msgid "Trigger enabled OK\n"
 msgstr ""
 
-#: main.py:820
+#: main.py:891
 msgid "Trigger disabled OK\n"
 msgstr ""
 
-#: main.py:841
+#: main.py:912
 msgid "Problem acknowledged OK\n"
 msgstr ""
 
-#: main.py:862
+#: main.py:933
 msgid "Problem unacknowledged OK\n"
 msgstr ""
 
-#: main.py:879
+#: main.py:950
 msgid "Okay, give me the message"
 msgstr ""
 
-#: main.py:891
+#: main.py:962
 msgid "Send message to problem OK\n"
 msgstr ""
 
-#: main.py:906
+#: main.py:977
 msgid "Choose new severity"
 msgstr ""
 
-#: main.py:910 main.py:940
+#: main.py:981 main.py:1011
 msgid "Not classified"
 msgstr ""
 
-#: main.py:913 main.py:942
+#: main.py:984 main.py:1013
 msgid "Information"
 msgstr ""
 
-#: main.py:916 main.py:944
+#: main.py:987 main.py:1015
 msgid "Warning"
 msgstr ""
 
-#: main.py:919 main.py:946
+#: main.py:990 main.py:1017
 msgid "Average"
 msgstr ""
 
-#: main.py:922 main.py:948
+#: main.py:993 main.py:1019
 msgid "High"
 msgstr ""
 
-#: main.py:924 main.py:950
+#: main.py:995 main.py:1021
 msgid "Disaster"
 msgstr ""
 
-#: main.py:955
+#: main.py:1026
 msgid "Severity change to problem OK\n"
 msgstr ""
 
-#: main.py:983
+#: main.py:1054
 msgid "Back to item"
 msgstr ""
 
-#: main.py:989
+#: main.py:1060
 msgid "Back to host"
 msgstr ""
 
-#: main.py:1011 main.py:1023 main.py:1034
+#: main.py:1083 main.py:1095 main.py:1106
 #, python-format
 msgid ""
 "Hey, I'm %s !\n"
@@ -198,64 +204,64 @@ msgid ""
 "   Choose an option:"
 msgstr ""
 
-#: main.py:1044
+#: main.py:1116
 msgid "Search host name"
 msgstr ""
 
-#: main.py:1050
+#: main.py:1122
 msgid "Search host tag"
 msgstr ""
 
-#: main.py:1058
+#: main.py:1130
 msgid "Hostgroups"
 msgstr ""
 
-#: main.py:1063
+#: main.py:1135
 msgid "All Hosts"
 msgstr ""
 
-#: main.py:1069 main.py:1090
+#: main.py:1141 main.py:1162
 msgid "Settings"
 msgstr ""
 
-#: main.py:1073 main.py:1096
+#: main.py:1145 main.py:1168
 msgid "Done"
 msgstr ""
 
-#: main.py:1086
+#: main.py:1158
 msgid "The server is incorrect. Please change the name in setting."
 msgstr ""
 
-#: main.py:1118
+#: main.py:1190
 msgid "Change language"
 msgstr ""
 
-#: main.py:1124
+#: main.py:1196
 msgid "Change server"
 msgstr ""
 
-#: main.py:1132
+#: main.py:1204
 msgid "Choose what you want to change"
 msgstr ""
 
-#: main.py:1145
+#: main.py:1217
 msgid "Please choose your language"
 msgstr ""
 
-#: main.py:1179
+#: main.py:1251
 msgid "Choose one server or cancel"
 msgstr ""
 
-#: main.py:1182
+#: main.py:1254
 msgid ""
 "The file *config.yaml* doesn't exists. Create file or use environment "
 "variables."
 msgstr ""
 
-#: main.py:1213
+#: main.py:1284
 msgid "Okay, bye."
 msgstr ""
 
-#: main.py:1229
+#: main.py:1299
 msgid "See you !"
 msgstr ""

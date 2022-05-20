@@ -218,7 +218,7 @@ def display_problem_characteristics(context, LANG, API_VAR):
     return message
 
 
-def display_global_informations(api, LANG):
+def display_global_status(api, LANG):
     """Get all informations about a server"""
     lang_translations = gettext.translation(
         'action', localedir='locales', languages=[LANG])
@@ -440,4 +440,24 @@ def get_table_information_problem(api):
         acknowledged_emoji = get_acknowledged_emoji(problem['acknowledged'])
         table.add_row([host_info[0]["hosts"][0]["name"],
                       severity_emoji+problem['name'], time, acknowledged_emoji])
+    return table
+
+
+def get_table_information_maintenance(api):
+    """"Get maintenances information about Zabbix server"""
+    table = pt.PrettyTable(['Name', 'Active since', 'Active till', 'State'])
+    table.align['Name'] = 'l'
+    table.align['State'] = 'l'
+    now = datetime.now()
+    list_maintenance = api.get_list_maintenances()
+    for maintenance in list_maintenance:
+        if now > datetime.fromtimestamp(int(maintenance['active_since'])) and now < datetime.fromtimestamp(int(maintenance['active_till'])):
+            table.add_row([maintenance['name'], datetime.fromtimestamp(int(maintenance['active_since'])),
+                           datetime.fromtimestamp(int(maintenance['active_till'])), telegramEmojiDict['green square']+"Active"])
+        elif now > datetime.fromtimestamp(int(maintenance['active_till'])):
+            table.add_row([maintenance['name'], datetime.fromtimestamp(int(maintenance['active_since'])),
+                           datetime.fromtimestamp(int(maintenance['active_till'])), telegramEmojiDict['red square']+"Expired"])
+        elif now < datetime.fromtimestamp(int(maintenance['active_since'])):
+            table.add_row([maintenance['name'], datetime.fromtimestamp(int(maintenance['active_since'])),
+                           datetime.fromtimestamp(int(maintenance['active_till'])), telegramEmojiDict['orange square']+"Approaching"])
     return table

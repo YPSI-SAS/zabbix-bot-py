@@ -14,6 +14,7 @@ from action import (
     get_image_data,
     get_table_information_problem,
     get_table_information_maintenance,
+    display_service_characteristics,
 )
 from functools import wraps
 import gettext
@@ -36,7 +37,8 @@ logger = logging.getLogger(__name__)
 ACTION_START, START_OVER, ZABBIX_URL, ZABBIX_TOKEN, API_VAR, TYPING, CANCEL = map(
     chr, range(7)
 )
-SETTING, CHOOSE_SETTING, CHOOSE_LANG, SERVER, STOPPING = map(chr, range(7, 12))
+SETTING_MENU, CHOOSE_SETTING, CHOOSE_LANG, SERVER, STOPPING = map(
+    chr, range(7, 12))
 ALL_MENU, CHOOSE_HOST = map(chr, range(12, 14))
 PRECEDENT, NEXT = map(chr, range(14, 16))
 HOST_MENU_NAME, NAME_HOST = map(chr, range(16, 18))
@@ -59,6 +61,7 @@ UNACKNOWLEDGE = map(chr, range(42, 43))
 MESSAGE_MENU = map(chr, range(43, 44))
 CHANGE_SEVERITY = map(chr, range(44, 45))
 DISPLAY_ACTION_GRAPH = map(chr, range(45, 46))
+SERVICE_MENU, CHOOSE_SERVICE, DISPLAY_ACTION_SERVICE = map(chr, range(46, 49))
 
 LANG = "en"
 NAME_SERVER = ""
@@ -281,6 +284,14 @@ def navigation_elements(update, context):
     elif ud["TYPE_REQUEST"] == "all_problem_trigger":
         elements_list = ud[API_VAR].get_list_problems_by_trigger(
             ud["ID_TRIGGER"])
+    elif ud["TYPE_REQUEST"] == "all_service":
+        elements_list = ud[API_VAR].get_list_services()
+    elif ud["TYPE_REQUEST"] == "all_service_parent":
+        elements_list = ud[API_VAR].get_list_services_parent_child(
+            ud["PARENT_CHILD_ID"])
+    elif ud["TYPE_REQUEST"] == "all_problem_service":
+        elements_list = ud[API_VAR].get_list_problems_by_service(
+            ud["PROBLEM_ID"])
     if ud['OBJECT'] == 'problem':
         numberHostDisplay = 15
     else:
@@ -422,6 +433,65 @@ def list_hostgroups(update, context):
     ud["NUMBER"] = 0
     navigation_elements(update, context)
     return CHOOSE_HOSTGROUP
+
+
+def list_services(update, context):
+    """Display all services"""
+    ud = context.user_data
+    ud["TYPE_REQUEST"] = "all_service"
+    ud["OBJECT"] = "service"
+    ud["NUMBER"] = 0
+    navigation_elements(update, context)
+    return CHOOSE_SERVICE
+
+
+def concatenate_id(value, filter, filterid):
+    eventid = ""
+    for val in value[filter]:
+        eventid = eventid+";"+val[filterid]
+    return eventid
+
+
+def list_service_parent(update, context):
+    """Display all parents services"""
+    ud = context.user_data
+    Cdata = json.loads(update.callback_query.data)
+    value = ud[API_VAR].get_service_info(Cdata['PARID'])
+    ud["PARENT_CHILD_ID"] = concatenate_id(
+        value[0], "parents", "serviceid")
+    ud["TYPE_REQUEST"] = "all_service_parent"
+    ud["OBJECT"] = "service"
+    ud["NUMBER"] = 0
+    navigation_elements(update, context)
+    return CHOOSE_SERVICE
+
+
+def list_service_child(update, context):
+    """Display all children services"""
+    ud = context.user_data
+    Cdata = json.loads(update.callback_query.data)
+    value = ud[API_VAR].get_service_info(Cdata["CHILDID"])
+    ud["PARENT_CHILD_ID"] = concatenate_id(
+        value[0], "children", "serviceid")
+    ud["TYPE_REQUEST"] = "all_service_parent"
+    ud["OBJECT"] = "service"
+    ud["NUMBER"] = 0
+    navigation_elements(update, context)
+    return CHOOSE_SERVICE
+
+
+def list_problem_by_service(update, context):
+    """Display the list of problem for the service selected by the user"""
+    ud = context.user_data
+    ud["TYPE_REQUEST"] = "all_problem_service"
+    Cdata = json.loads(update.callback_query.data)
+    value = ud[API_VAR].get_service_info(Cdata["PROID"])
+    ud["PROBLEM_ID"] = concatenate_id(
+        value[0], "problem_events", "eventid")
+    ud["OBJECT"] = "problem"
+    ud["NUMBER"] = 0
+    navigation_elements(update, context)
+    return CHOOSE_PROBLEM
 
 
 def list_trigger_by_host(update, context):
@@ -738,6 +808,54 @@ def display_action_problem(context):
     return button_list, cancel_button
 
 
+def display_action_service(context):
+    """Return buttons list for create service menu"""
+    ud = context.user_data
+    button_list = list()
+    Cdata = json.loads(ud["SERVICE_INFO"])
+    serviceID = Cdata["SID"]
+    list_service = ud[API_VAR].get_service_info(serviceID)
+    for service in list_service:
+
+        # Display parent button if it has one
+        if len(service["parents"]) != 0:
+            button_list.append(
+                InlineKeyboardButton(
+                    text=telegramEmojiDict["level slider"] +
+                    telegramEmojiDict["baby"] +
+                    _("Parents service"),
+                    callback_data='{"PARID":"' +
+                    service['serviceid'] + '"}',
+                )
+            )
+
+        # Display children button if it has one
+        if len(service["children"]) != 0:
+            button_list.append(
+                InlineKeyboardButton(
+                    text=telegramEmojiDict["level slider"] +
+                    telegramEmojiDict["older person"] +
+                    _("Children service"),
+                    callback_data='{"CHILDID":"' +
+                    service['serviceid'] + '"}',
+                )
+            )
+
+        # Display problem button if it has one
+        if len(service["problem_events"]) != 0:
+            button_list.append(
+                InlineKeyboardButton(
+                    text=telegramEmojiDict["police car light"] +
+                    _("Problems"),
+                    callback_data='{"PROID":"' +
+                    service['serviceid'] + '"}',
+                )
+            )
+
+    cancel_button = get_cancel_button()
+    return button_list, cancel_button
+
+
 @send_typing_action
 def select_host(update, context):
     """Display all informations and button about host selected"""
@@ -793,6 +911,20 @@ def select_problem(update, context):
     )
     display_message_bot(update, context, message, reply_markup)
     return DISPLAY_ACTION_PROBLEM
+
+
+@send_typing_action
+def select_service(update, context):
+    """Display all informations and button about service selected"""
+    ud = context.user_data
+    ud["SERVICE_INFO"] = update.callback_query.data
+    message = display_service_characteristics(context, LANG, ud[API_VAR])
+    button_list, cancel_button = display_action_service(context)
+    reply_markup = InlineKeyboardMarkup(
+        build_menu(button_list, n_cols=2, cancel_button=cancel_button)
+    )
+    display_message_bot(update, context, message, reply_markup)
+    return DISPLAY_ACTION_SERVICE
 
 
 @send_typing_action
@@ -1153,8 +1285,15 @@ def start(update, context):
             ],
             [
                 InlineKeyboardButton(
+                    text=telegramEmojiDict["level slider"]
+                    + _("Services"),
+                    callback_data=str(SERVICE_MENU),
+                ),
+            ],
+            [
+                InlineKeyboardButton(
                     text=telegramEmojiDict["gear"] + _("Settings"),
-                    callback_data=str(SETTING),
+                    callback_data=str("setting"),
                 ),
                 InlineKeyboardButton(
                     text=telegramEmojiDict["waving hand"] + _("Done"),
@@ -1175,7 +1314,7 @@ def start(update, context):
             [
                 InlineKeyboardButton(
                     text=telegramEmojiDict["gear"] + _("Settings"),
-                    callback_data=str(SETTING),
+                    callback_data=str("setting"),
                 )
             ],
             [
@@ -1352,95 +1491,98 @@ def main():
         map_to_parent={STOPPING: STOPPING, END: DISPLAY_ACTION_PROBLEM},
     )
 
+    states_list = {DISPLAY_ACTION: [
+        CallbackQueryHandler(
+            list_item, pattern="^" + str(ITEM_MENU) + "$"),
+        CallbackQueryHandler(
+            list_trigger_by_host, pattern="^" + str(TRIGGER_MENU) + "$"
+        ),
+        CallbackQueryHandler(
+            list_problem_by_host, pattern="^" + str(PROBLEM_MENU) + "$"
+        ),
+        CallbackQueryHandler(
+            enable_host, pattern="^" + str(ENABLE_HOST) + "$"),
+        CallbackQueryHandler(
+            disable_host, pattern="^" + str(DISABLE_HOST) + "$"
+        ),
+        CallbackQueryHandler(cancel, pattern="^" + str(CANCEL) + "$"),
+        CallbackQueryHandler(select_hostgroups, pattern='^{"HGID*'),
+    ],
+        CHOOSE_HOST: [
+        CallbackQueryHandler(select_host, pattern='^{"HID*'),
+        CallbackQueryHandler(cancel, pattern="^" + str(CANCEL) + "$"),
+        CallbackQueryHandler(
+            precedent, pattern="^" + str(PRECEDENT) + "$"),
+        CallbackQueryHandler(next, pattern="^" + str(NEXT) + "$"),
+    ],
+        CHOOSE_ITEM: [
+        CallbackQueryHandler(select_item, pattern='^{"IID*'),
+        CallbackQueryHandler(cancel, pattern="^" + str(CANCEL) + "$"),
+    ],
+        DISPLAY_ACTION_ITEM: [
+        CallbackQueryHandler(select_host, pattern='^{"HID*'),
+        CallbackQueryHandler(
+            list_trigger_by_item, pattern="^" + str(TRIGGER_MENU) + "$"
+        ),
+        CallbackQueryHandler(
+            enable_item, pattern="^" + str(ENABLE_ITEM) + "$"),
+        CallbackQueryHandler(
+            disable_item, pattern="^" + str(DISABLE_ITEM) + "$"
+        ),
+        CallbackQueryHandler(cancel, pattern="^" + str(CANCEL) + "$"),
+        CallbackQueryHandler(
+            display_graph, pattern="^" + str(GRAPH_MENU) + "$"),
+    ],
+        DISPLAY_ACTION_GRAPH: [
+        CallbackQueryHandler(
+            select_item, pattern='^{"IID*'),
+        CallbackQueryHandler(select_host, pattern='^{"HID*'),
+    ],
+        CHOOSE_TRIGGER: [
+        CallbackQueryHandler(select_trigger, pattern='^{"TID*'),
+        CallbackQueryHandler(cancel, pattern="^" + str(CANCEL) + "$"),
+    ],
+        DISPLAY_ACTION_TRIGGER: [
+        CallbackQueryHandler(select_host, pattern='^{"HID*'),
+        CallbackQueryHandler(select_item, pattern='^{"IID*'),
+        CallbackQueryHandler(
+            list_problem_by_trigger, pattern="^" +
+            str(PROBLEM_MENU) + "$"
+        ),
+        CallbackQueryHandler(
+            enable_trigger, pattern="^" + str(ENABLE_TRIGGER) + "$"
+        ),
+        CallbackQueryHandler(
+            disable_trigger, pattern="^" + str(DISABLE_TRIGGER) + "$"
+        ),
+        CallbackQueryHandler(cancel, pattern="^" + str(CANCEL) + "$"),
+    ],
+        CHOOSE_PROBLEM: [
+        CallbackQueryHandler(select_problem, pattern='^{"PID*'),
+        CallbackQueryHandler(
+            precedent, pattern="^" + str(PRECEDENT) + "$"),
+        CallbackQueryHandler(next, pattern="^" + str(NEXT) + "$"),
+        CallbackQueryHandler(cancel, pattern="^" + str(CANCEL) + "$"),
+    ],
+        DISPLAY_ACTION_PROBLEM: [
+        CallbackQueryHandler(select_host, pattern='^{"HID*'),
+        CallbackQueryHandler(select_trigger, pattern='^{"TID*'),
+        CallbackQueryHandler(
+            unacknowledge_problem, pattern="^" +
+            str(UNACKNOWLEDGE) + "$"
+        ),
+        CallbackQueryHandler(
+            acknowledge_problem, pattern="^" + str(ACKNOWLEDGE) + "$"
+        ),
+        message_conv,
+        change_severity_conv,
+        CallbackQueryHandler(cancel, pattern="^" + str(CANCEL) + "$"),
+    ]}
+
     # Add conversation handler for host
     host_conv = ConversationHandler(
         entry_points=[CallbackQueryHandler(select_host, pattern='^{"HID*')],
-        states={
-            DISPLAY_ACTION: [
-                CallbackQueryHandler(
-                    list_item, pattern="^" + str(ITEM_MENU) + "$"),
-                CallbackQueryHandler(
-                    list_trigger_by_host, pattern="^" + str(TRIGGER_MENU) + "$"
-                ),
-                CallbackQueryHandler(
-                    list_problem_by_host, pattern="^" + str(PROBLEM_MENU) + "$"
-                ),
-                CallbackQueryHandler(
-                    enable_host, pattern="^" + str(ENABLE_HOST) + "$"),
-                CallbackQueryHandler(
-                    disable_host, pattern="^" + str(DISABLE_HOST) + "$"
-                ),
-                CallbackQueryHandler(cancel, pattern="^" + str(CANCEL) + "$"),
-                CallbackQueryHandler(select_hostgroups, pattern='^{"HGID*'),
-            ],
-            CHOOSE_HOST: [
-                CallbackQueryHandler(select_host, pattern='^{"HID*'),
-                CallbackQueryHandler(cancel, pattern="^" + str(CANCEL) + "$"),
-                CallbackQueryHandler(
-                    precedent, pattern="^" + str(PRECEDENT) + "$"),
-                CallbackQueryHandler(next, pattern="^" + str(NEXT) + "$"),
-            ],
-            CHOOSE_ITEM: [
-                CallbackQueryHandler(select_item, pattern='^{"IID*'),
-                CallbackQueryHandler(cancel, pattern="^" + str(CANCEL) + "$"),
-            ],
-            DISPLAY_ACTION_ITEM: [
-                CallbackQueryHandler(select_host, pattern='^{"HID*'),
-                CallbackQueryHandler(
-                    list_trigger_by_item, pattern="^" + str(TRIGGER_MENU) + "$"
-                ),
-                CallbackQueryHandler(
-                    enable_item, pattern="^" + str(ENABLE_ITEM) + "$"),
-                CallbackQueryHandler(
-                    disable_item, pattern="^" + str(DISABLE_ITEM) + "$"
-                ),
-                CallbackQueryHandler(cancel, pattern="^" + str(CANCEL) + "$"),
-                CallbackQueryHandler(
-                    display_graph, pattern="^" + str(GRAPH_MENU) + "$"),
-            ],
-            DISPLAY_ACTION_GRAPH: [
-                CallbackQueryHandler(
-                    select_item, pattern='^{"IID*'),
-                CallbackQueryHandler(select_host, pattern='^{"HID*'),
-            ],
-            CHOOSE_TRIGGER: [
-                CallbackQueryHandler(select_trigger, pattern='^{"TID*'),
-                CallbackQueryHandler(cancel, pattern="^" + str(CANCEL) + "$"),
-            ],
-            DISPLAY_ACTION_TRIGGER: [
-                CallbackQueryHandler(select_host, pattern='^{"HID*'),
-                CallbackQueryHandler(select_item, pattern='^{"IID*'),
-                CallbackQueryHandler(
-                    list_problem_by_trigger, pattern="^" +
-                    str(PROBLEM_MENU) + "$"
-                ),
-                CallbackQueryHandler(
-                    enable_trigger, pattern="^" + str(ENABLE_TRIGGER) + "$"
-                ),
-                CallbackQueryHandler(
-                    disable_trigger, pattern="^" + str(DISABLE_TRIGGER) + "$"
-                ),
-                CallbackQueryHandler(cancel, pattern="^" + str(CANCEL) + "$"),
-            ],
-            CHOOSE_PROBLEM: [
-                CallbackQueryHandler(select_problem, pattern='^{"PID*'),
-                CallbackQueryHandler(cancel, pattern="^" + str(CANCEL) + "$"),
-            ],
-            DISPLAY_ACTION_PROBLEM: [
-                CallbackQueryHandler(select_host, pattern='^{"HID*'),
-                CallbackQueryHandler(select_trigger, pattern='^{"TID*'),
-                CallbackQueryHandler(
-                    unacknowledge_problem, pattern="^" +
-                    str(UNACKNOWLEDGE) + "$"
-                ),
-                CallbackQueryHandler(
-                    acknowledge_problem, pattern="^" + str(ACKNOWLEDGE) + "$"
-                ),
-                message_conv,
-                change_severity_conv,
-                CallbackQueryHandler(cancel, pattern="^" + str(CANCEL) + "$"),
-            ],
-        },
+        states=states_list,
         fallbacks=[CommandHandler("stop", stop_nested)],
         map_to_parent={
             STOPPING: STOPPING,
@@ -1464,7 +1606,7 @@ def main():
     # Add conversation handler for all menu
     all_conv = ConversationHandler(
         entry_points=[CallbackQueryHandler(
-            list_host, pattern="^" + str(ALL_MENU))],
+            list_host, pattern="^" + str(ALL_MENU) + "$")],
         states={
             CHOOSE_HOST: [
                 host_conv,
@@ -1482,7 +1624,7 @@ def main():
     search_host_name_conv = ConversationHandler(
         entry_points=[
             CallbackQueryHandler(
-                get_name_host, pattern="^" + str(HOST_MENU_NAME))
+                get_name_host, pattern="^" + str(HOST_MENU_NAME) + "$")
         ],
         states={
             NAME_HOST: [MessageHandler(Filters.regex(r"^[^\/]"), list_host_with_name)],
@@ -1502,7 +1644,7 @@ def main():
     search_host_tag_conv = ConversationHandler(
         entry_points=[
             CallbackQueryHandler(
-                get_tag_host, pattern="^" + str(HOST_MENU_TAG))
+                get_tag_host, pattern="^" + str(HOST_MENU_TAG) + "$")
         ],
         states={
             TAG_HOST: [
@@ -1527,7 +1669,7 @@ def main():
     host_group_conv = ConversationHandler(
         entry_points=[
             CallbackQueryHandler(
-                list_hostgroups, pattern="^" + str(HOST_GROUP_MENU))
+                list_hostgroups, pattern="^" + str(HOST_GROUP_MENU) + "$")
         ],
         states={
             CHOOSE_HOSTGROUP: [
@@ -1552,7 +1694,7 @@ def main():
     # Add conversation handler for setting menu
     setting_conv = ConversationHandler(
         entry_points=[CallbackQueryHandler(
-            list_setting, pattern="^" + str(SETTING))],
+            list_setting, pattern="^setting$")],
         states={
             CHOOSE_SETTING: [
                 CallbackQueryHandler(select_lang, pattern="^lang"),
@@ -1561,6 +1703,33 @@ def main():
             ],
             CHOOSE_LANG: [CallbackQueryHandler(choose_lang)],
         },
+        fallbacks=[CommandHandler("stop", stop_nested)],
+        map_to_parent={END: ACTION_START, STOPPING: ACTION_START},
+    )
+
+    states_list[CHOOSE_SERVICE] = [
+        CallbackQueryHandler(select_service, pattern='^{"SID*'),
+        CallbackQueryHandler(cancel, pattern="^" + str(CANCEL) + "$"),
+        CallbackQueryHandler(
+            precedent, pattern="^" + str(PRECEDENT) + "$"),
+        CallbackQueryHandler(next, pattern="^" + str(NEXT) + "$"),
+    ]
+    states_list[DISPLAY_ACTION_SERVICE] = [
+        CallbackQueryHandler(list_service_parent, pattern='^{"PARID*'),
+        CallbackQueryHandler(list_service_child,
+                             pattern='^{"CHILDID*'),
+        CallbackQueryHandler(list_problem_by_service,
+                             pattern='^{"PROID*'),
+        CallbackQueryHandler(cancel, pattern="^" + str(CANCEL) + "$"),
+    ]
+
+    # Add conversation handler for service menu
+    service_conv = ConversationHandler(
+        entry_points=[
+            CallbackQueryHandler(
+                list_services, pattern="^" + str(SERVICE_MENU) + "$")
+        ],
+        states=states_list,
         fallbacks=[CommandHandler("stop", stop_nested)],
         map_to_parent={END: ACTION_START, STOPPING: ACTION_START},
     )
@@ -1574,6 +1743,7 @@ def main():
                 search_host_tag_conv,
                 host_group_conv,
                 all_conv,
+                service_conv,
                 setting_conv,
                 CallbackQueryHandler(end, pattern="^" + str(END) + "$"),
             ]

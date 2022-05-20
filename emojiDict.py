@@ -34,5 +34,7 @@ telegramEmojiDict = {
     'vertical traffic light': u'\U0001f6a6',
     'police car light': u'\U0001f6a8',
     'speech balloon': u'\U0001f4ac',
-    'horizontal traffic light': u'\U0001f6a5'
+    'horizontal traffic light': u'\U0001f6a5',
+    'baby': u'\U0001f476',
+    'older person': u'\U0001f9d3'
 }

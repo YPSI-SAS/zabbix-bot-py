@@ -96,7 +96,33 @@ def display_object_button(object, object_list, LANG):
             for problem in object_list:
                 button_list.append(InlineKeyboardButton(text=get_severity_emoji(problem['severity'])+get_acknowledged_emoji(problem['acknowledged'])+problem['name']+_(' since ')+get_time(problem['clock']),
                                                         callback_data='{"PID":"'+problem['eventid']+'"}'))
+    elif object == "service":  # Display service buttons
+        if not object_list:
+            message = _('I didn\'t find any services. Please cancel\n')
+        else:
+            if len(object_list) == 1:
+                message = _(
+                    'I found one service. Please choose a service or cancel\n')
+            else:
+                message = _(
+                    'I found many services. Please choose one service or cancel\n')
+            for service in object_list:
+                button_list.append(InlineKeyboardButton(text=get_status_service_emoji(service['status'])+service['name'],
+                                                        callback_data='{"SID":"'+service['serviceid']+'"}'))
     return message, button_list
+
+
+def get_status_service_emoji(status):
+    switcher = {
+        "-1": telegramEmojiDict['green square'],
+        "0": telegramEmojiDict['white large square'],
+        "1": telegramEmojiDict['blue square'],
+        "2": telegramEmojiDict['yellow square'],
+        "3": telegramEmojiDict['orange square'],
+        "4": telegramEmojiDict['brown square'],
+        "5": telegramEmojiDict['red square'],
+    }
+    return switcher.get(status, "invalid status")
 
 
 def get_status_host_emoji(status):
@@ -216,6 +242,53 @@ def display_problem_characteristics(context, LANG, API_VAR):
         message = _('Problem on *%s*\t\t*%s*\nSince: *%s*\nAcknowledged: *%s*\n%s') % (
             problem['hosts'][0]['name'], severityV, get_time(problem['clock']), acknowledgedV, message_tag)
     return message
+
+
+def display_service_characteristics(context, LANG, API_VAR):
+    """Recovery and create message of service selected by the user"""
+    lang_translations = gettext.translation(
+        'action', localedir='locales', languages=[LANG])
+    lang_translations.install()
+    _ = lang_translations.gettext
+    ud = context.user_data
+    message = str()
+
+    Cdata = json.loads(ud['SERVICE_INFO'])
+    serviceID = Cdata['SID']
+    list_service = API_VAR.get_service_info(serviceID)
+    for service in list_service:
+        stateV = get_status_service_string(service['status'], _)
+        message_tag = ('Tags:')
+        for tag in service["tags"]:
+            message_tag = message_tag + '\n\t\t' + \
+                tag['tag']+' : ' + ('*%s*') % tag['value']
+        message_problem_tag = ('Problem tags:')
+        for tag in service["problem_tags"]:
+            if tag['operator'] == "0":
+                msg = tag['tag']+(' %s *%s*') % ("equals", tag['value'])
+            elif tag['operator'] == "2":
+                msg = tag['tag']+(' %s *%s*') % ("like", tag['value'])
+            else:
+                tag['tag']+' : ' + ('*%s*') % tag['value']
+            message_problem_tag = message_problem_tag + '\n\t\t' + msg
+
+        message = _('Service *%s* is *%s*\nCreated at: *%s*\n%s\n%s') % (
+            service['name'], stateV, datetime.fromtimestamp(int(service['created_at'])), message_tag, message_problem_tag)
+
+    return message
+
+
+def get_status_service_string(status, _):
+    switcher = {
+        "-1": telegramEmojiDict['green square']+_("OK"),
+        "0": telegramEmojiDict['white large square']+_("Not classified"),
+        "1": telegramEmojiDict['blue square']+_("Information"),
+        "2": telegramEmojiDict['yellow square']+_("Warning"),
+        "3": telegramEmojiDict['orange square']+_("Average"),
+        "4": telegramEmojiDict['brown square']+_("High"),
+        "5": telegramEmojiDict['red square']+_("Disaster"),
+    }
+    return switcher.get(status, "invalid status")
 
 
 def display_global_status(api, LANG):

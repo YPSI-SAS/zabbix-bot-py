@@ -376,3 +376,73 @@ class API:
             return json_data['result']
         else:
             return {}
+
+    def get_list_services(self):
+        """Get all services"""
+        params = {
+            'output': ['name', 'serviceid', 'status']
+        }
+        status_code, text = self.request_post(
+            params=params, method='service.get')
+        json_data = json.loads(text)
+        if status_code == 200:
+            return json_data['result']
+        else:
+            return {}
+
+    def get_service_info(self, serviceid):
+        """Get information service"""
+        params = {
+            'serviceids': serviceid,
+            'output': ['name', 'serviceid', 'status', 'created_at'],
+            'selectChildren': ['name', 'serviceid'],
+            'selectParents': ['name', 'serviceid'],
+            'selectTags': ['tag', 'value'],
+            'selectProblemEvents': ['eventid', 'severity'],
+            'selectProblemTags': ['tag', 'operator', 'value']
+        }
+        status_code, text = self.request_post(
+            params=params, method='service.get')
+        json_data = json.loads(text)
+        if status_code == 200:
+            return json_data['result']
+        else:
+            return {}
+
+    def get_list_services_parent_child(self, parentid):
+        """Get all services"""
+        services = list()
+        parentid_split = parentid.split(";")
+        for id in parentid_split:
+            if id != '':
+                services.append(id)
+        params = {
+            'serviceids': services,
+            'output': ['name', 'serviceid', 'status']
+        }
+        status_code, text = self.request_post(
+            params=params, method='service.get')
+        json_data = json.loads(text)
+        if status_code == 200:
+            return json_data['result']
+        else:
+            return {}
+
+    def get_list_problems_by_service(self, problemid):
+        """Get all problems"""
+        events = list()
+        problemid_split = problemid.split(";")
+        for id in problemid_split:
+            if id != '':
+                events.append(id)
+        params = {
+            "eventids": events,
+            "output": ["eventid", "name", "clock", "acknowledged", "severity"],
+        }
+        status_code, text = self.request_post(
+            params=params, method='problem.get')
+        json_data = json.loads(text)
+        if status_code == 200:
+            return json_data['result']
+        else:
+            return {}

@@ -500,11 +500,16 @@ def get_image_data(data, list_item, LANG):
     plt.savefig("image.png")
 
 
-def get_table_information_problem(api):
+def get_table_information_problem(api, LANG):
     """"Get problems information about Zabbix server"""
-    table = pt.PrettyTable(['Host', 'Severity-Problem', 'Duration', 'Ack'])
-    table.align['Severity-Problem'] = 'l'
-    table.align['Host'] = 'l'
+    lang_translations = gettext.translation(
+        'action', localedir='locales', languages=[LANG])
+    lang_translations.install()
+    _ = lang_translations.gettext
+    table = pt.PrettyTable(
+        [_('Host'), _('Severity-Problem'), _('Duration'), _('Ack')])
+    table.align[_('Severity-Problem')] = 'l'
+    table.align[_('Host')] = 'l'
     list_problem = api.get_list_problems()
     for problem in list_problem:
         host_info = api.get_event_info(problem['eventid'])
@@ -516,21 +521,26 @@ def get_table_information_problem(api):
     return table
 
 
-def get_table_information_maintenance(api):
+def get_table_information_maintenance(api, LANG):
     """"Get maintenances information about Zabbix server"""
-    table = pt.PrettyTable(['Name', 'Active since', 'Active till', 'State'])
-    table.align['Name'] = 'l'
-    table.align['State'] = 'l'
+    lang_translations = gettext.translation(
+        'action', localedir='locales', languages=[LANG])
+    lang_translations.install()
+    _ = lang_translations.gettext
+    table = pt.PrettyTable(
+        [_('Name'), _('Active since'), _('Active till'), _('State')])
+    table.align[_('Name')] = 'l'
+    table.align[_('State')] = 'l'
     now = datetime.now()
     list_maintenance = api.get_list_maintenances()
     for maintenance in list_maintenance:
         if now > datetime.fromtimestamp(int(maintenance['active_since'])) and now < datetime.fromtimestamp(int(maintenance['active_till'])):
             table.add_row([maintenance['name'], datetime.fromtimestamp(int(maintenance['active_since'])),
-                           datetime.fromtimestamp(int(maintenance['active_till'])), telegramEmojiDict['green square']+"Active"])
+                           datetime.fromtimestamp(int(maintenance['active_till'])), telegramEmojiDict['green square']+_("Active")])
         elif now > datetime.fromtimestamp(int(maintenance['active_till'])):
             table.add_row([maintenance['name'], datetime.fromtimestamp(int(maintenance['active_since'])),
-                           datetime.fromtimestamp(int(maintenance['active_till'])), telegramEmojiDict['red square']+"Expired"])
+                           datetime.fromtimestamp(int(maintenance['active_till'])), telegramEmojiDict['red square']+_("Expired")])
         elif now < datetime.fromtimestamp(int(maintenance['active_since'])):
             table.add_row([maintenance['name'], datetime.fromtimestamp(int(maintenance['active_since'])),
-                           datetime.fromtimestamp(int(maintenance['active_till'])), telegramEmojiDict['orange square']+"Approaching"])
+                           datetime.fromtimestamp(int(maintenance['active_till'])), telegramEmojiDict['orange square']+_("Approaching")])
     return table

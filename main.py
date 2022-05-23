@@ -118,7 +118,7 @@ def display_message_bot(update, context, message, reply_markup):
 def help_msg(update, context):
     """Display help message"""
     message = _(
-        "Commands:\n /start - Start a conversation\n /stop - Stop a current action and return to start menu\n /maintenances - Get all maintenance periods\n /problems - Get all problems on Zabbix server\n /global_status *nameServer* - Get the global information of Zabbix server. You must specify nameServer arguments or environments variables ZABBIX_TOKEN and ZABBIX_URL if you don't pass argument."
+        "Commands:\n /start - Start a conversation\n /stop - Stop a current action and return to start menu\n /maintenances *nameServer* - Get all maintenance periods\n /problems *nameServer* - Get all problems on Zabbix server\n /global\_status *nameServer* - Get the global information of Zabbix server. You must specify nameServer arguments or environments variables ZABBIX_TOKEN and ZABBIX_URL if you don't pass argument."
     )
     if context.user_data.get(START_OVER):
         update.callback_query.edit_message_text(
@@ -211,7 +211,7 @@ def show_problem(update, context):
             context.user_data[str(ZABBIX_URL)
                               ], context.user_data[str(ZABBIX_TOKEN)]
         )
-        table = get_table_information_problem(api)
+        table = get_table_information_problem(api, LANG)
         update.message.reply_text(
             f'```{table}```', parse_mode=ParseMode.MARKDOWN_V2)
 
@@ -252,7 +252,7 @@ def show_maintenance(update, context):
             context.user_data[str(ZABBIX_URL)
                               ], context.user_data[str(ZABBIX_TOKEN)]
         )
-        table = get_table_information_maintenance(api)
+        table = get_table_information_maintenance(api, LANG)
         update.message.reply_text(
             f'```{table}```', parse_mode=ParseMode.MARKDOWN_V2)
 
@@ -1249,7 +1249,7 @@ def start(update, context):
         context.user_data[str(ZABBIX_URL)] = os.getenv("ZABBIX_URL")
         context.user_data[str(ZABBIX_TOKEN)] = os.getenv("ZABBIX_TOKEN")
         message = _(
-            "Hey, I'm %s !\nI will help you to handle Zabbix problems !\nI'm connected to the server : *%s*\nType /help to show all commands\n   Choose an option:"
+            "Hey, I'm %s !\nI will help you to handle Zabbix problems !\nI'm connected to the server : *%s*"
         ) % (bot.get_me().first_name, os.getenv("ZABBIX_URL"))
     elif NAME_SERVER != "":  # If server already set
         with open("config.yaml", "r") as stream:
@@ -1261,7 +1261,7 @@ def start(update, context):
                     context.user_data[str(ZABBIX_URL)] = doc[i]["url"]
                     context.user_data[str(ZABBIX_TOKEN)] = doc[i]["token"]
         message = _(
-            "Hey, I'm %s !\nI will help you to handle Zabbix problems !\nI'm connected to the server : *%s*\nType /help to show all commands\n   Choose an option:"
+            "Hey, I'm %s !\nI will help you to handle Zabbix problems !\nI'm connected to the server : *%s*"
         ) % (bot.get_me().first_name, NAME_SERVER)
     else:  # If server not set, get the first on configuration file
         if os.path.exists("config.yaml"):
@@ -1272,7 +1272,7 @@ def start(update, context):
                 context.user_data[str(ZABBIX_URL)] = doc[0]["url"]
                 context.user_data[str(ZABBIX_TOKEN)] = doc[0]["token"]
             message = _(
-                "Hey, I'm %s !\nI will help you to handle Zabbix problems !\nI'm connected to the server : *%s*\nType /help to show all commands\n   Choose an option:"
+                "Hey, I'm %s !\nI will help you to handle Zabbix problems !\nI'm connected to the server : *%s*"
             ) % (bot.get_me().first_name, doc[0]["server"])
 
     # Create initial message:
@@ -1328,6 +1328,10 @@ def start(update, context):
             context.user_data[str(ZABBIX_URL)
                               ], context.user_data[str(ZABBIX_TOKEN)]
         )
+        message = message + "\n" + \
+            display_global_status(context.user_data[API_VAR], LANG)
+        message = message + \
+            _("\n\nType /help to show all commands\n   Choose an option:")
 
     else:
         message = _(

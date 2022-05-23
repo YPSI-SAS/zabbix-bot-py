@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-05-20 16:08+0200\n"
-"PO-Revision-Date: 2022-05-20 16:11+0200\n"
+"POT-Creation-Date: 2022-05-23 14:09+0200\n"
+"PO-Revision-Date: 2022-05-23 14:11+0200\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: fr\n"
@@ -260,3 +260,47 @@ msgstr "PROBLÈME"
 #: action.py:471
 msgid "No values"
 msgstr "Aucune valeur"
+
+#: action.py:510 action.py:512
+msgid "Host"
+msgstr "Hôte"
+
+#: action.py:510 action.py:511
+msgid "Severity-Problem"
+msgstr "Sévérité-Problème"
+
+#: action.py:510
+msgid "Duration"
+msgstr "Depuis"
+
+#: action.py:510
+msgid "Ack"
+msgstr "Acquittement"
+
+#: action.py:531 action.py:532
+msgid "Name"
+msgstr "Nom"
+
+#: action.py:531
+msgid "Active since"
+msgstr "Active depuis"
+
+#: action.py:531
+msgid "Active till"
+msgstr "Active jusqu'à"
+
+#: action.py:531 action.py:533
+msgid "State"
+msgstr "État"
+
+#: action.py:539
+msgid "Active"
+msgstr "Actif"
+
+#: action.py:542
+msgid "Expired"
+msgstr "Expiré"
+
+#: action.py:545
+msgid "Approaching"
+msgstr "Proche de"

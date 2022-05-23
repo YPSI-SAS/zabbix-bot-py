@@ -152,7 +152,7 @@ def global_status(update, context):
 
     if servFind == False and server_name == "":
         message = _(
-            "Can you set environments variables (URL and TOKEN) to use this command with any argument."
+            "Can you set environments variables (ZABBIX_URL and ZABBIX_TOKEN) to use this command with any argument."
         )
     elif servFind == False and servFind != "":
         message = _("The server *%s* was not found in config.yaml file.") % (
@@ -198,7 +198,7 @@ def show_problem(update, context):
 
     if servFind == False and server_name == "":
         message = _(
-            "Can you set environments variables (URL and TOKEN) to use this command with any argument."
+            "Can you set environments variables (ZABBIX_URL and ZABBIX_TOKEN) to use this command with any argument."
         )
         update.message.reply_text(text=message, parse_mode=ParseMode.MARKDOWN)
     elif servFind == False and servFind != "":
@@ -239,7 +239,7 @@ def show_maintenance(update, context):
 
     if servFind == False and server_name == "":
         message = _(
-            "Can you set environments variables (URL and TOKEN) to use this command with any argument."
+            "Can you set environments variables (ZABBIX_URL and ZABBIX_TOKEN) to use this command with any argument."
         )
         update.message.reply_text(text=message, parse_mode=ParseMode.MARKDOWN)
     elif servFind == False and servFind != "":
@@ -362,7 +362,18 @@ def next(update, context):
     ud = context.user_data
     ud["NUMBER"] = ud["NUMBER"] + 1
     navigation_elements(update, context)
-    return CHOOSE_HOST
+    if ud['OBJECT'] == "host":
+        return CHOOSE_HOST
+    elif ud['OBJECT'] == "HG":
+        return CHOOSE_HOSTGROUP
+    elif ud['OBJECT'] == "item":
+        return CHOOSE_ITEM
+    elif ud['OBJECT'] == "trigger":
+        return CHOOSE_TRIGGER
+    elif ud['OBJECT'] == "problem":
+        return CHOOSE_PROBLEM
+    elif ud['OBJECT'] == "service":
+        return CHOOSE_SERVICE
 
 
 def precedent(update, context):
@@ -370,7 +381,18 @@ def precedent(update, context):
     ud = context.user_data
     ud["NUMBER"] = ud["NUMBER"] - 1
     navigation_elements(update, context)
-    return CHOOSE_HOST
+    if ud['OBJECT'] == "host":
+        return CHOOSE_HOST
+    elif ud['OBJECT'] == "HG":
+        return CHOOSE_HOSTGROUP
+    elif ud['OBJECT'] == "item":
+        return CHOOSE_ITEM
+    elif ud['OBJECT'] == "trigger":
+        return CHOOSE_TRIGGER
+    elif ud['OBJECT'] == "problem":
+        return CHOOSE_PROBLEM
+    elif ud['OBJECT'] == "service":
+        return CHOOSE_SERVICE
 
 
 def get_name_host(update, context):
@@ -1518,6 +1540,9 @@ def main():
         CHOOSE_ITEM: [
         CallbackQueryHandler(select_item, pattern='^{"IID*'),
         CallbackQueryHandler(cancel, pattern="^" + str(CANCEL) + "$"),
+        CallbackQueryHandler(
+            precedent, pattern="^" + str(PRECEDENT) + "$"),
+        CallbackQueryHandler(next, pattern="^" + str(NEXT) + "$"),
     ],
         DISPLAY_ACTION_ITEM: [
         CallbackQueryHandler(select_host, pattern='^{"HID*'),
@@ -1541,6 +1566,9 @@ def main():
         CHOOSE_TRIGGER: [
         CallbackQueryHandler(select_trigger, pattern='^{"TID*'),
         CallbackQueryHandler(cancel, pattern="^" + str(CANCEL) + "$"),
+        CallbackQueryHandler(
+            precedent, pattern="^" + str(PRECEDENT) + "$"),
+        CallbackQueryHandler(next, pattern="^" + str(NEXT) + "$"),
     ],
         DISPLAY_ACTION_TRIGGER: [
         CallbackQueryHandler(select_host, pattern='^{"HID*'),
@@ -1559,10 +1587,10 @@ def main():
     ],
         CHOOSE_PROBLEM: [
         CallbackQueryHandler(select_problem, pattern='^{"PID*'),
+        CallbackQueryHandler(cancel, pattern="^" + str(CANCEL) + "$"),
         CallbackQueryHandler(
             precedent, pattern="^" + str(PRECEDENT) + "$"),
         CallbackQueryHandler(next, pattern="^" + str(NEXT) + "$"),
-        CallbackQueryHandler(cancel, pattern="^" + str(CANCEL) + "$"),
     ],
         DISPLAY_ACTION_PROBLEM: [
         CallbackQueryHandler(select_host, pattern='^{"HID*'),

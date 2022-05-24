@@ -37,5 +37,6 @@ telegramEmojiDict = {
     'horizontal traffic light': u'\U0001f6a5',
     'baby': u'\U0001f476',
     'older person': u'\U0001f9d3',
-    'memo': u'\U0001f4dd'
+    'memo': u'\U0001f4dd',
+    'world map': u'\U0001f5fa',
 }

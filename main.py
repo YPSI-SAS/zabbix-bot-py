@@ -85,6 +85,8 @@ PRECEDENT = "precedent"
 NEXT = "next"
 HOST_MENU_NAME = "host_menu_name"
 HOST_MENU_TAG = "host_menu_tag"
+LOCATION_MENU = "location_menu"
+DIPLAY_ACTION_LOCATION = "display_action_location"
 
 LANG = "en"
 NAME_SERVER = ""
@@ -671,6 +673,13 @@ def display_action_host(context):
                     callback_data=str(PROBLEM_MENU),
                 )
             )
+        if type(host['inventory']) != list and host['inventory']['location_lat'] != "" and host['inventory']['location_lon'] != "":
+            button_list.append(
+                InlineKeyboardButton(
+                    text=telegramEmojiDict["world map"] + _("Location"),
+                    callback_data=str(LOCATION_MENU),
+                )
+            )
 
     cancel_button = get_cancel_button()
     return button_list, cancel_button
@@ -1153,6 +1162,32 @@ def unacknowledge_problem(update, context):
         parse_mode=ParseMode.MARKDOWN,
         reply_markup=reply_markup,
     )
+
+
+@send_typing_action
+def show_location_host(update, context):
+    """Display location of host"""
+    ud = context.user_data
+    Cdata = json.loads(ud["HOST_INFO"])
+    host_ID = Cdata["HID"]
+    information_host = ud[API_VAR].get_host_info(host_ID)
+    button_list = list()
+    button_list.append(
+        InlineKeyboardButton(
+            text=telegramEmojiDict["laptop"] +
+            _("Back to host"),
+            callback_data='{"HID":"' +
+            host_ID + '"}',
+        )
+    )
+    reply_markup = InlineKeyboardMarkup(
+        build_menu(button_list, n_cols=2)
+    )
+    context.bot.sendLocation(
+        chat_id=update.effective_chat.id, latitude=float(information_host[0]['inventory']['location_lat']), longitude=float(information_host[0]['inventory']['location_lon']), reply_markup=reply_markup
+    )
+    ud['AFTER_GRAPH'] = True
+    return DIPLAY_ACTION_LOCATION
 
 
 @send_typing_action
@@ -1651,6 +1686,7 @@ def main():
         map_to_parent={STOPPING: STOPPING, END: DISPLAY_ACTION_PROBLEM},
     )
 
+    # Add conversation handler for send last values
     last_value_conv = ConversationHandler(
         entry_points=[
             CallbackQueryHandler(
@@ -1664,6 +1700,21 @@ def main():
                 precedent_values, pattern="^" + str(PRECEDENT_VALUES) + "$"),
             CallbackQueryHandler(
                 next_values, pattern="^" + str(NEXT_VALUES) + "$"),
+        ]},
+        fallbacks=[CommandHandler("stop", stop_nested)],
+        map_to_parent={STOPPING: STOPPING, END: DISPLAY_ACTION},
+    )
+
+    # Add conversation handler for send location
+    location_conv = ConversationHandler(
+        entry_points=[
+            CallbackQueryHandler(
+                show_location_host, pattern="^" + str(LOCATION_MENU) + "$"
+            ),
+        ],
+        states={DIPLAY_ACTION_LOCATION: [
+            CallbackQueryHandler(
+                get_host, pattern='^{"HID*'),
         ]},
         fallbacks=[CommandHandler("stop", stop_nested)],
         map_to_parent={STOPPING: STOPPING, END: DISPLAY_ACTION},
@@ -1686,6 +1737,7 @@ def main():
         CallbackQueryHandler(cancel, pattern="^" + str(CANCEL) + "$"),
         CallbackQueryHandler(select_hostgroups, pattern='^{"HGID*'),
         last_value_conv,
+        location_conv,
     ],
         CHOOSE_HOST: [
         CallbackQueryHandler(select_host, pattern='^{"HID*'),

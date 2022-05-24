@@ -107,6 +107,7 @@ class API:
             "selectItems": ["name", "itemid", "lastvalue", "lastclock"],
             "selectTriggers": ["triggerid", "description", "value", "priority"],
             "selectTags": ["tag", "value"],
+            "selectInventory": ["location_lat", "location_lon"],
             "selectInterfaces": ["available"],
             "selectGroups": ["name", "groupid"]
         }

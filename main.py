@@ -15,6 +15,7 @@ from action import (
     get_table_information_problem,
     get_table_information_maintenance,
     display_service_characteristics,
+    get_table_last_values_host,
 )
 from functools import wraps
 import gettext
@@ -34,34 +35,56 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 # Global variables
-ACTION_START, START_OVER, ZABBIX_URL, ZABBIX_TOKEN, API_VAR, TYPING, CANCEL = map(
-    chr, range(7)
-)
-SETTING_MENU, CHOOSE_SETTING, CHOOSE_LANG, SERVER, STOPPING = map(
-    chr, range(7, 12))
-ALL_MENU, CHOOSE_HOST = map(chr, range(12, 14))
-PRECEDENT, NEXT = map(chr, range(14, 16))
-HOST_MENU_NAME, NAME_HOST = map(chr, range(16, 18))
-HOST_MENU_TAG, TAG_HOST = map(chr, range(18, 20))
-HOST_GROUP_MENU, CHOOSE_HOSTGROUP = map(chr, range(20, 22))
-DISPLAY_ACTION = map(chr, range(22, 23))
-DISABLE_HOST, ENABLE_HOST, ITEM_MENU, TRIGGER_MENU, PROBLEM_MENU = map(
-    chr, range(23, 28)
-)
-CHOOSE_ITEM, DISABLE_ITEM, ENABLE_ITEM, GRAPH_MENU = map(chr, range(28, 32))
-DISPLAY_ACTION_ITEM = map(chr, range(32, 33))
-CHOOSE_TRIGGER, DISABLE_TRIGGER, ENABLE_TRIGGER, DISPLAY_ACTION_TRIGGER = map(
-    chr, range(33, 37)
-)
-CHOOSE_PROBLEM, DISPLAY_ACTION_PROBLEM = map(chr, range(37, 39))
-ACKNOWLEDGE = map(chr, range(39, 40))
-CHANGE_SEVERITY_MENU = map(chr, range(40, 41))
-MESSAGE = map(chr, range(41, 42))
-UNACKNOWLEDGE = map(chr, range(42, 43))
-MESSAGE_MENU = map(chr, range(43, 44))
-CHANGE_SEVERITY = map(chr, range(44, 45))
-DISPLAY_ACTION_GRAPH = map(chr, range(45, 46))
-SERVICE_MENU, CHOOSE_SERVICE, DISPLAY_ACTION_SERVICE = map(chr, range(46, 49))
+START_OVER, ZABBIX_URL, ZABBIX_TOKEN, API_VAR, TYPING = map(chr, range(5))
+
+DISPLAY_ACTION_SERVICE = "display_action_service"
+CHOOSE_SERVICE = "choose_service"
+DISPLAY_ACTION_GRAPH = "display_action_graph"
+MESSAGE = "message"
+DISPLAY_ACTION_PROBLEM = "display_action_problem"
+CHOOSE_PROBLEM = "choose_problem"
+DISPLAY_ACTION_TRIGGER = "display_action_trigger"
+CHOOSE_TRIGGER = "choose_trigger"
+DISPLAY_ACTION_ITEM = "display_action_item"
+CHOOSE_ITEM = "choose_item"
+DISPLAY_ACTION = "display_action"
+CHOOSE_HOSTGROUP = "choose_hostgroup"
+TAG_HOST = "tag_host"
+NAME_HOST = "name_host"
+CHOOSE_HOST = "choose_host"
+STOPPING = "stopping"
+SERVER = "server"
+CHOOSE_LANG = "choose_lang"
+CHOOSE_SETTING = "choose_setting"
+CANCEL = "cancel"
+ACTION_START = "action_start"
+DIPLAY_ACTION_VALUE = "display_action_value"
+LAST_VALUE = "last_value"
+SERVICE_MENU = "service_menu"
+CHANGE_SEVERITY = "change_severity"
+MESSAGE_MENU = "message_menu"
+CHANGE_SEVERITY_MENU = "change_severity_menu"
+UNACKNOWLEDGE = "unacknowledge"
+ACKNOWLEDGE = "acknowledge"
+ENABLE_TRIGGER = "enable_trigger"
+DISABLE_TRIGGER = "disable_trigger"
+GRAPH_MENU = "graph_menu"
+ENABLE_ITEM = "enable_item"
+DISABLE_ITEM = "disable_item"
+PROBLEM_MENU = "problem_menu"
+TRIGGER_MENU = "trigger_menu"
+ITEM_MENU = "item_menu"
+ENABLE_HOST = "enable_host"
+DISABLE_HOST = "disable_host"
+HOST_GROUP_MENU = "host_group_menu"
+PRECEDENT_VALUES = "precedent_values"
+NEXT_VALUES = "next_values"
+SETTING_MENU = "setting_menu"
+ALL_MENU = "all_menu"
+PRECEDENT = "precedent"
+NEXT = "next"
+HOST_MENU_NAME = "host_menu_name"
+HOST_MENU_TAG = "host_menu_tag"
 
 LANG = "en"
 NAME_SERVER = ""
@@ -611,6 +634,12 @@ def display_action_host(context):
                     callback_data=str(ITEM_MENU),
                 )
             )
+            button_list.append(
+                InlineKeyboardButton(
+                    text=telegramEmojiDict["memo"] + _("Last values"),
+                    callback_data=str(LAST_VALUE),
+                )
+            )
 
         # Display triggers button if it has trigger
         if len(host["triggers"]) != 0:
@@ -878,6 +907,19 @@ def display_action_service(context):
     return button_list, cancel_button
 
 
+def get_host(update, context):
+    """Go back to host after last values"""
+    ud = context.user_data
+    ud["HOST_INFO"] = update.callback_query.data
+    message = display_host_characteristics(context, LANG, ud[API_VAR])
+    button_list, cancel_button = display_action_host(context)
+    reply_markup = InlineKeyboardMarkup(
+        build_menu(button_list, n_cols=2, cancel_button=cancel_button)
+    )
+    display_message_bot(update, context, message, reply_markup)
+    return END
+
+
 @send_typing_action
 def select_host(update, context):
     """Display all informations and button about host selected"""
@@ -1113,6 +1155,98 @@ def unacknowledge_problem(update, context):
     )
 
 
+@send_typing_action
+def show_last_value_host(update, context):
+    """Display last value of each items"""
+    ud = context.user_data
+    Cdata = json.loads(ud["HOST_INFO"])
+    host_ID = Cdata["HID"]
+    ud['NUMBER_VALUES'] = 0
+    navigation_last_values(update=update, context=context, host_ID=host_ID)
+    return DIPLAY_ACTION_VALUE
+
+
+@send_typing_action
+def navigation_last_values(update, context, host_ID):
+    """Navigate in differents pages of last values"""
+    ud = context.user_data
+    numberValueDisplay = 15  # Max number of objects by pages
+    table_last_values = ud[API_VAR].get_host_info(host_ID)
+    elements_list = table_last_values[0]['items']
+    numberPages = int(len(elements_list) / numberValueDisplay)
+    # Get correct elements depending the selected page
+    if ud["NUMBER_VALUES"] < numberPages:
+        elements_list = elements_list[
+            ud["NUMBER_VALUES"] * numberValueDisplay: (ud["NUMBER_VALUES"] + 1) * numberValueDisplay
+        ]
+    else:
+        elements_list = elements_list[ud["NUMBER_VALUES"]
+                                      * numberValueDisplay:]
+
+    # Get elements in button_list
+    button_list = list()
+    button_list.append(
+        InlineKeyboardButton(
+            text=telegramEmojiDict["laptop"] +
+            _("Back to host"),
+            callback_data='{"HID":"' +
+            host_ID + '"}',
+        )
+    )
+
+    # Create footer elements
+    footer_buttons = list()
+    if ud["NUMBER_VALUES"] > 0:
+        footer_buttons.append(
+            InlineKeyboardButton(
+                text="<<", callback_data=str(PRECEDENT_VALUES))
+        )
+    text_button = _("Page %s") % (str(ud["NUMBER_VALUES"] + 1))
+    footer_buttons.append(
+        InlineKeyboardButton(
+            text=text_button, callback_data=str(ud["NUMBER_VALUES"]))
+    )
+    if ud["NUMBER_VALUES"] < numberPages:
+        footer_buttons.append(InlineKeyboardButton(
+            text=">>", callback_data=str(NEXT_VALUES)))
+
+    # Create cancel button
+    reply_markup = InlineKeyboardMarkup(
+        build_menu(
+            button_list,
+            n_cols=2,
+            footer_buttons=footer_buttons,
+        )
+    )
+    table_last_values_msg = get_table_last_values_host(LANG=LANG,
+                                                       element_items=elements_list, host_name=table_last_values[0]['name'])
+    update.callback_query.edit_message_text(
+        text=f'```{table_last_values_msg}```',
+        parse_mode=ParseMode.MARKDOWN_V2,
+        reply_markup=reply_markup,
+    )
+
+
+def next_values(update, context):
+    """Pass at the next page of values"""
+    ud = context.user_data
+    Cdata = json.loads(ud["HOST_INFO"])
+    host_ID = Cdata["HID"]
+    ud["NUMBER_VALUES"] = ud["NUMBER_VALUES"] + 1
+    navigation_last_values(update, context, host_ID)
+    return DIPLAY_ACTION_VALUE
+
+
+def precedent_values(update, context):
+    """Pass at the precedent page of values"""
+    ud = context.user_data
+    Cdata = json.loads(ud["HOST_INFO"])
+    host_ID = Cdata["HID"]
+    ud["NUMBER_VALUES"] = ud["NUMBER_VALUES"] - 1
+    navigation_last_values(update, context, host_ID)
+    return DIPLAY_ACTION_VALUE
+
+
 def get_message(update, context):
     """Ask message to user"""
     update.callback_query.edit_message_text(
@@ -1315,7 +1449,7 @@ def start(update, context):
             [
                 InlineKeyboardButton(
                     text=telegramEmojiDict["gear"] + _("Settings"),
-                    callback_data=str("setting"),
+                    callback_data=str(SETTING_MENU),
                 ),
                 InlineKeyboardButton(
                     text=telegramEmojiDict["waving hand"] + _("Done"),
@@ -1340,7 +1474,7 @@ def start(update, context):
             [
                 InlineKeyboardButton(
                     text=telegramEmojiDict["gear"] + _("Settings"),
-                    callback_data=str("setting"),
+                    callback_data=str(SETTING_MENU),
                 )
             ],
             [
@@ -1517,6 +1651,24 @@ def main():
         map_to_parent={STOPPING: STOPPING, END: DISPLAY_ACTION_PROBLEM},
     )
 
+    last_value_conv = ConversationHandler(
+        entry_points=[
+            CallbackQueryHandler(
+                show_last_value_host, pattern="^" + str(LAST_VALUE) + "$"
+            ),
+        ],
+        states={DIPLAY_ACTION_VALUE: [
+            CallbackQueryHandler(
+                get_host, pattern='^{"HID*'),
+            CallbackQueryHandler(
+                precedent_values, pattern="^" + str(PRECEDENT_VALUES) + "$"),
+            CallbackQueryHandler(
+                next_values, pattern="^" + str(NEXT_VALUES) + "$"),
+        ]},
+        fallbacks=[CommandHandler("stop", stop_nested)],
+        map_to_parent={STOPPING: STOPPING, END: DISPLAY_ACTION},
+    )
+
     states_list = {DISPLAY_ACTION: [
         CallbackQueryHandler(
             list_item, pattern="^" + str(ITEM_MENU) + "$"),
@@ -1533,6 +1685,7 @@ def main():
         ),
         CallbackQueryHandler(cancel, pattern="^" + str(CANCEL) + "$"),
         CallbackQueryHandler(select_hostgroups, pattern='^{"HGID*'),
+        last_value_conv,
     ],
         CHOOSE_HOST: [
         CallbackQueryHandler(select_host, pattern='^{"HID*'),
@@ -1726,7 +1879,7 @@ def main():
     # Add conversation handler for setting menu
     setting_conv = ConversationHandler(
         entry_points=[CallbackQueryHandler(
-            list_setting, pattern="^setting$")],
+            list_setting, pattern="^" + str(SETTING_MENU) + "$")],
         states={
             CHOOSE_SETTING: [
                 CallbackQueryHandler(select_lang, pattern="^lang"),
@@ -1759,7 +1912,7 @@ def main():
     service_conv = ConversationHandler(
         entry_points=[
             CallbackQueryHandler(
-                list_services, pattern="^" + str(SERVICE_MENU) + "$")
+                list_services, pattern="^"+str(SERVICE_MENU)+"$")
         ],
         states=states_list,
         fallbacks=[CommandHandler("stop", stop_nested)],

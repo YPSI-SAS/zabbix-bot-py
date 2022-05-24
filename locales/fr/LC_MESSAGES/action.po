@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-05-23 14:09+0200\n"
-"PO-Revision-Date: 2022-05-23 14:11+0200\n"
+"POT-Creation-Date: 2022-05-24 11:22+0200\n"
+"PO-Revision-Date: 2022-05-24 11:23+0200\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: fr\n"
@@ -17,93 +17,93 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "X-Generator: Poedit 3.0.1\n"
 
-#: action.py:36
+#: action.py:38
 msgid "I didn't find any hosts. Please cancel\n"
 msgstr "Je n'ai pas trouvé d'hôte. Veuillez annuler\n"
 
-#: action.py:40
+#: action.py:42
 msgid "I found one host. Please choose a host or cancel\n"
 msgstr "J’ai trouvé un hôte. Veuillez choisir l'hôte ou annuler\n"
 
-#: action.py:43
+#: action.py:45
 msgid "I found many hosts. Please choose one host or cancel\n"
 msgstr "J’ai trouvé plusieurs hôtes. Veuillez choisir un hôte ou annuler\n"
 
-#: action.py:49
+#: action.py:51
 msgid "I didn't find any hostgroups. Please cancel\n"
 msgstr "Je n'ai pas trouvé de groupe d'hôtes. Veuillez annuler\n"
 
-#: action.py:53
+#: action.py:55
 msgid "I found one hostgroup. Please choose a hostgroup or cancel\n"
 msgstr ""
 "J’ai trouvé un groupe d'hôtes. Veuillez choisir le groupe d'hôtes ou "
 "annuler\n"
 
-#: action.py:56
+#: action.py:58
 msgid "I found many hostgroups. Please choose one hostgroup or cancel\n"
 msgstr ""
 "J’ai trouvé plusieurs groupe d'hôtes. Veuillez choisir un groupe d'hôtes ou "
 "annuler\n"
 
-#: action.py:62
+#: action.py:64
 msgid "I didn't find any items. Please cancel\n"
 msgstr "Je n'ai pas trouvé d'élément. Veuillez annuler\n"
 
-#: action.py:66
+#: action.py:68
 msgid "I found one item. Please choose a item or cancel\n"
 msgstr "J’ai trouvé un élément. Veuillez choisir l'élément ou annuler\n"
 
-#: action.py:69
+#: action.py:71
 msgid "I found many items. Please choose one item or cancel\n"
 msgstr ""
 "J’ai trouvé plusieurs éléments. Veuillez choisir un élément ou annuler\n"
 
-#: action.py:75
+#: action.py:77
 msgid "I didn't find any triggers. Please cancel\n"
 msgstr "Je n'ai pas trouvé de déclencheurs. Veuillez annuler\n"
 
-#: action.py:79
+#: action.py:81
 msgid "I found one trigger. Please choose a trigger or cancel\n"
 msgstr ""
 "J’ai trouvé un déclencheur. Veuillez choisir le déclencheur ou annuler\n"
 
-#: action.py:82
+#: action.py:84
 msgid "I found many triggers. Please choose one trigger or cancel\n"
 msgstr ""
 "J’ai trouvé plusieurs déclencheurs. Veuillez choisir un déclencheur ou "
 "annuler\n"
 
-#: action.py:88
+#: action.py:90
 msgid "I didn't find any problems. Please cancel\n"
 msgstr "Je n'ai pas trouvé de problème. Veuillez annuler\n"
 
-#: action.py:92
+#: action.py:94
 msgid "I found one problem. Please choose a problem or cancel\n"
 msgstr "J’ai trouvé un problème. Veuillez choisir le problème ou annuler\n"
 
-#: action.py:95
+#: action.py:97
 msgid "I found many problems. Please choose one problem or cancel\n"
 msgstr ""
 "J’ai trouvé plusieurs problèmes. Veuillez choisir un problème ou annuler\n"
 
-#: action.py:97
+#: action.py:99
 msgid " since "
 msgstr " depuis "
 
-#: action.py:101
+#: action.py:103
 msgid "I didn't find any services. Please cancel\n"
 msgstr "Je n'ai pas trouvé de service. Veuillez annuler\n"
 
-#: action.py:105
+#: action.py:107
 msgid "I found one service. Please choose a service or cancel\n"
 msgstr "J’ai trouvé un service. Veuillez choisir le service ou annuler\n"
 
-#: action.py:108
+#: action.py:110
 msgid "I found many services. Please choose one service or cancel\n"
 msgstr ""
 "J’ai trouvé plusieurs services. Veuillez choisir un service ou annuler\n"
 
-#: action.py:167
+#: action.py:169
 #, python-format
 msgid ""
 "Host *%s* is *%s*\n"
@@ -114,7 +114,7 @@ msgstr ""
 "Disponibilité: *%s*\n"
 " %s"
 
-#: action.py:192
+#: action.py:194
 #, python-format
 msgid ""
 "Host *%s*\n"
@@ -129,7 +129,7 @@ msgstr ""
 "Dernière vérification: *%s*\n"
 " %s"
 
-#: action.py:218
+#: action.py:220
 #, python-format
 msgid ""
 "Host *%s*\n"
@@ -146,7 +146,7 @@ msgstr ""
 "Valeur: *%s* depuis *%s*\n"
 " %s"
 
-#: action.py:242
+#: action.py:244
 #, python-format
 msgid ""
 "Problem on *%s*\t\t*%s*\n"
@@ -159,7 +159,7 @@ msgstr ""
 "Acquitté: *%s*\n"
 "%s"
 
-#: action.py:275
+#: action.py:277
 #, python-format
 msgid ""
 "Service *%s* is *%s*\n"
@@ -172,35 +172,35 @@ msgstr ""
 " %s\n"
 "%s"
 
-#: action.py:283 action.py:399
+#: action.py:285 action.py:401
 msgid "OK"
 msgstr "OK"
 
-#: action.py:284 action.py:338 action.py:364
+#: action.py:286 action.py:340 action.py:366
 msgid "Not classified"
 msgstr "Non classé"
 
-#: action.py:285 action.py:338 action.py:365
+#: action.py:287 action.py:340 action.py:367
 msgid "Information"
 msgstr "Information"
 
-#: action.py:286 action.py:338 action.py:366
+#: action.py:288 action.py:340 action.py:368
 msgid "Warning"
 msgstr "Avertissement"
 
-#: action.py:287 action.py:338 action.py:367
+#: action.py:289 action.py:340 action.py:369
 msgid "Average"
 msgstr "Moyen"
 
-#: action.py:288 action.py:338 action.py:368
+#: action.py:290 action.py:340 action.py:370
 msgid "High"
 msgstr "Haut"
 
-#: action.py:289 action.py:338 action.py:369
+#: action.py:291 action.py:340 action.py:371
 msgid "Disaster"
 msgstr "Désastre"
 
-#: action.py:337
+#: action.py:339
 #, python-format
 msgid ""
 "*Host availability*\n"
@@ -233,74 +233,82 @@ msgstr ""
 "%s : %d\n"
 "TOTAL: %d"
 
-#: action.py:337 action.py:355
+#: action.py:339 action.py:357
 msgid "Available"
 msgstr "Disponible"
 
-#: action.py:337 action.py:356
+#: action.py:339 action.py:358
 msgid "Not available"
 msgstr "Non disponible"
 
-#: action.py:337 action.py:354
+#: action.py:339 action.py:356
 msgid "Unknown"
 msgstr "Inconnu"
 
-#: action.py:345
+#: action.py:347
 msgid "enabled"
 msgstr "activé"
 
-#: action.py:346
+#: action.py:348
 msgid "disabled"
 msgstr "désactivé"
 
-#: action.py:400
+#: action.py:402
 msgid "PROBLEM"
 msgstr "PROBLÈME"
 
-#: action.py:471
+#: action.py:473
 msgid "No values"
 msgstr "Aucune valeur"
 
-#: action.py:510 action.py:512
+#: action.py:512 action.py:514
 msgid "Host"
 msgstr "Hôte"
 
-#: action.py:510 action.py:511
+#: action.py:512 action.py:513
 msgid "Severity-Problem"
 msgstr "Sévérité-Problème"
 
-#: action.py:510
+#: action.py:512
 msgid "Duration"
 msgstr "Depuis"
 
-#: action.py:510
+#: action.py:512
 msgid "Ack"
 msgstr "Acquittement"
 
-#: action.py:531 action.py:532
+#: action.py:533 action.py:534 action.py:559 action.py:560
 msgid "Name"
 msgstr "Nom"
 
-#: action.py:531
+#: action.py:533
 msgid "Active since"
 msgstr "Active depuis"
 
-#: action.py:531
+#: action.py:533
 msgid "Active till"
 msgstr "Active jusqu'à"
 
-#: action.py:531 action.py:533
+#: action.py:533 action.py:535
 msgid "State"
 msgstr "État"
 
-#: action.py:539
+#: action.py:541
 msgid "Active"
 msgstr "Actif"
 
-#: action.py:542
+#: action.py:544
 msgid "Expired"
 msgstr "Expiré"
 
-#: action.py:545
+#: action.py:547
 msgid "Approaching"
 msgstr "Proche de"
+
+#: action.py:559
+msgid "Last check"
+msgstr "Dernière vérification"
+
+#: action.py:559 action.py:561
+msgid "Last value"
+msgstr "Dernière valeur"

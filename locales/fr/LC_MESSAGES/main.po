@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-05-23 13:56+0200\n"
-"PO-Revision-Date: 2022-05-23 13:56+0200\n"
+"POT-Creation-Date: 2022-05-24 11:22+0200\n"
+"PO-Revision-Date: 2022-05-24 11:23+0200\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: fr\n"
@@ -17,11 +17,11 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "X-Generator: Poedit 3.0.1\n"
 
-#: main.py:94
+#: main.py:117
 msgid "Cancel"
 msgstr "Annuler"
 
-#: main.py:121
+#: main.py:144
 msgid ""
 "Commands:\n"
 " /start - Start a conversation\n"
@@ -42,7 +42,7 @@ msgstr ""
 "d'environnements ZABBIX_TOKEN et ZABBIX_URL si vous ne passez par "
 "d'arguments."
 
-#: main.py:155 main.py:201 main.py:242
+#: main.py:178 main.py:224 main.py:265
 msgid ""
 "Can you set environments variables (ZABBIX_URL and ZABBIX_TOKEN) to use this "
 "command with any argument."
@@ -50,174 +50,178 @@ msgstr ""
 "Pouvez-vous spécifier les variables d'environnements (ZABBIX_URL et "
 "ZABBIX_TOKEN) pour utiliser cette commande sans argument."
 
-#: main.py:158 main.py:205 main.py:246
+#: main.py:181 main.py:228 main.py:269
 #, python-format
 msgid "The server *%s* was not found in config.yaml file."
 msgstr "Le serveur *%s* n'a pas été trouvé dans le fichier config.yaml."
 
-#: main.py:166
+#: main.py:189
 #, python-format
 msgid "The server use is *%s*\n"
 msgstr "Le serveur utilisé est *%s*\n"
 
-#: main.py:319
+#: main.py:342 main.py:1204
 #, python-format
 msgid "Page %s"
 msgstr "Page %s"
 
-#: main.py:401
+#: main.py:424
 msgid "Okay, give me the name of the host"
 msgstr "Okay, donnez moi le nom de l'hôte"
 
-#: main.py:410
+#: main.py:433
 msgid "Okay, give me the tag of the host (NAME=VALUE)"
 msgstr "Okay, donnez moi le tag de l'hôte (NOM=VALEUR)"
 
-#: main.py:594 main.py:663 main.py:722
+#: main.py:617 main.py:692 main.py:751
 msgid "Disable"
 msgstr "Désactiver"
 
-#: main.py:601 main.py:670 main.py:729
+#: main.py:624 main.py:699 main.py:758
 msgid "Enable"
 msgstr "Activer"
 
-#: main.py:610
+#: main.py:633
 msgid "Items"
 msgstr "Éléments"
 
-#: main.py:620 main.py:689
+#: main.py:639
+msgid "Last values"
+msgstr "Dernières valeurs"
+
+#: main.py:649 main.py:718
 msgid "Triggers"
 msgstr "Déclencheurs"
 
-#: main.py:631
+#: main.py:660
 msgid "Back to group"
 msgstr "Retour au groupe"
 
-#: main.py:641 main.py:758 main.py:871
+#: main.py:670 main.py:787 main.py:900
 msgid "Problems"
 msgstr "Problèmes"
 
-#: main.py:679
+#: main.py:708
 msgid "Graph"
 msgstr "Graphe"
 
-#: main.py:698 main.py:748 main.py:789
+#: main.py:727 main.py:777 main.py:818
 msgid "Host"
 msgstr "Hôte"
 
-#: main.py:738
+#: main.py:767
 msgid "Item"
 msgstr "Élément"
 
-#: main.py:780
+#: main.py:809
 msgid "Trigger"
 msgstr "Déclencheur"
 
-#: main.py:800
+#: main.py:829
 msgid "Acknowledge"
 msgstr "Acquitter"
 
-#: main.py:807
+#: main.py:836
 msgid "Unacknowledge"
 msgstr "Désacquitter"
 
-#: main.py:815
+#: main.py:844
 msgid "Send message"
 msgstr "Envoyer message"
 
-#: main.py:824
+#: main.py:853
 msgid "Change severity"
 msgstr "Changement de gravité"
 
-#: main.py:848
+#: main.py:877
 msgid "Parents service"
 msgstr "Services parent"
 
-#: main.py:860
+#: main.py:889
 msgid "Children service"
 msgstr "Services enfant"
 
-#: main.py:959
+#: main.py:1001
 msgid "Host enabled OK\n"
 msgstr "Hôte activé OK\n"
 
-#: main.py:979
+#: main.py:1021
 msgid "Host disabled OK\n"
 msgstr "Hôte désactivé OK\n"
 
-#: main.py:999
+#: main.py:1041
 msgid "Item enabled OK\n"
 msgstr "Élément activé OK\n"
 
-#: main.py:1019
+#: main.py:1061
 msgid "Item disabled OK\n"
 msgstr "Élément désactivé OK\n"
 
-#: main.py:1039
+#: main.py:1081
 msgid "Trigger enabled OK\n"
 msgstr "Déclencheur activé OK\n"
 
-#: main.py:1060
+#: main.py:1102
 msgid "Trigger disabled OK\n"
 msgstr "Déclencheur désactivé OK\n"
 
-#: main.py:1081
+#: main.py:1123
 msgid "Problem acknowledged OK\n"
 msgstr "Problème acquitté OK\n"
 
-#: main.py:1102
+#: main.py:1144
 msgid "Problem unacknowledged OK\n"
 msgstr "Problème désacquitter OK\n"
 
-#: main.py:1119
-msgid "Okay, give me the message"
-msgstr "Okay, donnez moi le message"
-
-#: main.py:1131
-msgid "Send message to problem OK\n"
-msgstr "Message envoyé OK\n"
-
-#: main.py:1146
-msgid "Choose new severity"
-msgstr "Veuillez choisir une nouvelle sévérité"
-
-#: main.py:1150 main.py:1180
-msgid "Not classified"
-msgstr "Non classé"
-
-#: main.py:1153 main.py:1182
-msgid "Information"
-msgstr "Information"
-
-#: main.py:1156 main.py:1184
-msgid "Warning"
-msgstr "Avertissement"
-
-#: main.py:1159 main.py:1186
-msgid "Average"
-msgstr "Moyen"
-
-#: main.py:1162 main.py:1188
-msgid "High"
-msgstr "Haut"
-
-#: main.py:1164 main.py:1190
-msgid "Disaster"
-msgstr "Désastre"
-
-#: main.py:1195
-msgid "Severity change to problem OK\n"
-msgstr "Changement de gravité OK\n"
-
-#: main.py:1223
-msgid "Back to item"
-msgstr "Retour à l'élément"
-
-#: main.py:1229
+#: main.py:1191 main.py:1363
 msgid "Back to host"
 msgstr "Retour à l'hôte"
 
-#: main.py:1252 main.py:1264 main.py:1275
+#: main.py:1253
+msgid "Okay, give me the message"
+msgstr "Okay, donnez moi le message"
+
+#: main.py:1265
+msgid "Send message to problem OK\n"
+msgstr "Message envoyé OK\n"
+
+#: main.py:1280
+msgid "Choose new severity"
+msgstr "Veuillez choisir une nouvelle sévérité"
+
+#: main.py:1284 main.py:1314
+msgid "Not classified"
+msgstr "Non classé"
+
+#: main.py:1287 main.py:1316
+msgid "Information"
+msgstr "Information"
+
+#: main.py:1290 main.py:1318
+msgid "Warning"
+msgstr "Avertissement"
+
+#: main.py:1293 main.py:1320
+msgid "Average"
+msgstr "Moyen"
+
+#: main.py:1296 main.py:1322
+msgid "High"
+msgstr "Haut"
+
+#: main.py:1298 main.py:1324
+msgid "Disaster"
+msgstr "Désastre"
+
+#: main.py:1329
+msgid "Severity change to problem OK\n"
+msgstr "Changement de gravité OK\n"
+
+#: main.py:1357
+msgid "Back to item"
+msgstr "Retour à l'élément"
+
+#: main.py:1386 main.py:1398 main.py:1409
 #, python-format
 msgid ""
 "Hey, I'm %s !\n"
@@ -228,35 +232,35 @@ msgstr ""
 "Je vais vous aider à gérer les problèmes de Zabbix !\n"
 "Je suis connecté au serveur : *%s*"
 
-#: main.py:1285
+#: main.py:1419
 msgid "Search host name"
 msgstr "Rechercher hôte par nom"
 
-#: main.py:1291
+#: main.py:1425
 msgid "Search host tag"
 msgstr "Rechercher hôte par tag"
 
-#: main.py:1299
+#: main.py:1433
 msgid "Hostgroups"
 msgstr "Groupes hôtes"
 
-#: main.py:1304
+#: main.py:1438
 msgid "All Hosts"
 msgstr "Hôtes"
 
-#: main.py:1311
+#: main.py:1445
 msgid "Services"
 msgstr "Services"
 
-#: main.py:1317 main.py:1342
+#: main.py:1451 main.py:1476
 msgid "Settings"
 msgstr "Paramètres"
 
-#: main.py:1321 main.py:1348
+#: main.py:1455 main.py:1482
 msgid "Done"
 msgstr "Terminer"
 
-#: main.py:1334
+#: main.py:1468
 msgid ""
 "\n"
 "\n"
@@ -268,32 +272,32 @@ msgstr ""
 "Ecrivez /help Pour voir l'ensemble des commandes possibles\n"
 "   Choisissez une option:"
 
-#: main.py:1338
+#: main.py:1472
 msgid "The server is incorrect. Please change the name in setting."
 msgstr ""
 "Le serveur est incorrect. Veuillez changer son nom dans les paramètres."
 
-#: main.py:1370
+#: main.py:1504
 msgid "Change language"
 msgstr "Changer la langue"
 
-#: main.py:1376
+#: main.py:1510
 msgid "Change server"
 msgstr "Changer de serveur"
 
-#: main.py:1384
+#: main.py:1518
 msgid "Choose what you want to change"
 msgstr "Choisissez ce que vous souhaitez modifier"
 
-#: main.py:1397
+#: main.py:1531
 msgid "Please choose your language"
 msgstr "Veuillez choisir votre langue"
 
-#: main.py:1431
+#: main.py:1565
 msgid "Choose one server or cancel"
 msgstr "Veuillez choisir un serveur ou annuler"
 
-#: main.py:1434
+#: main.py:1568
 msgid ""
 "The file *config.yaml* doesn't exists. Create file or use environment "
 "variables."
@@ -301,11 +305,11 @@ msgstr ""
 "Le fichier *config.yaml* n'existe pas. Créez le fichier ou utilisez des "
 "variables d’environnements."
 
-#: main.py:1464
+#: main.py:1598
 msgid "Okay, bye."
 msgstr "Okay, au revoir."
 
-#: main.py:1479
+#: main.py:1613
 msgid "See you !"
 msgstr "Au revoir !"
 

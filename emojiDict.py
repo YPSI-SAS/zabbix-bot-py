@@ -36,5 +36,6 @@ telegramEmojiDict = {
     'speech balloon': u'\U0001f4ac',
     'horizontal traffic light': u'\U0001f6a5',
     'baby': u'\U0001f476',
-    'older person': u'\U0001f9d3'
+    'older person': u'\U0001f9d3',
+    'memo': u'\U0001f4dd'
 }

@@ -104,7 +104,7 @@ class API:
         params = {
             "hostids": id_host,
             "output": ["name", "status", "hostid"],
-            "selectItems": ["name", "itemid"],
+            "selectItems": ["name", "itemid", "lastvalue", "lastclock"],
             "selectTriggers": ["triggerid", "description", "value", "priority"],
             "selectTags": ["tag", "value"],
             "selectInterfaces": ["available"],

@@ -1,4 +1,5 @@
 import gettext
+from more_itertools import last
 from telegram import InlineKeyboardButton
 from emojiDict import telegramEmojiDict
 import json
@@ -9,6 +10,7 @@ import matplotlib.ticker as ticker
 import numpy as np
 import os
 import prettytable as pt
+from textwrap import fill
 
 ACK_MENU, CANCEL = map(chr, range(2))
 
@@ -516,8 +518,8 @@ def get_table_information_problem(api, LANG):
         severity_emoji = get_severity_emoji(problem['severity'])
         time = get_time(int(problem['clock']))
         acknowledged_emoji = get_acknowledged_emoji(problem['acknowledged'])
-        table.add_row([host_info[0]["hosts"][0]["name"],
-                      severity_emoji+problem['name'], time, acknowledged_emoji])
+        table.add_row([fill(host_info[0]["hosts"][0]["name"], width=30), fill(
+            severity_emoji+problem['name'], width=30), time, acknowledged_emoji])
     return table
 
 
@@ -535,12 +537,34 @@ def get_table_information_maintenance(api, LANG):
     list_maintenance = api.get_list_maintenances()
     for maintenance in list_maintenance:
         if now > datetime.fromtimestamp(int(maintenance['active_since'])) and now < datetime.fromtimestamp(int(maintenance['active_till'])):
-            table.add_row([maintenance['name'], datetime.fromtimestamp(int(maintenance['active_since'])),
+            table.add_row([fill(maintenance['name'], width=30), datetime.fromtimestamp(int(maintenance['active_since'])),
                            datetime.fromtimestamp(int(maintenance['active_till'])), telegramEmojiDict['green square']+_("Active")])
         elif now > datetime.fromtimestamp(int(maintenance['active_till'])):
-            table.add_row([maintenance['name'], datetime.fromtimestamp(int(maintenance['active_since'])),
+            table.add_row([fill(maintenance['name'], width=30), datetime.fromtimestamp(int(maintenance['active_since'])),
                            datetime.fromtimestamp(int(maintenance['active_till'])), telegramEmojiDict['red square']+_("Expired")])
         elif now < datetime.fromtimestamp(int(maintenance['active_since'])):
-            table.add_row([maintenance['name'], datetime.fromtimestamp(int(maintenance['active_since'])),
+            table.add_row([fill(maintenance['name'], width=30), datetime.fromtimestamp(int(maintenance['active_since'])),
                            datetime.fromtimestamp(int(maintenance['active_till'])), telegramEmojiDict['orange square']+_("Approaching")])
     return table
+
+
+def get_table_last_values_host(LANG, element_items, host_name):
+    """"Get all last values for host"""
+    lang_translations = gettext.translation(
+        'action', localedir='locales', languages=[LANG])
+    lang_translations.install()
+    _ = lang_translations.gettext
+
+    table = pt.PrettyTable(
+        [_('Name'), _('Last check'), _('Last value')])
+    table.align[_('Name')] = 'l'
+    table.align[_('Last value')] = 'l'
+    for item in element_items:
+        last_value = item['lastvalue']
+        if len(last_value) > 200:
+            last_value = last_value[0:250] + "..."
+        if "-" in last_value:
+            last_value = last_value.replace('-', '\-')
+        table.add_row([fill(item['name'], width=30), get_time(
+            item['lastclock']), fill(last_value, width=50)])
+    return table.get_string(title=host_name)

@@ -16,6 +16,7 @@ from action import (
     get_table_information_maintenance,
     display_service_characteristics,
     get_table_last_values_host,
+    get_table_sla_report,
 )
 from functools import wraps
 import gettext
@@ -87,6 +88,9 @@ HOST_MENU_NAME = "host_menu_name"
 HOST_MENU_TAG = "host_menu_tag"
 LOCATION_MENU = "location_menu"
 DIPLAY_ACTION_LOCATION = "display_action_location"
+SLA_MENU = "sla_menu"
+CHOOSE_SLA = "choose_sla"
+DISPLAY_ACTION_SLA = "display_action_sla"
 
 LANG = "en"
 NAME_SERVER = ""
@@ -317,6 +321,9 @@ def navigation_elements(update, context):
     elif ud["TYPE_REQUEST"] == "all_problem_service":
         elements_list = ud[API_VAR].get_list_problems_by_service(
             ud["PROBLEM_ID"])
+    elif ud["TYPE_REQUEST"] == "all_sla_service":
+        elements_list = ud[API_VAR].get_sla_by_service(
+            service_id=ud['ID_SERVICE'])
     if ud['OBJECT'] == 'problem':
         numberHostDisplay = 15
     else:
@@ -399,6 +406,8 @@ def next(update, context):
         return CHOOSE_PROBLEM
     elif ud['OBJECT'] == "service":
         return CHOOSE_SERVICE
+    elif ud['OBJECT'] == "sla":
+        return CHOOSE_SLA
 
 
 def precedent(update, context):
@@ -418,6 +427,8 @@ def precedent(update, context):
         return CHOOSE_PROBLEM
     elif ud['OBJECT'] == "service":
         return CHOOSE_SERVICE
+    elif ud['OBJECT'] == "sla":
+        return CHOOSE_SLA
 
 
 def get_name_host(update, context):
@@ -470,6 +481,17 @@ def list_item(update, context):
     ud["NUMBER"] = 0
     navigation_elements(update, context)
     return CHOOSE_ITEM
+
+
+def list_sla_service(update, context):
+    ud = context.user_data
+    ud["TYPE_REQUEST"] = "all_sla_service"
+    Cdata = json.loads(ud["SERVICE_INFO"])
+    ud["ID_SERVICE"] = Cdata["SID"]
+    ud["OBJECT"] = "sla"
+    ud["NUMBER"] = 0
+    navigation_elements(update, context)
+    return CHOOSE_SLA
 
 
 def list_hostgroups(update, context):
@@ -875,6 +897,7 @@ def display_action_service(context):
     Cdata = json.loads(ud["SERVICE_INFO"])
     serviceID = Cdata["SID"]
     list_service = ud[API_VAR].get_service_info(serviceID)
+    list_sla = ud[API_VAR].get_sla_by_service(serviceID)
     for service in list_service:
 
         # Display parent button if it has one
@@ -909,6 +932,16 @@ def display_action_service(context):
                     _("Problems"),
                     callback_data='{"PROID":"' +
                     service['serviceid'] + '"}',
+                )
+            )
+
+        # Display sla button
+        if len(list_sla) != 0:
+            button_list.append(
+                InlineKeyboardButton(
+                    text=telegramEmojiDict["bar chart"] +
+                    _("SLA"),
+                    callback_data=str(SLA_MENU),
                 )
             )
 
@@ -998,6 +1031,38 @@ def select_service(update, context):
     )
     display_message_bot(update, context, message, reply_markup)
     return DISPLAY_ACTION_SERVICE
+
+
+@send_typing_action
+def select_sla(update, context):
+    """Display all informations and button about sla selected"""
+    ud = context.user_data
+    ud["SLA_INFO"] = update.callback_query.data
+    ud = context.user_data
+    Cdata = json.loads(ud['SERVICE_INFO'])
+    serviceID = Cdata['SID']
+    Cdata = json.loads(ud['SLA_INFO'])
+    slaID = Cdata['SLAID']
+    message = get_table_sla_report(LANG, ud[API_VAR], serviceID, slaID)
+    cancel_button = get_cancel_button()
+    button_list = list()
+    button_list.append(
+        InlineKeyboardButton(
+            text=telegramEmojiDict["level slider"] +
+            _("Back to service"),
+            callback_data='{"SID":"' +
+            serviceID + '"}',
+        )
+    )
+    reply_markup = InlineKeyboardMarkup(
+        build_menu(button_list, n_cols=2, cancel_button=cancel_button)
+    )
+    update.callback_query.edit_message_text(
+        text=f'```{message}```',
+        parse_mode=ParseMode.MARKDOWN_V2,
+        reply_markup=reply_markup,
+    )
+    return DISPLAY_ACTION_SLA
 
 
 @send_typing_action
@@ -1957,6 +2022,20 @@ def main():
                              pattern='^{"CHILDID*'),
         CallbackQueryHandler(list_problem_by_service,
                              pattern='^{"PROID*'),
+        CallbackQueryHandler(cancel, pattern="^" + str(CANCEL) + "$"),
+        CallbackQueryHandler(
+            list_sla_service, pattern="^" + str(SLA_MENU) + "$"
+        ),
+    ]
+    states_list[CHOOSE_SLA] = [
+        CallbackQueryHandler(select_sla, pattern='^{"SLAID*'),
+        CallbackQueryHandler(cancel, pattern="^" + str(CANCEL) + "$"),
+        CallbackQueryHandler(
+            precedent, pattern="^" + str(PRECEDENT) + "$"),
+        CallbackQueryHandler(next, pattern="^" + str(NEXT) + "$"),
+    ]
+    states_list[DISPLAY_ACTION_SLA] = [
+        CallbackQueryHandler(select_service, pattern='^{"SID*'),
         CallbackQueryHandler(cancel, pattern="^" + str(CANCEL) + "$"),
     ]
 

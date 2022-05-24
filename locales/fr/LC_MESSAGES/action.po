@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-05-24 11:22+0200\n"
-"PO-Revision-Date: 2022-05-24 11:23+0200\n"
+"POT-Creation-Date: 2022-05-24 16:35+0200\n"
+"PO-Revision-Date: 2022-05-24 16:39+0200\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: fr\n"
@@ -103,7 +103,19 @@ msgid "I found many services. Please choose one service or cancel\n"
 msgstr ""
 "J’ai trouvé plusieurs services. Veuillez choisir un service ou annuler\n"
 
-#: action.py:169
+#: action.py:117
+msgid "I didn't find any SLA attached to this service. Please cancel\n"
+msgstr "Je n'ai pas trouvé de SLA. Veuillez annuler\n"
+
+#: action.py:121
+msgid "I found one SLA. Please choose a SLA or cancel\n"
+msgstr "J’ai trouvé un SLA. Veuillez choisir le SLA ou annuler\n"
+
+#: action.py:124
+msgid "I found many SLA. Please choose one SLA or cancel\n"
+msgstr "J’ai trouvé plusieurs SLA. Veuillez choisir un SLA ou annuler\n"
+
+#: action.py:183
 #, python-format
 msgid ""
 "Host *%s* is *%s*\n"
@@ -114,7 +126,7 @@ msgstr ""
 "Disponibilité: *%s*\n"
 " %s"
 
-#: action.py:194
+#: action.py:208
 #, python-format
 msgid ""
 "Host *%s*\n"
@@ -129,7 +141,7 @@ msgstr ""
 "Dernière vérification: *%s*\n"
 " %s"
 
-#: action.py:220
+#: action.py:234
 #, python-format
 msgid ""
 "Host *%s*\n"
@@ -146,7 +158,7 @@ msgstr ""
 "Valeur: *%s* depuis *%s*\n"
 " %s"
 
-#: action.py:244
+#: action.py:258
 #, python-format
 msgid ""
 "Problem on *%s*\t\t*%s*\n"
@@ -159,7 +171,7 @@ msgstr ""
 "Acquitté: *%s*\n"
 "%s"
 
-#: action.py:277
+#: action.py:291
 #, python-format
 msgid ""
 "Service *%s* is *%s*\n"
@@ -172,35 +184,35 @@ msgstr ""
 " %s\n"
 "%s"
 
-#: action.py:285 action.py:401
+#: action.py:299 action.py:415
 msgid "OK"
 msgstr "OK"
 
-#: action.py:286 action.py:340 action.py:366
+#: action.py:300 action.py:354 action.py:380
 msgid "Not classified"
 msgstr "Non classé"
 
-#: action.py:287 action.py:340 action.py:367
+#: action.py:301 action.py:354 action.py:381
 msgid "Information"
 msgstr "Information"
 
-#: action.py:288 action.py:340 action.py:368
+#: action.py:302 action.py:354 action.py:382
 msgid "Warning"
 msgstr "Avertissement"
 
-#: action.py:289 action.py:340 action.py:369
+#: action.py:303 action.py:354 action.py:383
 msgid "Average"
 msgstr "Moyen"
 
-#: action.py:290 action.py:340 action.py:370
+#: action.py:304 action.py:354 action.py:384
 msgid "High"
 msgstr "Haut"
 
-#: action.py:291 action.py:340 action.py:371
+#: action.py:305 action.py:354 action.py:385
 msgid "Disaster"
 msgstr "Désastre"
 
-#: action.py:339
+#: action.py:353
 #, python-format
 msgid ""
 "*Host availability*\n"
@@ -233,82 +245,122 @@ msgstr ""
 "%s : %d\n"
 "TOTAL: %d"
 
-#: action.py:339 action.py:357
+#: action.py:353 action.py:371
 msgid "Available"
 msgstr "Disponible"
 
-#: action.py:339 action.py:358
+#: action.py:353 action.py:372
 msgid "Not available"
 msgstr "Non disponible"
 
-#: action.py:339 action.py:356
+#: action.py:353 action.py:370
 msgid "Unknown"
 msgstr "Inconnu"
 
-#: action.py:347
+#: action.py:361
 msgid "enabled"
 msgstr "activé"
 
-#: action.py:348
+#: action.py:362
 msgid "disabled"
 msgstr "désactivé"
 
-#: action.py:402
+#: action.py:416
 msgid "PROBLEM"
 msgstr "PROBLÈME"
 
-#: action.py:473
+#: action.py:470
 msgid "No values"
 msgstr "Aucune valeur"
 
-#: action.py:512 action.py:514
+#: action.py:509 action.py:511
 msgid "Host"
 msgstr "Hôte"
 
-#: action.py:512 action.py:513
+#: action.py:509 action.py:510
 msgid "Severity-Problem"
 msgstr "Sévérité-Problème"
 
-#: action.py:512
+#: action.py:509
 msgid "Duration"
 msgstr "Depuis"
 
-#: action.py:512
+#: action.py:509
 msgid "Ack"
 msgstr "Acquittement"
 
-#: action.py:533 action.py:534 action.py:559 action.py:560
+#: action.py:530 action.py:531 action.py:556 action.py:557
 msgid "Name"
 msgstr "Nom"
 
-#: action.py:533
+#: action.py:530
 msgid "Active since"
 msgstr "Active depuis"
 
-#: action.py:533
+#: action.py:530
 msgid "Active till"
 msgstr "Active jusqu'à"
 
-#: action.py:533 action.py:535
+#: action.py:530 action.py:532
 msgid "State"
 msgstr "État"
 
-#: action.py:541
+#: action.py:538
 msgid "Active"
 msgstr "Actif"
 
-#: action.py:544
+#: action.py:541
 msgid "Expired"
 msgstr "Expiré"
 
-#: action.py:547
+#: action.py:544
 msgid "Approaching"
 msgstr "Proche de"
 
-#: action.py:559
+#: action.py:556
 msgid "Last check"
 msgstr "Dernière vérification"
 
-#: action.py:559 action.py:561
+#: action.py:556 action.py:558
 msgid "Last value"
 msgstr "Dernière valeur"
+
+#: action.py:587
+msgid "SLO"
+msgstr "SLO"
+
+#: action.py:587
+msgid "SLI"
+msgstr "SLI"
+
+#: action.py:587
+msgid "Uptime"
+msgstr "Temps de fonctionnement"
+
+#: action.py:587
+msgid "Downtime"
+msgstr "Temps d'arrêt"
+
+#: action.py:587
+msgid "Error budget"
+msgstr "Erreur budget"
+
+#: action.py:633
+msgid "Day"
+msgstr "Jour"
+
+#: action.py:634
+msgid "Week"
+msgstr "Semaine"
+
+#: action.py:635
+msgid "Month"
+msgstr "Mois"
+
+#: action.py:636
+msgid "Quarter"
+msgstr "Trimestre"
+
+#: action.py:637
+msgid "Year"
+msgstr "Année"

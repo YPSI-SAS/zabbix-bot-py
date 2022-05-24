@@ -447,3 +447,37 @@ class API:
             return json_data['result']
         else:
             return {}
+
+    def get_sla_by_service(self, service_id=None, sla_id=None):
+        """Get SLA values"""
+        if sla_id == None:
+            params = {
+                "serviceids": service_id,
+                "output": ["slaid", "name", "slo", "period"]
+            }
+        else:
+            params = {
+                "slaids": sla_id,
+                "output": ["slaid", "name", "slo", "period"]
+            }
+        status_code, text = self.request_post(
+            params=params, method='sla.get')
+        json_data = json.loads(text)
+        if status_code == 200:
+            return json_data['result']
+        else:
+            return {}
+
+    def get_sla_report_by_service(self, sla_id, service_id):
+        """Get SLA report for service"""
+        params = {
+            "serviceids": service_id,
+            "slaid": sla_id
+        }
+        status_code, text = self.request_post(
+            params=params, method='sla.getsli')
+        json_data = json.loads(text)
+        if status_code == 200:
+            return json_data['result']
+        else:
+            return {}

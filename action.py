@@ -111,6 +111,20 @@ def display_object_button(object, object_list, LANG):
             for service in object_list:
                 button_list.append(InlineKeyboardButton(text=get_status_service_emoji(service['status'])+service['name'],
                                                         callback_data='{"SID":"'+service['serviceid']+'"}'))
+    elif object == "sla":  # Display service buttons
+        if not object_list:
+            message = _(
+                'I didn\'t find any SLA attached to this service. Please cancel\n')
+        else:
+            if len(object_list) == 1:
+                message = _(
+                    'I found one SLA. Please choose a SLA or cancel\n')
+            else:
+                message = _(
+                    'I found many SLA. Please choose one SLA or cancel\n')
+            for sla in object_list:
+                button_list.append(InlineKeyboardButton(text=sla['name'],
+                                                        callback_data='{"SLAID":"'+sla['slaid']+'"}'))
     return message, button_list
 
 
@@ -411,24 +425,7 @@ def get_time(timestamp):
     date = datetime.fromtimestamp(int(timestamp))
     now = datetime.now()
     ecartSecond = (now-date).total_seconds()
-    minutes, seconds = divmod(int(ecartSecond), 60)
-    hours, minutes = divmod(minutes, 60)
-    days, hours = divmod(hours, 24)
-    weeks, days = divmod(days, 7)
-    month, weeks = divmod(weeks, 4)
-    year, month = divmod(month, 12)
-
-    firstVal = ""
-    secondVal = ""
-    values = [year, month, weeks, days, hours, minutes, seconds]
-    for i in range(len(values)):
-        if values[i] != 0.0 and firstVal == "":
-            firstVal = "%s%s" % (str(values[i]), get_unity(i))
-            continue
-        if values[i] != 0.0 and secondVal == "":
-            secondVal = "{}{}".format(str(values[i]), get_unity(i))
-            break
-    return "{} {}".format(firstVal, secondVal)
+    return get_val_time(ecartSecond)
 
 
 def get_unity(i):
@@ -568,3 +565,92 @@ def get_table_last_values_host(LANG, element_items, host_name):
         table.add_row([fill(item['name'], width=30), get_time(
             item['lastclock']), fill(last_value, width=50)])
     return table.get_string(title=host_name)
+
+
+def get_table_sla_report(LANG, api, service_id, sla_id):
+    """Get SLA report for service"""
+    lang_translations = gettext.translation(
+        'action', localedir='locales', languages=[LANG])
+    lang_translations.install()
+    _ = lang_translations.gettext
+
+    sla_report = api.get_sla_report_by_service(sla_id, service_id)
+    sla_info = api.get_sla_by_service(sla_id=sla_id)
+    sla_report_period = sla_report['periods']
+    sla_report_period.reverse()
+    sla_report_sli = list()
+    for i in range(len(sla_report_period)):
+        sla_report_sli.append(sla_report['sli'][i][0])
+    sla_report_sli.reverse()
+
+    table = pt.PrettyTable(
+        [get_column_name(sla_info[0]['period'], _), _('SLO'), _('SLI'), _('Uptime'), _('Downtime'), _('Error budget')])
+
+    # Limit to display in telegram
+    number_max_val = 40
+    if len(sla_report_period) < number_max_val:
+        number_max_val = len(sla_report_period)
+
+    for i in range(number_max_val):
+        period = get_date_value_depending_period(
+            sla_info[0]['period'], sla_report_period[i]['period_from'], sla_report_period[i]['period_to'])
+        sli = float(np.round(sla_report_sli[i]['sli'], 4))
+        uptime = get_val_time(sla_report_sli[i]['uptime'])
+        downtime = get_val_time(sla_report_sli[i]['downtime'])
+        error_budget = get_val_time(abs(sla_report_sli[i]['error_budget']))
+        if sla_report_sli[i]['error_budget'] < 0:
+            error_budget = "-" + error_budget
+        table.add_row([period, sla_info[0]['slo'], sli,
+                      uptime, downtime, error_budget])
+
+    return table.get_string(title=sla_info[0]['name'])
+
+
+def get_val_time(val_second):
+    minutes, seconds = divmod(int(val_second), 60)
+    hours, minutes = divmod(minutes, 60)
+    days, hours = divmod(hours, 24)
+    weeks, days = divmod(days, 7)
+    month, weeks = divmod(weeks, 4)
+    year, month = divmod(month, 12)
+
+    firstVal = ""
+    secondVal = ""
+    values = [year, month, weeks, days, hours, minutes, seconds]
+    for i in range(len(values)):
+        if values[i] != 0.0 and firstVal == "":
+            firstVal = "%s%s" % (str(values[i]), get_unity(i))
+            continue
+        if values[i] != 0.0 and secondVal == "":
+            secondVal = "{}{}".format(str(values[i]), get_unity(i))
+            break
+    return "{} {}".format(firstVal, secondVal)
+
+
+def get_column_name(period, _):
+    """Convert period to text"""
+    switcher = {
+        "0": _("Day"),
+        "1": _("Week"),
+        "2": _("Month"),
+        "3": _("Quarter"),
+        "4": _("Year")
+    }
+    return switcher.get(period, "invalid status")
+
+
+def get_date_value_depending_period(period, period_from_timestamp, period_to_timestamp):
+    """Get period of time depending SLA period"""
+    period_from_timestamp = datetime.fromtimestamp(int(period_from_timestamp))
+    period_to_timestamp = datetime.fromtimestamp(int(period_to_timestamp))
+
+    if period == "0":
+        return str(period_from_timestamp.year) + "-"+str(period_from_timestamp.month)+"-"+str(period_from_timestamp.day)
+    elif period == "1":
+        return str(period_from_timestamp.year) + "-"+str(period_from_timestamp.month)+"-"+str(period_from_timestamp.day)+" -- "+str(period_to_timestamp.month)+"-"+str(period_to_timestamp.day)
+    elif period == "2":
+        return str(period_from_timestamp.year) + "-"+str(period_from_timestamp.month)
+    elif period == "3":
+        return str(period_from_timestamp.year) + "-"+str(period_from_timestamp.month) + " -- "+str(period_to_timestamp.month-1)
+    elif period == "4":
+        return str(period_from_timestamp.year)

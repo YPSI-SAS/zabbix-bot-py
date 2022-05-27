@@ -395,12 +395,12 @@ class API:
         """Get information service"""
         params = {
             'serviceids': serviceid,
-            'output': ['name', 'serviceid', 'status', 'created_at'],
-            'selectChildren': ['name', 'serviceid'],
-            'selectParents': ['name', 'serviceid'],
-            'selectTags': ['tag', 'value'],
-            'selectProblemEvents': ['eventid', 'severity'],
-            'selectProblemTags': ['tag', 'operator', 'value']
+            "output": "extend",
+            "selectChildren": "extend",
+            "selectParents": "extend",
+            "selectTags": "extend",
+            "selectProblemEvents": "extend",
+            "selectProblemTags": "extend"
         }
         status_code, text = self.request_post(
             params=params, method='service.get')
@@ -476,6 +476,25 @@ class API:
         }
         status_code, text = self.request_post(
             params=params, method='sla.getsli')
+        json_data = json.loads(text)
+        if status_code == 200:
+            return json_data['result']
+        else:
+            return {}
+
+    def get_problem_info(self, id_event):
+        """Get all information of the problem"""
+        params = {
+            "eventids": id_event,
+            "output": "extend",
+            "selectTags": ["tag", "value"],
+            "selectHosts": ["hostid", "name"],
+            "select_acknowledges": "extend",
+            "selectRelatedObject": "extend",
+            "select_alerts":"extend"
+        }
+        status_code, text = self.request_post(
+            params=params, method='event.get')
         json_data = json.loads(text)
         if status_code == 200:
             return json_data['result']

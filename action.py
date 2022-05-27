@@ -494,9 +494,10 @@ def get_image_data(data, list_item, LANG):
     plt.grid()
 
     # Save the graph to image
-    if os.path.exists("image.png"):
-        os.remove("image.png")
-    plt.savefig("image.png")
+    if os.path.exists("./documents/images/"+str(list_item[0]["itemid"])+".png"):
+        os.remove("./documents/images/"+str(list_item[0]["itemid"])+".png")
+    plt.savefig("./documents/images/"+str(list_item[0]["itemid"])+".png")
+    return "./documents/images/"+str(list_item[0]["itemid"])+".png"
 
 
 def get_table_information_problem(api, LANG):

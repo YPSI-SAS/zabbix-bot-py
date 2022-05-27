@@ -24,6 +24,7 @@ from emojiDict import telegramEmojiDict
 import json
 import yaml
 import os
+from report_service import reportService
 
 
 from request_API import API
@@ -91,6 +92,8 @@ DIPLAY_ACTION_LOCATION = "display_action_location"
 SLA_MENU = "sla_menu"
 CHOOSE_SLA = "choose_sla"
 DISPLAY_ACTION_SLA = "display_action_sla"
+PDF_MENU = "pdf_menu"
+DISPLAY_ACTION_PDF = "display_action_pdf"
 
 LANG = "en"
 NAME_SERVER = ""
@@ -945,6 +948,14 @@ def display_action_service(context):
                 )
             )
 
+        button_list.append(
+            InlineKeyboardButton(
+                text=telegramEmojiDict["page with curl"] +
+                _("Report PDF"),
+                callback_data=str(PDF_MENU),
+            )
+        )
+
     cancel_button = get_cancel_button()
     return button_list, cancel_button
 
@@ -1256,6 +1267,44 @@ def show_location_host(update, context):
 
 
 @send_typing_action
+def send_pdf(update, context):
+    ud = context.user_data
+    Cdata = json.loads(ud["SERVICE_INFO"])
+    service_ID = Cdata["SID"]
+    report_service = reportService(api=ud[API_VAR], service_id=service_ID)
+    file = report_service.create_report(LANG)
+    button_list = list()
+    button_list.append(
+        InlineKeyboardButton(
+            text=telegramEmojiDict["level slider"] +
+            _("Back to service"),
+            callback_data='{"SID":"'+service_ID+'"}',
+        )
+    )
+    reply_markup = InlineKeyboardMarkup(
+        build_menu(button_list, n_cols=2)
+    )
+    # send the pdf doc
+    context.bot.sendDocument(
+        chat_id=update.effective_chat.id, document=open(file, 'rb'), reply_markup=reply_markup)
+    ud['AFTER_GRAPH'] = True
+    return DISPLAY_ACTION_PDF
+
+
+def get_service(update, context):
+    """Go back to service after last values"""
+    ud = context.user_data
+    ud["SERVICE_INFO"] = update.callback_query.data
+    message = display_service_characteristics(context, LANG, ud[API_VAR])
+    button_list, cancel_button = display_action_service(context)
+    reply_markup = InlineKeyboardMarkup(
+        build_menu(button_list, n_cols=2, cancel_button=cancel_button)
+    )
+    display_message_bot(update, context, message, reply_markup)
+    return END
+
+
+@send_typing_action
 def show_last_value_host(update, context):
     """Display last value of each items"""
     ud = context.user_data
@@ -1446,11 +1495,10 @@ def display_graph(update, context):
     CdataH = json.loads(ud["HOST_INFO"])
     host_id = CdataH["HID"]
     item_id = Cdata["IID"]
-    print(host_id)
     list_item = ud[API_VAR].get_item_info(item_id)
     data = ud[API_VAR].get_list_history_item(
         item_id, list_item[0]['value_type'])
-    get_image_data(data, list_item, LANG)
+    name_file = get_image_data(data, list_item, LANG)
     button_list = list()
     button_list.append(
         InlineKeyboardButton(
@@ -1467,7 +1515,7 @@ def display_graph(update, context):
     reply_markup = InlineKeyboardMarkup(build_menu(
         button_list, n_cols=2))
     context.bot.send_photo(update.effective_chat.id, photo=open(
-        'image.png', 'rb'), reply_markup=reply_markup)
+        name_file, 'rb'), reply_markup=reply_markup)
     ud['AFTER_GRAPH'] = True
     return DISPLAY_ACTION_GRAPH
 
@@ -2009,6 +2057,21 @@ def main():
         map_to_parent={END: ACTION_START, STOPPING: ACTION_START},
     )
 
+    # Add conversation handler for send PDF
+    pdf_conv = ConversationHandler(
+        entry_points=[
+            CallbackQueryHandler(
+                send_pdf, pattern="^" + str(PDF_MENU) + "$"
+            ),
+        ],
+        states={DISPLAY_ACTION_PDF: [
+            CallbackQueryHandler(
+                get_service, pattern='^{"SID*'),
+        ]},
+        fallbacks=[CommandHandler("stop", stop_nested)],
+        map_to_parent={STOPPING: STOPPING, END: DISPLAY_ACTION_SERVICE},
+    )
+
     states_list[CHOOSE_SERVICE] = [
         CallbackQueryHandler(select_service, pattern='^{"SID*'),
         CallbackQueryHandler(cancel, pattern="^" + str(CANCEL) + "$"),
@@ -2026,6 +2089,7 @@ def main():
         CallbackQueryHandler(
             list_sla_service, pattern="^" + str(SLA_MENU) + "$"
         ),
+        pdf_conv,
     ]
     states_list[CHOOSE_SLA] = [
         CallbackQueryHandler(select_sla, pattern='^{"SLAID*'),

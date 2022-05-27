@@ -40,4 +40,5 @@ telegramEmojiDict = {
     'memo': u'\U0001f4dd',
     'world map': u'\U0001f5fa',
     'bar chart': u'\U0001f4ca',
+    'page with curl': u'\U0001f4c3'
 }

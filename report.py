@@ -15,6 +15,7 @@ _baseFontNameB = tt2ps(_baseFontName, 1, 0)
 
 class Report:
     def __init__(self, api, LANG):
+        self.list_images = []
         self.api = api
         self.story = []
         self.styles = getSampleStyleSheet()
@@ -135,8 +136,9 @@ class Report:
                     item_info['itemid'], item_info['value_type'])
                 name_file = get_image_data(
                     data=data, list_item=items_info, LANG="en")
-                im = Image(name_file, 8*inch, 4*inch)
+                im = Image(name_file, 7*inch, 3*inch)
                 self.story.append(im)
+                self.list_images.append(name_file)
 
     def write_acknowledge_informations(self, event, index, part, _):
         """Write acknowledge information of problem"""

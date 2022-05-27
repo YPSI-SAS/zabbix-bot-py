@@ -122,4 +122,4 @@ class ReportService(Report):
         self.write_host_information("5", self._, self.host_ids)
         self.write_trigger_information("6", self._, self.trigger_ids)
         doc.build(self.story)
-        return name_file
+        return name_file, self.list_images

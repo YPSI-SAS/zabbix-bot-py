@@ -63,4 +63,4 @@ class ReportHost(Report):
         self.write_problems_information(
             "4", self._)
         doc.build(self.story)
-        return name_file
+        return name_file, self.list_images

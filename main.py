@@ -121,6 +121,30 @@ def send_typing_action(func):
     return command_func
 
 
+def send_document_action(func):
+    """Sends document action while processing func command."""
+    @wraps(func)
+    def command_func(update, context, *args, **kwargs):
+        context.bot.send_chat_action(
+            chat_id=update.effective_message.chat_id, action=ChatAction.UPLOAD_DOCUMENT
+        )
+        return func(update, context, *args, **kwargs)
+
+    return command_func
+
+
+def send_photo_action(func):
+    """Sends photo action while processing func command."""
+    @wraps(func)
+    def command_func(update, context, *args, **kwargs):
+        context.bot.send_chat_action(
+            chat_id=update.effective_message.chat_id, action=ChatAction.UPLOAD_PHOTO
+        )
+        return func(update, context, *args, **kwargs)
+
+    return command_func
+
+
 def get_cancel_button():
     """Return cancel button in list"""
     cancel_button = list()
@@ -1277,41 +1301,21 @@ def show_location_host(update, context):
     return DIPLAY_ACTION_LOCATION
 
 
-@send_typing_action
-def send_pdf_service(update, context):
-    ud = context.user_data
-    Cdata = json.loads(ud["SERVICE_INFO"])
-    service_ID = Cdata["SID"]
-    report_service = ReportService(
-        api=ud[API_VAR], service_id=service_ID, LANG=LANG)
-    file = report_service.create_report()
-    button_list = list()
-    button_list.append(
-        InlineKeyboardButton(
-            text=telegramEmojiDict["level slider"] +
-            _("Back to service"),
-            callback_data='{"SID":"'+service_ID+'"}',
-        )
-    )
-    reply_markup = InlineKeyboardMarkup(
-        build_menu(button_list, n_cols=2)
-    )
-    # send the pdf doc
-    context.bot.sendDocument(
-        chat_id=update.effective_chat.id, document=open(file, 'rb'), reply_markup=reply_markup)
-    ud['AFTER_GRAPH'] = True
-    return DISPLAY_ACTION_PDF
+def delete_image_after(list_images):
+    for image in list_images:
+        if os.path.exists(image):
+            os.remove(image)
 
 
-@send_typing_action
-def send_pdf_host(update, context):
+@send_document_action
+def send_pdf(update, context):
     ud = context.user_data
     if ud['OBJECT'] == "host":
         Cdata = json.loads(ud["HOST_INFO"])
         host_ID = Cdata["HID"]
         report_host = ReportHost(
             api=ud[API_VAR], host_id=host_ID, LANG=LANG)
-        file = report_host.create_report()
+        file, list_images = report_host.create_report()
         button_list = list()
         button_list.append(
             InlineKeyboardButton(
@@ -1325,7 +1329,7 @@ def send_pdf_host(update, context):
         service_ID = Cdata["SID"]
         report_service = ReportService(
             api=ud[API_VAR], service_id=service_ID, LANG=LANG)
-        file = report_service.create_report()
+        file, list_images = report_service.create_report()
         button_list = list()
         button_list.append(
             InlineKeyboardButton(
@@ -1341,6 +1345,7 @@ def send_pdf_host(update, context):
     context.bot.sendDocument(
         chat_id=update.effective_chat.id, document=open(file, 'rb'), reply_markup=reply_markup, timeout=100)
     ud['AFTER_GRAPH'] = True
+    delete_image_after(list_images=list_images)
     return DISPLAY_ACTION_PDF
 
 
@@ -1541,6 +1546,7 @@ def change_severity(update, context):
     return END
 
 
+@send_photo_action
 def display_graph(update, context):
     """Display graph for item"""
     ud = context.user_data
@@ -1570,6 +1576,7 @@ def display_graph(update, context):
     context.bot.send_photo(update.effective_chat.id, photo=open(
         name_file, 'rb'), reply_markup=reply_markup)
     ud['AFTER_GRAPH'] = True
+    delete_image_after(list_images=[name_file])
     return DISPLAY_ACTION_GRAPH
 
 
@@ -1890,7 +1897,7 @@ def main():
     pdf_conv_host = ConversationHandler(
         entry_points=[
             CallbackQueryHandler(
-                send_pdf_host, pattern="^" + str(PDF_MENU) + "$"
+                send_pdf, pattern="^" + str(PDF_MENU) + "$"
             ),
         ],
         states={DISPLAY_ACTION_PDF: [
@@ -2127,21 +2134,6 @@ def main():
         },
         fallbacks=[CommandHandler("stop", stop_nested)],
         map_to_parent={END: ACTION_START, STOPPING: ACTION_START},
-    )
-
-    # Add conversation handler for send PDF
-    pdf_conv_service = ConversationHandler(
-        entry_points=[
-            CallbackQueryHandler(
-                send_pdf_service, pattern="^" + str(PDF_MENU) + "$"
-            ),
-        ],
-        states={DISPLAY_ACTION_PDF: [
-            CallbackQueryHandler(
-                get_service, pattern='^{"SID*'),
-        ]},
-        fallbacks=[CommandHandler("stop", stop_nested)],
-        map_to_parent={STOPPING: STOPPING, END: DISPLAY_ACTION_SERVICE},
     )
 
     states_list[CHOOSE_SERVICE] = [

@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-05-27 15:02+0200\n"
-"PO-Revision-Date: 2022-05-27 15:11+0200\n"
+"POT-Creation-Date: 2022-05-27 16:26+0200\n"
+"PO-Revision-Date: 2022-05-27 16:28+0200\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: en\n"
@@ -17,102 +17,234 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "X-Generator: Poedit 3.0.1\n"
 
-#: report.py:47
-msgid "set status to OK"
-msgstr "set status to OK"
-
 #: report.py:48
-msgid "most critical if all children have problems"
-msgstr "most critical if all children have problems"
+msgid "Problems"
+msgstr "Problems"
 
-#: report.py:49
-msgid "most critical of child services"
-msgstr "most critical of child services"
-
-#: report.py:56
-msgid "enabled"
-msgstr "enabled"
+#: report.py:55 report.py:82
+msgid "Severity"
+msgstr "Severity"
 
 #: report.py:57
-msgid "disabled"
-msgstr "disabled"
+msgid "Acknowledged"
+msgstr "Acknowledged"
+
+#: report.py:59
+msgid "Duration"
+msgstr "Duration"
+
+#: report.py:61 report.py:86 report_host.py:57
+msgid "Host"
+msgstr "Host"
 
 #: report.py:64
-msgid "Unknown"
-msgstr "Unknown"
+msgid "Trigger"
+msgstr "Trigger"
 
-#: report.py:65
-msgid "Available"
-msgstr "Available"
+#: report.py:71
+msgid "Triggers"
+msgstr "Triggers"
 
-#: report.py:66
-msgid "Not available"
-msgstr "Not available"
+#: report.py:78 report.py:102 report.py:126 report_host.py:23
+#: report_service.py:24 report_service.py:66 report_service.py:85
+msgid "Status"
+msgstr "Status"
 
-#: report.py:73
-msgid "equals"
-msgstr "equals"
+#: report.py:80
+msgid "Expression"
+msgstr "Expression"
 
-#: report.py:74
-msgid "like"
-msgstr "like"
-
-#: report.py:81 report.py:109
-msgid "OK"
-msgstr "OK"
-
-#: report.py:82
-msgid "Not classified"
-msgstr "Not classified"
-
-#: report.py:83
-msgid "Information"
-msgstr "Information"
-
-#: report.py:84
-msgid "Warning"
-msgstr "Warning"
-
-#: report.py:85
-msgid "Average"
-msgstr "Average"
-
-#: report.py:86
-msgid "High"
-msgstr "High"
-
-#: report.py:87
-msgid "Disaster"
-msgstr "Disaster"
-
-#: report.py:94
-msgid "NO"
-msgstr "NO"
-
-#: report.py:95
-msgid "YES"
-msgstr "YES"
-
-#: report.py:110
-msgid "PROBLEM"
-msgstr "PROBLEM"
-
-#: report.py:119 report_service.py:39
-msgid "Name"
-msgstr "Name"
-
-#: report.py:119 report_service.py:39 report_service.py:255
+#: report.py:84 report.py:288 report_service.py:39
 msgid "Value"
 msgstr "Value"
 
-#: report_service.py:22
+#: report.py:88 report.py:121 report.py:124
+msgid "Item"
+msgstr "Item"
+
+#: report.py:95
+msgid "Hosts"
+msgstr "Hosts"
+
+#: report.py:104 report_host.py:25
+msgid "Availability"
+msgstr "Availability"
+
+#: report.py:107 report_host.py:28
+msgid "Latitude"
+msgstr "Latitude"
+
+#: report.py:107 report_host.py:28
+msgid "Longitude"
+msgstr "Longitude"
+
+#: report.py:128
+msgid "Last value"
+msgstr "Last value"
+
+#: report.py:130
+msgid "Last check"
+msgstr "Last check"
+
+#: report.py:144
+msgid "Acknowledge actions"
+msgstr "Acknowledge actions"
+
+#: report.py:150
+msgid "Acknowledge event"
+msgstr "Acknowledge event"
+
+#: report.py:153
+msgid "Add message"
+msgstr "Add message"
+
+#: report.py:157
+msgid "Acknowledge event + Add message"
+msgstr "Acknowledge event + Add message"
+
+#: report.py:161
+msgid "Change severity"
+msgstr "Change severity"
+
+#: report.py:165
+msgid "Acknowledge event + Change severity"
+msgstr "Acknowledge event + Change severity"
+
+#: report.py:169 report.py:174
+msgid "Add message + Change severity"
+msgstr "Add message + Change severity"
+
+#: report.py:179
+msgid "Acknowledge event + Add message + Change severity"
+msgstr "Acknowledge event + Add message + Change severity"
+
+#: report.py:184
+msgid "Unacknowledge event"
+msgstr "Unacknowledge event"
+
+#: report.py:187
+msgid "Unacknowledge event + Add message"
+msgstr "Unacknowledge event + Add message"
+
+#: report.py:191
+msgid "Unacknowledge event + Change severity"
+msgstr "Unacknowledge event + Change severity"
+
+#: report.py:195
+msgid "Unacknowledge event + Add message + Change severity"
+msgstr "Unacknowledge event + Add message + Change severity"
+
+#: report.py:201
+msgid "Message"
+msgstr "Message"
+
+#: report.py:204
+msgid "Old severity"
+msgstr "Old severity"
+
+#: report.py:206
+msgid "New severity"
+msgstr "New severity"
+
+#: report.py:208
+msgid "At"
+msgstr "At"
+
+#: report.py:210
+msgid "By"
+msgstr "By"
+
+#: report.py:216
+msgid "set status to OK"
+msgstr "set status to OK"
+
+#: report.py:217
+msgid "most critical if all children have problems"
+msgstr "most critical if all children have problems"
+
+#: report.py:218
+msgid "most critical of child services"
+msgstr "most critical of child services"
+
+#: report.py:225
+msgid "enabled"
+msgstr "enabled"
+
+#: report.py:226
+msgid "disabled"
+msgstr "disabled"
+
+#: report.py:233
+msgid "Unknown"
+msgstr "Unknown"
+
+#: report.py:234
+msgid "Available"
+msgstr "Available"
+
+#: report.py:235
+msgid "Not available"
+msgstr "Not available"
+
+#: report.py:242
+msgid "equals"
+msgstr "equals"
+
+#: report.py:243
+msgid "like"
+msgstr "like"
+
+#: report.py:250 report.py:278
+msgid "OK"
+msgstr "OK"
+
+#: report.py:251
+msgid "Not classified"
+msgstr "Not classified"
+
+#: report.py:252
+msgid "Information"
+msgstr "Information"
+
+#: report.py:253
+msgid "Warning"
+msgstr "Warning"
+
+#: report.py:254
+msgid "Average"
+msgstr "Average"
+
+#: report.py:255
+msgid "High"
+msgstr "High"
+
+#: report.py:256
+msgid "Disaster"
+msgstr "Disaster"
+
+#: report.py:263
+msgid "NO"
+msgstr "NO"
+
+#: report.py:264
+msgid "YES"
+msgstr "YES"
+
+#: report.py:279
+msgid "PROBLEM"
+msgstr "PROBLEM"
+
+#: report.py:288 report_service.py:39
+msgid "Name"
+msgstr "Name"
+
+#: report_host.py:20 report_service.py:22
 msgid "General informations"
 msgstr "General informations"
 
-#: report_service.py:24 report_service.py:66 report_service.py:85
-#: report_service.py:205 report_service.py:224 report_service.py:249
-msgid "Status"
-msgstr "Status"
+#: report_host.py:34
+msgid "Items"
+msgstr "Items"
 
 #: report_service.py:26 report_service.py:68 report_service.py:87
 msgid "Algorithm"
@@ -146,134 +278,6 @@ msgstr "Parents"
 msgid "Children"
 msgstr "Children"
 
-#: report_service.py:98
-msgid "Problems"
-msgstr "Problems"
-
-#: report_service.py:105 report_service.py:253
-msgid "Severity"
-msgstr "Severity"
-
-#: report_service.py:107
-msgid "Acknowledged"
-msgstr "Acknowledged"
-
-#: report_service.py:109
-msgid "Duration"
-msgstr "Duration"
-
-#: report_service.py:111 report_service.py:257
-msgid "Host"
-msgstr "Host"
-
 #: report_service.py:116
-msgid "Trigger"
-msgstr "Trigger"
-
-#: report_service.py:126
-msgid "Acknowledge actions"
-msgstr "Acknowledge actions"
-
-#: report_service.py:132
-msgid "Acknowledge event"
-msgstr "Acknowledge event"
-
-#: report_service.py:135
-msgid "Add message"
-msgstr "Add message"
-
-#: report_service.py:139
-msgid "Acknowledge event + Add message"
-msgstr "Acknowledge event + Add message"
-
-#: report_service.py:143
-msgid "Change severity"
-msgstr "Change severity"
-
-#: report_service.py:147
-msgid "Acknowledge event + Change severity"
-msgstr "Acknowledge event + Change severity"
-
-#: report_service.py:151 report_service.py:156
-msgid "Add message + Change severity"
-msgstr "Add message + Change severity"
-
-#: report_service.py:161
-msgid "Acknowledge event + Add message + Change severity"
-msgstr "Acknowledge event + Add message + Change severity"
-
-#: report_service.py:166
-msgid "Unacknowledge event"
-msgstr "Unacknowledge event"
-
-#: report_service.py:169
-msgid "Unacknowledge event + Add message"
-msgstr "Unacknowledge event + Add message"
-
-#: report_service.py:173
-msgid "Unacknowledge event + Change severity"
-msgstr "Unacknowledge event + Change severity"
-
-#: report_service.py:177
-msgid "Unacknowledge event + Add message + Change severity"
-msgstr "Unacknowledge event + Add message + Change severity"
-
-#: report_service.py:183
-msgid "Message"
-msgstr "Message"
-
-#: report_service.py:186
-msgid "Old severity"
-msgstr "Old severity"
-
-#: report_service.py:188
-msgid "New severity"
-msgstr "New severity"
-
-#: report_service.py:190
-msgid "At"
-msgstr "At"
-
-#: report_service.py:192
-msgid "By"
-msgstr "By"
-
-#: report_service.py:198
-msgid "Hosts"
-msgstr "Hosts"
-
-#: report_service.py:207
-msgid "Availability"
-msgstr "Availability"
-
-#: report_service.py:210
-msgid "Latitude"
-msgstr "Latitude"
-
-#: report_service.py:210
-msgid "Longitude"
-msgstr "Longitude"
-
-#: report_service.py:222 report_service.py:259
-msgid "Item"
-msgstr "Item"
-
-#: report_service.py:226
-msgid "Last value"
-msgstr "Last value"
-
-#: report_service.py:228
-msgid "Last check"
-msgstr "Last check"
-
-#: report_service.py:242
-msgid "Triggers"
-msgstr "Triggers"
-
-#: report_service.py:251
-msgid "Expression"
-msgstr "Expression"
-
-#: report_service.py:272
 msgid "Service"
 msgstr "Service"

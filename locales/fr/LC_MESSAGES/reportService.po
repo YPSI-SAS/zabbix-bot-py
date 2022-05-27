@@ -1,0 +1,279 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: \n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2022-05-27 14:33+0200\n"
+"PO-Revision-Date: 2022-05-27 14:36+0200\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"Language: fr\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Poedit 3.0.1\n"
+
+#: report_service.py:49
+msgid "General informations"
+msgstr "Informations générales"
+
+#: report_service.py:51 report_service.py:93 report_service.py:112
+#: report_service.py:232 report_service.py:251 report_service.py:276
+msgid "Status"
+msgstr "État"
+
+#: report_service.py:53 report_service.py:95 report_service.py:114
+msgid "Algorithm"
+msgstr "Algorithme"
+
+#: report_service.py:55 report_service.py:97 report_service.py:116
+msgid "Sort order"
+msgstr "Ordre de tri"
+
+#: report_service.py:57 report_service.py:99 report_service.py:118
+msgid "Description"
+msgstr "Description"
+
+#: report_service.py:59 report_service.py:101 report_service.py:120
+msgid "Created at"
+msgstr "Créé le"
+
+#: report_service.py:64
+msgid "Problem tags"
+msgstr "Tags de problème"
+
+#: report_service.py:66 report_service.py:387
+msgid "Name"
+msgstr "Nom"
+
+#: report_service.py:66
+msgid "Operator"
+msgstr "Opérateur"
+
+#: report_service.py:66 report_service.py:282 report_service.py:387
+msgid "Value"
+msgstr "Valeur"
+
+#: report_service.py:87
+msgid "Parents"
+msgstr "Parents"
+
+#: report_service.py:106
+msgid "Children"
+msgstr "Enfants"
+
+#: report_service.py:125
+msgid "Problems"
+msgstr "Problèmes"
+
+#: report_service.py:132 report_service.py:280
+msgid "Severity"
+msgstr "Sévérité"
+
+#: report_service.py:134
+msgid "Acknowledged"
+msgstr "Acquitté"
+
+#: report_service.py:136
+msgid "Duration"
+msgstr "Depuis"
+
+#: report_service.py:138 report_service.py:284
+msgid "Host"
+msgstr "Hôte"
+
+#: report_service.py:143
+msgid "Trigger"
+msgstr "Déclencheur"
+
+#: report_service.py:153
+msgid "Acknowledge actions"
+msgstr "Action d'acquittement"
+
+#: report_service.py:159
+msgid "Acknowledge event"
+msgstr "Acquitter évènement"
+
+#: report_service.py:162
+msgid "Add message"
+msgstr "Ajouter message"
+
+#: report_service.py:166
+msgid "Acknowledge event + Add message"
+msgstr "Acquitter évènement + Ajouter message"
+
+#: report_service.py:170
+msgid "Change severity"
+msgstr "Changer sévérité"
+
+#: report_service.py:174
+msgid "Acknowledge event + Change severity"
+msgstr "Acquitter évènement + Changer sévérité"
+
+#: report_service.py:178 report_service.py:183
+msgid "Add message + Change severity"
+msgstr "Ajouter message + Changer sévérité"
+
+#: report_service.py:188
+msgid "Acknowledge event + Add message + Change severity"
+msgstr "Acquitter évènement + Ajouter message + Changer sévérité"
+
+#: report_service.py:193
+msgid "Unacknowledge event"
+msgstr "Désacquitter évènement"
+
+#: report_service.py:196
+msgid "Unacknowledge event + Add message"
+msgstr "Désacquitter évènement + Ajouter message"
+
+#: report_service.py:200
+msgid "Unacknowledge event + Change severity"
+msgstr "Désacquitter évènement + Changer sévérité"
+
+#: report_service.py:204
+msgid "Unacknowledge event + Add message + Change severity"
+msgstr "Désacquitter évènement + Ajouter message + Changer sévérité"
+
+#: report_service.py:210
+msgid "Message"
+msgstr "Message"
+
+#: report_service.py:213
+msgid "Old severity"
+msgstr "Ancienne sévérité"
+
+#: report_service.py:215
+msgid "New severity"
+msgstr "Nouvelle sévérité"
+
+#: report_service.py:217
+msgid "At"
+msgstr "Le"
+
+#: report_service.py:219
+msgid "By"
+msgstr "Par"
+
+#: report_service.py:225
+msgid "Hosts"
+msgstr "Hôtes"
+
+#: report_service.py:234
+msgid "Availability"
+msgstr "Disponibilité"
+
+#: report_service.py:237
+msgid "Latitude"
+msgstr "Latitude"
+
+#: report_service.py:237
+msgid "Longitude"
+msgstr "Longitude"
+
+#: report_service.py:249 report_service.py:286
+msgid "Item"
+msgstr "Élément"
+
+#: report_service.py:253
+msgid "Last value"
+msgstr "Dernière valeur"
+
+#: report_service.py:255
+msgid "Last check"
+msgstr "Dernière vérification"
+
+#: report_service.py:269
+msgid "Triggers"
+msgstr "Déclencheurs"
+
+#: report_service.py:278
+msgid "Expression"
+msgstr "Expression"
+
+#: report_service.py:302
+msgid "Service"
+msgstr "Service"
+
+#: report_service.py:315
+msgid "set status to OK"
+msgstr "définir l'état sur OK"
+
+#: report_service.py:316
+msgid "most critical if all children have problems"
+msgstr "plus critique si tous les enfants ont des problèmes"
+
+#: report_service.py:317
+msgid "most critical of child services"
+msgstr "plus critique de tous les enfants"
+
+#: report_service.py:324
+msgid "enabled"
+msgstr "activé"
+
+#: report_service.py:325
+msgid "disabled"
+msgstr "désactivé"
+
+#: report_service.py:332
+msgid "Unknown"
+msgstr "Inconnu"
+
+#: report_service.py:333
+msgid "Available"
+msgstr "Disponible"
+
+#: report_service.py:334
+msgid "Not available"
+msgstr "Non disponible"
+
+#: report_service.py:341
+msgid "equals"
+msgstr "égal"
+
+#: report_service.py:342
+msgid "like"
+msgstr "contient"
+
+#: report_service.py:349 report_service.py:377
+msgid "OK"
+msgstr "OK"
+
+#: report_service.py:350
+msgid "Not classified"
+msgstr "Non classé"
+
+#: report_service.py:351
+msgid "Information"
+msgstr "Information"
+
+#: report_service.py:352
+msgid "Warning"
+msgstr "Avertissement"
+
+#: report_service.py:353
+msgid "Average"
+msgstr "Moyen"
+
+#: report_service.py:354
+msgid "High"
+msgstr "Haut"
+
+#: report_service.py:355
+msgid "Disaster"
+msgstr "Désastre"
+
+#: report_service.py:362
+msgid "NO"
+msgstr "NON"
+
+#: report_service.py:363
+msgid "YES"
+msgstr "OUI"
+
+#: report_service.py:378
+msgid "PROBLEM"
+msgstr "PROBLÈME"

@@ -107,7 +107,7 @@ class ReportService(Report):
     def create_report(self):
         """Create report for a specific service"""
 
-        name_file = "./documents/%s.pdf" % (
+        name_file = "./documents/services/%s.pdf" % (
             self.information_service['name'])
         doc = SimpleDocTemplate(name_file,
                                 rightMargin=2*cm, leftMargin=2*cm,

@@ -107,16 +107,21 @@ class Report:
                     "<b>"+_("Latitude")+":</b> "+host_info['inventory']['location_lat']+" <b>"+_("Longitude")+":</b> " + host_info['inventory']['location_lon'], 'Normal')
 
             self.write_table_tag(host_info['tags'], _)
-            self.write_item_information(host_info['items'], index, part, _)
+            self.write_item_information(
+                items=host_info['items'], index=index, part=part, _=_)
 
-    def write_item_information(self, items, index, part, _):
+    def write_item_information(self, items, part, _, index=None):
         """Write item information which attached to host"""
         for item in items:
             item_index = items.index(item)+1
             items_info = self.api.get_item_info(item['itemid'])
             item_info = items_info[0]
-            self.write_paragraph(
-                '<a name="ITEM_'+item_info['itemid']+'"/>'+part+'.'+str(index)+"."+str(item_index)+" "+_("Item")+" - "+item_info['name'], 'Heading3Set')
+            if index != None:
+                self.write_paragraph(
+                    '<a name="ITEM_'+item_info['itemid']+'"/>'+part+'.'+str(index)+"."+str(item_index)+" "+_("Item")+" - "+item_info['name'], 'Heading3Set')
+            else:
+                self.write_paragraph(
+                    '<a name="ITEM_'+item_info['itemid']+'"/>'+part+'.'+str(item_index)+" "+_("Item")+" - "+item_info['name'], 'Heading3Set')
             self.write_paragraph(
                 "<b>"+_("Status")+":</b> "+self.convert_general_status_to_text(item_info['status'], _), 'Normal')
             self.write_paragraph(

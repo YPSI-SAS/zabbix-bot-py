@@ -1,6 +1,7 @@
 #! /usr/bin/python3
 # -*- coding: utf-8 -*-
 import logging
+import time
 from telegram.ext import *
 from telegram import *
 from action import (
@@ -25,6 +26,7 @@ import json
 import yaml
 import os
 from report_service import ReportService
+from report_host import ReportHost
 
 
 from request_API import API
@@ -94,6 +96,7 @@ CHOOSE_SLA = "choose_sla"
 DISPLAY_ACTION_SLA = "display_action_sla"
 PDF_MENU = "pdf_menu"
 DISPLAY_ACTION_PDF = "display_action_pdf"
+END_SERVICE = "end_service"
 
 LANG = "en"
 NAME_SERVER = ""
@@ -706,6 +709,14 @@ def display_action_host(context):
                 )
             )
 
+        button_list.append(
+            InlineKeyboardButton(
+                text=telegramEmojiDict["page with curl"] +
+                _("Report PDF"),
+                callback_data=str(PDF_MENU),
+            )
+        )
+
     cancel_button = get_cancel_button()
     return button_list, cancel_button
 
@@ -1267,7 +1278,7 @@ def show_location_host(update, context):
 
 
 @send_typing_action
-def send_pdf(update, context):
+def send_pdf_service(update, context):
     ud = context.user_data
     Cdata = json.loads(ud["SERVICE_INFO"])
     service_ID = Cdata["SID"]
@@ -1292,6 +1303,47 @@ def send_pdf(update, context):
     return DISPLAY_ACTION_PDF
 
 
+@send_typing_action
+def send_pdf_host(update, context):
+    ud = context.user_data
+    if ud['OBJECT'] == "host":
+        Cdata = json.loads(ud["HOST_INFO"])
+        host_ID = Cdata["HID"]
+        report_host = ReportHost(
+            api=ud[API_VAR], host_id=host_ID, LANG=LANG)
+        file = report_host.create_report()
+        button_list = list()
+        button_list.append(
+            InlineKeyboardButton(
+                text=telegramEmojiDict["laptop"] +
+                _("Back to host"),
+                callback_data='{"HID":"'+host_ID+'"}',
+            )
+        )
+    elif ud['OBJECT'] == 'service':
+        Cdata = json.loads(ud["SERVICE_INFO"])
+        service_ID = Cdata["SID"]
+        report_service = ReportService(
+            api=ud[API_VAR], service_id=service_ID, LANG=LANG)
+        file = report_service.create_report()
+        button_list = list()
+        button_list.append(
+            InlineKeyboardButton(
+                text=telegramEmojiDict["level slider"] +
+                _("Back to service"),
+                callback_data='{"SID":"'+service_ID+'"}',
+            )
+        )
+    reply_markup = InlineKeyboardMarkup(
+        build_menu(button_list, n_cols=2)
+    )
+    # send the pdf doc
+    context.bot.sendDocument(
+        chat_id=update.effective_chat.id, document=open(file, 'rb'), reply_markup=reply_markup, timeout=100)
+    ud['AFTER_GRAPH'] = True
+    return DISPLAY_ACTION_PDF
+
+
 def get_service(update, context):
     """Go back to service after last values"""
     ud = context.user_data
@@ -1302,7 +1354,7 @@ def get_service(update, context):
         build_menu(button_list, n_cols=2, cancel_button=cancel_button)
     )
     display_message_bot(update, context, message, reply_markup)
-    return END
+    return END_SERVICE
 
 
 @send_typing_action
@@ -1834,6 +1886,24 @@ def main():
         map_to_parent={STOPPING: STOPPING, END: DISPLAY_ACTION},
     )
 
+    # Add conversation handler for send PDF
+    pdf_conv_host = ConversationHandler(
+        entry_points=[
+            CallbackQueryHandler(
+                send_pdf_host, pattern="^" + str(PDF_MENU) + "$"
+            ),
+        ],
+        states={DISPLAY_ACTION_PDF: [
+            CallbackQueryHandler(
+                get_host, pattern='^{"HID*'),
+            CallbackQueryHandler(
+                get_service, pattern='^{"SID*'),
+        ]},
+        fallbacks=[CommandHandler("stop", stop_nested)],
+        map_to_parent={STOPPING: STOPPING, END: DISPLAY_ACTION,
+                       END_SERVICE: DISPLAY_ACTION_SERVICE},
+    )
+
     states_list = {DISPLAY_ACTION: [
         CallbackQueryHandler(
             list_item, pattern="^" + str(ITEM_MENU) + "$"),
@@ -1852,6 +1922,7 @@ def main():
         CallbackQueryHandler(select_hostgroups, pattern='^{"HGID*'),
         last_value_conv,
         location_conv,
+        pdf_conv_host,
     ],
         CHOOSE_HOST: [
         CallbackQueryHandler(select_host, pattern='^{"HID*'),
@@ -2059,10 +2130,10 @@ def main():
     )
 
     # Add conversation handler for send PDF
-    pdf_conv = ConversationHandler(
+    pdf_conv_service = ConversationHandler(
         entry_points=[
             CallbackQueryHandler(
-                send_pdf, pattern="^" + str(PDF_MENU) + "$"
+                send_pdf_service, pattern="^" + str(PDF_MENU) + "$"
             ),
         ],
         states={DISPLAY_ACTION_PDF: [
@@ -2090,7 +2161,7 @@ def main():
         CallbackQueryHandler(
             list_sla_service, pattern="^" + str(SLA_MENU) + "$"
         ),
-        pdf_conv,
+        pdf_conv_host,
     ]
     states_list[CHOOSE_SLA] = [
         CallbackQueryHandler(select_sla, pattern='^{"SLAID*'),

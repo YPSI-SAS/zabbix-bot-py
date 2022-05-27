@@ -24,7 +24,7 @@ from emojiDict import telegramEmojiDict
 import json
 import yaml
 import os
-from report_service import reportService
+from report_service import ReportService
 
 
 from request_API import API
@@ -1271,8 +1271,9 @@ def send_pdf(update, context):
     ud = context.user_data
     Cdata = json.loads(ud["SERVICE_INFO"])
     service_ID = Cdata["SID"]
-    report_service = reportService(api=ud[API_VAR], service_id=service_ID)
-    file = report_service.create_report(LANG)
+    report_service = ReportService(
+        api=ud[API_VAR], service_id=service_ID, LANG=LANG)
+    file = report_service.create_report()
     button_list = list()
     button_list.append(
         InlineKeyboardButton(

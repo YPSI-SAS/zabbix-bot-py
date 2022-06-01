@@ -999,6 +999,7 @@ def get_host(update, context):
     """Go back to host after last values"""
     ud = context.user_data
     ud["HOST_INFO"] = update.callback_query.data
+    ud['OBJECT'] = 'host'
     message = display_host_characteristics(context, LANG, ud[API_VAR])
     button_list, cancel_button = display_action_host(context)
     reply_markup = InlineKeyboardMarkup(
@@ -1013,6 +1014,7 @@ def select_host(update, context):
     """Display all informations and button about host selected"""
     ud = context.user_data
     ud["HOST_INFO"] = update.callback_query.data
+    ud['OBJECT'] = 'host'
     message = display_host_characteristics(context, LANG, ud[API_VAR])
     button_list, cancel_button = display_action_host(context)
     reply_markup = InlineKeyboardMarkup(

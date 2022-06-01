@@ -39,7 +39,7 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 # Global variables
-START_OVER, ZABBIX_URL, ZABBIX_TOKEN, API_VAR, TYPING = map(chr, range(5))
+START_OVER, ZABBIX_URL, API_VAR, TYPING, ZABBIX_BOT_USERNAME, ZABBIX_BOT_PASSWORD = map(chr, range(6))
 
 DISPLAY_ACTION_SERVICE = "display_action_service"
 CHOOSE_SERVICE = "choose_service"
@@ -177,7 +177,7 @@ def display_message_bot(update, context, message, reply_markup):
 def help_msg(update, context):
     """Display help message"""
     message = _(
-        "Commands:\n /start - Start a conversation\n /stop - Stop a current action and return to start menu\n /maintenances *nameServer* - Get all maintenance periods\n /problems *nameServer* - Get all problems on Zabbix server\n /global\_status *nameServer* - Get the global information of Zabbix server. You must specify nameServer arguments or environments variables ZABBIX_TOKEN and ZABBIX_URL if you don't pass argument."
+        "Commands:\n /start - Start a conversation\n /stop - Stop a current action and return to start menu\n /maintenances *nameServer* - Get all maintenance periods\n /problems *nameServer* - Get all problems on Zabbix server\n /global\_status *nameServer* - Get the global information of Zabbix server. You must specify nameServer arguments or environments variables ZABBIX\_BOT\_USERNAME, ZABBIX\_BOT\_PASSWORD and ZABBIX\_URL if you don't pass argument."
     )
     if context.user_data.get(START_OVER):
         update.callback_query.edit_message_text(
@@ -194,11 +194,12 @@ def global_status(update, context):
     server_name = ""
     if len(context.args) != 0:
         server_name = context.args[0]
-    if server_name == "" and os.getenv("ZABBIX_URL") != None and os.getenv("ZABBIX_TOKEN") != None:
+    if server_name == "" and os.getenv("ZABBIX_URL") != None and os.getenv("ZABBIX_BOT_USERNAME") != None and os.getenv("ZABBIX_BOT_PASSWORD") != None:
         server_name = os.getenv("ZABBIX_URL")
         servFind = True
         context.user_data[str(ZABBIX_URL)] = os.getenv("ZABBIX_URL")
-        context.user_data[str(ZABBIX_TOKEN)] = os.getenv("ZABBIX_TOKEN")
+        context.user_data[str(ZABBIX_BOT_USERNAME)] = os.getenv("ZABBIX_BOT_USERNAME")
+        context.user_data[str(ZABBIX_BOT_PASSWORD)] = os.getenv("ZABBIX_BOT_PASSWORD")
     elif server_name != "":
         with open("config.yaml", "r") as stream:
             data_loaded = yaml.safe_load(stream)
@@ -207,20 +208,20 @@ def global_status(update, context):
                 if server_name == doc[i]["server"]:
                     servFind = True
                     context.user_data[str(ZABBIX_URL)] = doc[i]["url"]
-                    context.user_data[str(ZABBIX_TOKEN)] = doc[i]["token"]
+                    context.user_data[str(ZABBIX_BOT_USERNAME)] = doc[i]["username"]
+                    context.user_data[str(ZABBIX_BOT_PASSWORD)] = doc[i]["password"]
 
     if servFind == False and server_name == "":
         message = _(
-            "Can you set environments variables (ZABBIX_URL and ZABBIX_TOKEN) to use this command with any argument."
+            "Can you set environments variables (ZABBIX\_URL, ZABBIX\_BOT\_USERNAME and ZABBIX\_BOT\_PASSWORD) to use this command with any argument."
         )
-    elif servFind == False and servFind != "":
+    elif servFind == False and server_name != "":
         message = _("The server *%s* was not found in config.yaml file.") % (
             server_name
         )
     else:
         api = API(
-            context.user_data[str(ZABBIX_URL)
-                              ], context.user_data[str(ZABBIX_TOKEN)]
+            context.user_data[str(ZABBIX_URL)], context.user_data[str(ZABBIX_BOT_USERNAME)],context.user_data[str(ZABBIX_BOT_PASSWORD)]
         )
         message = _("The server use is *%s*\n") % (server_name)
         message = message + display_global_status(api, LANG)
@@ -240,11 +241,12 @@ def show_problem(update, context):
     server_name = ""
     if len(context.args) != 0:
         server_name = context.args[0]
-    if server_name == "" and os.getenv("ZABBIX_URL") != None and os.getenv("ZABBIX_TOKEN") != None:
+    if server_name == "" and os.getenv("ZABBIX_URL") != None and os.getenv("ZABBIX_BOT_USERNAME") != None and os.getenv("ZABBIX_BOT_PASSWORD") != None:
         server_name = os.getenv("ZABBIX_URL")
         servFind = True
         context.user_data[str(ZABBIX_URL)] = os.getenv("ZABBIX_URL")
-        context.user_data[str(ZABBIX_TOKEN)] = os.getenv("ZABBIX_TOKEN")
+        context.user_data[str(ZABBIX_BOT_USERNAME)] = os.getenv("ZABBIX_BOT_USERNAME")
+        context.user_data[str(ZABBIX_BOT_PASSWORD)] = os.getenv("ZABBIX_BOT_PASSWORD")
     elif server_name != "":
         with open("config.yaml", "r") as stream:
             data_loaded = yaml.safe_load(stream)
@@ -253,11 +255,12 @@ def show_problem(update, context):
                 if server_name == doc[i]["server"]:
                     servFind = True
                     context.user_data[str(ZABBIX_URL)] = doc[i]["url"]
-                    context.user_data[str(ZABBIX_TOKEN)] = doc[i]["token"]
+                    context.user_data[str(ZABBIX_BOT_USERNAME)] = doc[i]["username"]
+                    context.user_data[str(ZABBIX_BOT_PASSWORD)] = doc[i]["password"]
 
     if servFind == False and server_name == "":
         message = _(
-            "Can you set environments variables (ZABBIX_URL and ZABBIX_TOKEN) to use this command with any argument."
+            "Can you set environments variables (ZABBIX\_URL, ZABBIX\_BOT\_USERNAME and ZABBIX\_BOT\_PASSWORD) to use this command with any argument."
         )
         update.message.reply_text(text=message, parse_mode=ParseMode.MARKDOWN)
     elif servFind == False and servFind != "":
@@ -267,8 +270,7 @@ def show_problem(update, context):
         update.message.reply_text(text=message, parse_mode=ParseMode.MARKDOWN)
     else:
         api = API(
-            context.user_data[str(ZABBIX_URL)
-                              ], context.user_data[str(ZABBIX_TOKEN)]
+            context.user_data[str(ZABBIX_URL)], context.user_data[str(ZABBIX_BOT_USERNAME)],context.user_data[str(ZABBIX_BOT_PASSWORD)]
         )
         table = get_table_information_problem(api, LANG)
         update.message.reply_text(
@@ -281,11 +283,12 @@ def show_maintenance(update, context):
     server_name = ""
     if len(context.args) != 0:
         server_name = context.args[0]
-    if server_name == "" and os.getenv("ZABBIX_URL") != None and os.getenv("ZABBIX_TOKEN") != None:
+    if server_name == "" and os.getenv("ZABBIX_URL") != None and os.getenv("ZABBIX_BOT_USERNAME") != None and os.getenv("ZABBIX_BOT_PASSWORD") != None:
         server_name = os.getenv("ZABBIX_URL")
         servFind = True
         context.user_data[str(ZABBIX_URL)] = os.getenv("ZABBIX_URL")
-        context.user_data[str(ZABBIX_TOKEN)] = os.getenv("ZABBIX_TOKEN")
+        context.user_data[str(ZABBIX_BOT_USERNAME)] = os.getenv("ZABBIX_BOT_USERNAME")
+        context.user_data[str(ZABBIX_BOT_PASSWORD)] = os.getenv("ZABBIX_BOT_PASSWORD")
     elif server_name != "":
         with open("config.yaml", "r") as stream:
             data_loaded = yaml.safe_load(stream)
@@ -294,11 +297,12 @@ def show_maintenance(update, context):
                 if server_name == doc[i]["server"]:
                     servFind = True
                     context.user_data[str(ZABBIX_URL)] = doc[i]["url"]
-                    context.user_data[str(ZABBIX_TOKEN)] = doc[i]["token"]
+                    context.user_data[str(ZABBIX_BOT_USERNAME)] = doc[i]["username"]
+                    context.user_data[str(ZABBIX_BOT_PASSWORD)] = doc[i]["password"]
 
     if servFind == False and server_name == "":
         message = _(
-            "Can you set environments variables (ZABBIX_URL and ZABBIX_TOKEN) to use this command with any argument."
+            "Can you set environments variables (ZABBIX\_URL, ZABBIX\_BOT\_USERNAME and ZABBIX\_BOT\_PASSWORD) to use this command with any argument."
         )
         update.message.reply_text(text=message, parse_mode=ParseMode.MARKDOWN)
     elif servFind == False and servFind != "":
@@ -308,8 +312,7 @@ def show_maintenance(update, context):
         update.message.reply_text(text=message, parse_mode=ParseMode.MARKDOWN)
     else:
         api = API(
-            context.user_data[str(ZABBIX_URL)
-                              ], context.user_data[str(ZABBIX_TOKEN)]
+            context.user_data[str(ZABBIX_URL)], context.user_data[str(ZABBIX_BOT_USERNAME)],context.user_data[str(ZABBIX_BOT_PASSWORD)]
         )
         table = get_table_information_maintenance(api, LANG)
         update.message.reply_text(
@@ -1588,10 +1591,11 @@ def start(update, context):
     findServ = False
     bot = context.bot
     # If information of server are in environment variables
-    if NAME_SERVER == "" and os.getenv("ZABBIX_URL") != None and os.getenv("ZABBIX_TOKEN") != None:
+    if NAME_SERVER == "" and os.getenv("ZABBIX_URL") != None and os.getenv("ZABBIX_BOT_USERNAME") != None and os.getenv("ZABBIX_BOT_PASSWORD") != None:
         findServ = True
         context.user_data[str(ZABBIX_URL)] = os.getenv("ZABBIX_URL")
-        context.user_data[str(ZABBIX_TOKEN)] = os.getenv("ZABBIX_TOKEN")
+        context.user_data[str(ZABBIX_BOT_USERNAME)] = os.getenv("ZABBIX_BOT_USERNAME")
+        context.user_data[str(ZABBIX_BOT_PASSWORD)] = os.getenv("ZABBIX_BOT_PASSWORD")
         message = _(
             "Hey, I'm %s !\nI will help you to handle Zabbix problems !\nI'm connected to the server : *%s*"
         ) % (bot.get_me().first_name, os.getenv("ZABBIX_URL"))
@@ -1603,7 +1607,8 @@ def start(update, context):
                 if NAME_SERVER == doc[i]["server"]:
                     findServ = True
                     context.user_data[str(ZABBIX_URL)] = doc[i]["url"]
-                    context.user_data[str(ZABBIX_TOKEN)] = doc[i]["token"]
+                    context.user_data[str(ZABBIX_BOT_USERNAME)] = doc[i]["username"]
+                    context.user_data[str(ZABBIX_BOT_PASSWORD)] = doc[i]["password"]
         message = _(
             "Hey, I'm %s !\nI will help you to handle Zabbix problems !\nI'm connected to the server : *%s*"
         ) % (bot.get_me().first_name, NAME_SERVER)
@@ -1614,7 +1619,8 @@ def start(update, context):
             for __, doc in data_loaded.items():
                 findServ = True
                 context.user_data[str(ZABBIX_URL)] = doc[0]["url"]
-                context.user_data[str(ZABBIX_TOKEN)] = doc[0]["token"]
+                context.user_data[str(ZABBIX_BOT_USERNAME)] = doc[0]["username"]
+                context.user_data[str(ZABBIX_BOT_PASSWORD)] = doc[0]["password"]
             message = _(
                 "Hey, I'm %s !\nI will help you to handle Zabbix problems !\nI'm connected to the server : *%s*"
             ) % (bot.get_me().first_name, doc[0]["server"])
@@ -1669,8 +1675,7 @@ def start(update, context):
         ]
         reply_markup = InlineKeyboardMarkup(buttons)
         context.user_data[API_VAR] = API(
-            context.user_data[str(ZABBIX_URL)
-                              ], context.user_data[str(ZABBIX_TOKEN)]
+            context.user_data[str(ZABBIX_URL)], context.user_data[str(ZABBIX_BOT_USERNAME)],context.user_data[str(ZABBIX_BOT_PASSWORD)]
         )
         message = message + "\n" + \
             display_global_status(context.user_data[API_VAR], LANG)

@@ -5,18 +5,35 @@ import json
 
 
 class API:
-    def __init__(self, url, token) -> None:
+    def __init__(self, url, username, password) -> None:
         self.url = url
-        self.token = token
+        self.token = self.request_login(username=username, password=password)
 
-    def request_post(self, params, method):
+    def request_post(self, params, method, login=None):
         """Send a post request to API"""
-        payload = {'jsonrpc': '2.0', 'method': method,
-                   'params': params, 'auth': self.token, 'id': 1}
+        if login == True:
+            payload = {'jsonrpc': '2.0', 'method': method,
+                   'params': params, 'id': 1}
+        else:
+            payload = {'jsonrpc': '2.0', 'method': method,
+                    'params': params, 'auth': self.token, 'id': 1}
         headers = {'content-type': 'application/json'}
         r = requests.post(self.url+'/api_jsonrpc.php',
                           headers=headers, json=payload)
         return r.status_code, r.text
+
+    def request_login(self, username, password):
+        """Get token to authenticate user"""
+        params = {
+            "username" : username,
+            "password": password
+        }
+        status_code, text = self.request_post(params=params, method='user.login', login=True)
+        json_data = json.loads(text)
+        if status_code == 200:
+            return json_data['result']
+        else:
+            return {}
 
     def get_list_hosts(self):
         """Get all hosts"""

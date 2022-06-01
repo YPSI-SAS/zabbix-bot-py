@@ -2,7 +2,7 @@
 
 ## Environment variables
 The variable BOT_TOKEN is obligatory for know the bot.
-The variables ZABBIX_URL, ZABBIX_TOKEN are obligatory if you won't use the config file and manage only one server
+The variables ZABBIX_URL, ZABBIX_BOT_USERNAME, ZABBIX_BOT_PASSWORD are obligatory if you won't use the config file and manage only one server
 
 ## Config file
 The config file is essential for manage many server
@@ -10,16 +10,19 @@ The config file is essential for manage many server
 
 * `NAMESERVER` it's the name of the server that you will use in the flag --server. <span style="color: #FF0000"> WARNING </span> : The name of the server must be unique
 * `URL` it's the url at use for access to your zabbix server. Its format is **https://monserveurzabbix.fr** and you replace **monserveurzabbix.fr** by the server. <span style="color: #FF0000"> WARNING </span> : remember to put **http** if your url is not a secure url
-* `TOKEN` it's the token that you have generate in Zabbix interface in Administration > General > API Tokens
+* `USERNAME` it's the username that you use to connect
+* `PASSWORD` it's the password that you use to connect
 
 ```yaml
 servers:
    - server: "NAMESERVER"
      url: "URL" 
-     token: "TOKEN"
+     username: "USERNAME"
+     password: "PASSWORD"
    - server: "NAMESERVER2"
      url: "URL" 
-     token: "TOKEN"
+     username: "USERNAME"
+     password: "PASSWORD"
 ```
 
 ## DockerFile
@@ -36,7 +39,7 @@ docker run --env BOT_TOKEN= zabbix-bot
 
 Without config.yaml file in image:
 ```sh
-docker run --env BOT_TOKEN= --env ZABBIX_URL= --env ZABBIX_TOKEN= zabbix-bot
+docker run --env BOT_TOKEN= --env ZABBIX_URL= --env ZABBIX_BOT_USERNAME= --env ZABBIX_BOT_PASSWORD= zabbix-bot
 ```
 
 ## Make translation

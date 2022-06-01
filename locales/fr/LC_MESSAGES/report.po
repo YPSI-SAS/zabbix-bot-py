@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-05-27 16:26+0200\n"
-"PO-Revision-Date: 2022-05-27 16:28+0200\n"
+"POT-Creation-Date: 2022-06-01 12:04+0200\n"
+"PO-Revision-Date: 2022-06-01 12:05+0200\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: fr\n"
@@ -17,248 +17,248 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "X-Generator: Poedit 3.0.1\n"
 
-#: report.py:48
-msgid "Problems"
-msgstr "Problèmes"
-
-#: report.py:55 report.py:82
-msgid "Severity"
-msgstr "Sévérité"
-
-#: report.py:57
-msgid "Acknowledged"
-msgstr "Acquitté"
-
-#: report.py:59
-msgid "Duration"
-msgstr "Depuis"
-
-#: report.py:61 report.py:86 report_host.py:57
-msgid "Host"
-msgstr "Hôte"
-
-#: report.py:64
-msgid "Trigger"
-msgstr "Déclencheur"
-
-#: report.py:71
-msgid "Triggers"
-msgstr "Déclencheurs"
-
-#: report.py:78 report.py:102 report.py:126 report_host.py:23
-#: report_service.py:24 report_service.py:66 report_service.py:85
-msgid "Status"
-msgstr "État"
-
-#: report.py:80
-msgid "Expression"
-msgstr "Expression"
-
-#: report.py:84 report.py:288 report_service.py:39
-msgid "Value"
-msgstr "Valeur"
-
-#: report.py:88 report.py:121 report.py:124
-msgid "Item"
-msgstr "Élément"
-
-#: report.py:95
-msgid "Hosts"
-msgstr "Hôtes"
-
-#: report.py:104 report_host.py:25
-msgid "Availability"
-msgstr "Disponibilité"
-
-#: report.py:107 report_host.py:28
-msgid "Latitude"
-msgstr "Latitude"
-
-#: report.py:107 report_host.py:28
-msgid "Longitude"
-msgstr "Longitude"
-
-#: report.py:128
-msgid "Last value"
-msgstr "Dernière valeur"
-
-#: report.py:130
-msgid "Last check"
-msgstr "Dernière vérification"
-
-#: report.py:144
-msgid "Acknowledge actions"
-msgstr "Action d'acquittement"
-
-#: report.py:150
-msgid "Acknowledge event"
-msgstr "Acquitter évènement"
-
-#: report.py:153
-msgid "Add message"
-msgstr "Ajouter message"
-
-#: report.py:157
-msgid "Acknowledge event + Add message"
-msgstr "Acquitter évènement + Ajouter message"
-
-#: report.py:161
-msgid "Change severity"
-msgstr "Changer sévérité"
-
-#: report.py:165
-msgid "Acknowledge event + Change severity"
-msgstr "Acquitter évènement + Changer sévérité"
-
-#: report.py:169 report.py:174
-msgid "Add message + Change severity"
-msgstr "Ajouter message + Changer sévérité"
-
-#: report.py:179
-msgid "Acknowledge event + Add message + Change severity"
-msgstr "Acquitter évènement + Ajouter message + Changer sévérité"
-
-#: report.py:184
-msgid "Unacknowledge event"
-msgstr "Désacquitter évènement"
-
-#: report.py:187
-msgid "Unacknowledge event + Add message"
-msgstr "Désacquitter évènement + Ajouter message"
-
-#: report.py:191
-msgid "Unacknowledge event + Change severity"
-msgstr "Désacquitter évènement + Changer sévérité"
-
-#: report.py:195
-msgid "Unacknowledge event + Add message + Change severity"
-msgstr "Désacquitter évènement + Ajouter message + Changer sévérité"
-
-#: report.py:201
-msgid "Message"
-msgstr "Message"
-
-#: report.py:204
-msgid "Old severity"
-msgstr "Ancienne sévérité"
-
-#: report.py:206
-msgid "New severity"
-msgstr "Nouvelle sévérité"
-
-#: report.py:208
-msgid "At"
-msgstr "Le"
-
-#: report.py:210
-msgid "By"
-msgstr "Par"
-
-#: report.py:216
-msgid "set status to OK"
-msgstr "définir l'état sur OK"
-
-#: report.py:217
-msgid "most critical if all children have problems"
-msgstr "plus critique si tous les enfants ont des problèmes"
-
-#: report.py:218
-msgid "most critical of child services"
-msgstr "plus critique de tous les enfants"
-
-#: report.py:225
-msgid "enabled"
-msgstr "activé"
-
-#: report.py:226
-msgid "disabled"
-msgstr "désactivé"
-
-#: report.py:233
-msgid "Unknown"
-msgstr "Inconnu"
-
-#: report.py:234
-msgid "Available"
-msgstr "Disponible"
-
-#: report.py:235
-msgid "Not available"
-msgstr "Non disponible"
-
-#: report.py:242
-msgid "equals"
-msgstr "égal"
-
-#: report.py:243
-msgid "like"
-msgstr "contient"
-
-#: report.py:250 report.py:278
-msgid "OK"
-msgstr "OK"
-
-#: report.py:251
-msgid "Not classified"
-msgstr "Non classé"
-
-#: report.py:252
-msgid "Information"
-msgstr "Information"
-
-#: report.py:253
-msgid "Warning"
-msgstr "Avertissement"
-
-#: report.py:254
-msgid "Average"
-msgstr "Moyen"
-
-#: report.py:255
-msgid "High"
-msgstr "Haut"
-
-#: report.py:256
-msgid "Disaster"
-msgstr "Désastre"
-
-#: report.py:263
-msgid "NO"
-msgstr "NON"
-
-#: report.py:264
-msgid "YES"
-msgstr "OUI"
-
-#: report.py:279
-msgid "PROBLEM"
-msgstr "PROBLÈME"
-
-#: report.py:288 report_service.py:39
-msgid "Name"
-msgstr "Nom"
-
 #: report_host.py:20 report_service.py:22
 msgid "General informations"
 msgstr "Informations générales"
+
+#: report_host.py:23 report.py:79 report.py:103 report.py:127
+#: report_service.py:24 report_service.py:123 report_service.py:142
+msgid "Status"
+msgstr "État"
+
+#: report_host.py:25 report.py:105
+msgid "Availability"
+msgstr "Disponibilité"
+
+#: report_host.py:28 report.py:108
+msgid "Latitude"
+msgstr "Latitude"
+
+#: report_host.py:28 report.py:108
+msgid "Longitude"
+msgstr "Longitude"
 
 #: report_host.py:34
 msgid "Items"
 msgstr "Éléments"
 
-#: report_service.py:26 report_service.py:68 report_service.py:87
+#: report_host.py:57 report.py:62 report.py:87
+msgid "Host"
+msgstr "Hôte"
+
+#: report.py:49
+msgid "Problems"
+msgstr "Problèmes"
+
+#: report.py:56 report.py:83
+msgid "Severity"
+msgstr "Sévérité"
+
+#: report.py:58
+msgid "Acknowledged"
+msgstr "Acquitté"
+
+#: report.py:60
+msgid "Duration"
+msgstr "Depuis"
+
+#: report.py:65
+msgid "Trigger"
+msgstr "Déclencheur"
+
+#: report.py:72
+msgid "Triggers"
+msgstr "Déclencheurs"
+
+#: report.py:81
+msgid "Expression"
+msgstr "Expression"
+
+#: report.py:85 report.py:290 report_service.py:39
+msgid "Value"
+msgstr "Valeur"
+
+#: report.py:89 report.py:122 report.py:125
+msgid "Item"
+msgstr "Élément"
+
+#: report.py:96
+msgid "Hosts"
+msgstr "Hôtes"
+
+#: report.py:129
+msgid "Last value"
+msgstr "Dernière valeur"
+
+#: report.py:131
+msgid "Last check"
+msgstr "Dernière vérification"
+
+#: report.py:146
+msgid "Acknowledge actions"
+msgstr "Action d'acquittement"
+
+#: report.py:152
+msgid "Acknowledge event"
+msgstr "Acquitter évènement"
+
+#: report.py:155
+msgid "Add message"
+msgstr "Ajouter message"
+
+#: report.py:159
+msgid "Acknowledge event + Add message"
+msgstr "Acquitter évènement + Ajouter message"
+
+#: report.py:163
+msgid "Change severity"
+msgstr "Changer sévérité"
+
+#: report.py:167
+msgid "Acknowledge event + Change severity"
+msgstr "Acquitter évènement + Changer sévérité"
+
+#: report.py:171 report.py:176
+msgid "Add message + Change severity"
+msgstr "Ajouter message + Changer sévérité"
+
+#: report.py:181
+msgid "Acknowledge event + Add message + Change severity"
+msgstr "Acquitter évènement + Ajouter message + Changer sévérité"
+
+#: report.py:186
+msgid "Unacknowledge event"
+msgstr "Désacquitter évènement"
+
+#: report.py:189
+msgid "Unacknowledge event + Add message"
+msgstr "Désacquitter évènement + Ajouter message"
+
+#: report.py:193
+msgid "Unacknowledge event + Change severity"
+msgstr "Désacquitter évènement + Changer sévérité"
+
+#: report.py:197
+msgid "Unacknowledge event + Add message + Change severity"
+msgstr "Désacquitter évènement + Ajouter message + Changer sévérité"
+
+#: report.py:203
+msgid "Message"
+msgstr "Message"
+
+#: report.py:206
+msgid "Old severity"
+msgstr "Ancienne sévérité"
+
+#: report.py:208
+msgid "New severity"
+msgstr "Nouvelle sévérité"
+
+#: report.py:210
+msgid "At"
+msgstr "Le"
+
+#: report.py:212
+msgid "By"
+msgstr "Par"
+
+#: report.py:218
+msgid "set status to OK"
+msgstr "définir l'état sur OK"
+
+#: report.py:219
+msgid "most critical if all children have problems"
+msgstr "plus critique si tous les enfants ont des problèmes"
+
+#: report.py:220
+msgid "most critical of child services"
+msgstr "plus critique de tous les enfants"
+
+#: report.py:227
+msgid "enabled"
+msgstr "activé"
+
+#: report.py:228
+msgid "disabled"
+msgstr "désactivé"
+
+#: report.py:235
+msgid "Unknown"
+msgstr "Inconnu"
+
+#: report.py:236
+msgid "Available"
+msgstr "Disponible"
+
+#: report.py:237
+msgid "Not available"
+msgstr "Non disponible"
+
+#: report.py:244
+msgid "equals"
+msgstr "égal"
+
+#: report.py:245
+msgid "like"
+msgstr "contient"
+
+#: report.py:252 report.py:280
+msgid "OK"
+msgstr "OK"
+
+#: report.py:253
+msgid "Not classified"
+msgstr "Non classé"
+
+#: report.py:254
+msgid "Information"
+msgstr "Information"
+
+#: report.py:255
+msgid "Warning"
+msgstr "Avertissement"
+
+#: report.py:256
+msgid "Average"
+msgstr "Moyen"
+
+#: report.py:257
+msgid "High"
+msgstr "Haut"
+
+#: report.py:258
+msgid "Disaster"
+msgstr "Désastre"
+
+#: report.py:265
+msgid "NO"
+msgstr "NON"
+
+#: report.py:266
+msgid "YES"
+msgstr "OUI"
+
+#: report.py:281
+msgid "PROBLEM"
+msgstr "PROBLÈME"
+
+#: report.py:290 report_service.py:39
+msgid "Name"
+msgstr "Nom"
+
+#: report_service.py:26 report_service.py:125 report_service.py:144
 msgid "Algorithm"
 msgstr "Algorithme"
 
-#: report_service.py:28 report_service.py:70 report_service.py:89
+#: report_service.py:28 report_service.py:127 report_service.py:146
 msgid "Sort order"
 msgstr "Ordre de tri"
 
-#: report_service.py:30 report_service.py:72 report_service.py:91
+#: report_service.py:30 report_service.py:129 report_service.py:148
 msgid "Description"
 msgstr "Description"
 
-#: report_service.py:32 report_service.py:74 report_service.py:93
+#: report_service.py:32 report_service.py:131 report_service.py:150
 msgid "Created at"
 msgstr "Créé le"
 
@@ -271,13 +271,57 @@ msgid "Operator"
 msgstr "Opérateur"
 
 #: report_service.py:60
+msgid "SLA"
+msgstr "SLA"
+
+#: report_service.py:77
+msgid "SLO"
+msgstr "SLO"
+
+#: report_service.py:77
+msgid "SLI"
+msgstr "SLI"
+
+#: report_service.py:77
+msgid "Uptime"
+msgstr "Temps de fonctionnement"
+
+#: report_service.py:77
+msgid "Downtime"
+msgstr "Temps d'arrêt"
+
+#: report_service.py:77
+msgid "Error budget"
+msgstr "Erreur budget"
+
+#: report_service.py:106
+msgid "Day"
+msgstr "Jour"
+
+#: report_service.py:107
+msgid "Week"
+msgstr "Semaine"
+
+#: report_service.py:108
+msgid "Month"
+msgstr "Mois"
+
+#: report_service.py:109
+msgid "Quarter"
+msgstr "Trimestre"
+
+#: report_service.py:110
+msgid "Year"
+msgstr "Année"
+
+#: report_service.py:117
 msgid "Parents"
 msgstr "Parents"
 
-#: report_service.py:79
+#: report_service.py:136
 msgid "Children"
 msgstr "Enfants"
 
-#: report_service.py:116
+#: report_service.py:173
 msgid "Service"
 msgstr "Service"

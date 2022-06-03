@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-05-24 16:35+0200\n"
-"PO-Revision-Date: 2022-05-24 16:39+0200\n"
+"POT-Creation-Date: 2022-06-02 16:58+0200\n"
+"PO-Revision-Date: 2022-06-02 15:35+0200\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: fr\n"
@@ -17,105 +17,105 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "X-Generator: Poedit 3.0.1\n"
 
-#: action.py:38
+#: zabbix-bot/action.py:42
 msgid "I didn't find any hosts. Please cancel\n"
 msgstr "Je n'ai pas trouvé d'hôte. Veuillez annuler\n"
 
-#: action.py:42
+#: zabbix-bot/action.py:46
 msgid "I found one host. Please choose a host or cancel\n"
 msgstr "J’ai trouvé un hôte. Veuillez choisir l'hôte ou annuler\n"
 
-#: action.py:45
+#: zabbix-bot/action.py:49
 msgid "I found many hosts. Please choose one host or cancel\n"
 msgstr "J’ai trouvé plusieurs hôtes. Veuillez choisir un hôte ou annuler\n"
 
-#: action.py:51
+#: zabbix-bot/action.py:55
 msgid "I didn't find any hostgroups. Please cancel\n"
 msgstr "Je n'ai pas trouvé de groupe d'hôtes. Veuillez annuler\n"
 
-#: action.py:55
+#: zabbix-bot/action.py:59
 msgid "I found one hostgroup. Please choose a hostgroup or cancel\n"
 msgstr ""
 "J’ai trouvé un groupe d'hôtes. Veuillez choisir le groupe d'hôtes ou "
 "annuler\n"
 
-#: action.py:58
+#: zabbix-bot/action.py:62
 msgid "I found many hostgroups. Please choose one hostgroup or cancel\n"
 msgstr ""
 "J’ai trouvé plusieurs groupe d'hôtes. Veuillez choisir un groupe d'hôtes ou "
 "annuler\n"
 
-#: action.py:64
+#: zabbix-bot/action.py:68
 msgid "I didn't find any items. Please cancel\n"
 msgstr "Je n'ai pas trouvé d'élément. Veuillez annuler\n"
 
-#: action.py:68
+#: zabbix-bot/action.py:72
 msgid "I found one item. Please choose a item or cancel\n"
 msgstr "J’ai trouvé un élément. Veuillez choisir l'élément ou annuler\n"
 
-#: action.py:71
+#: zabbix-bot/action.py:75
 msgid "I found many items. Please choose one item or cancel\n"
 msgstr ""
 "J’ai trouvé plusieurs éléments. Veuillez choisir un élément ou annuler\n"
 
-#: action.py:77
+#: zabbix-bot/action.py:81
 msgid "I didn't find any triggers. Please cancel\n"
 msgstr "Je n'ai pas trouvé de déclencheurs. Veuillez annuler\n"
 
-#: action.py:81
+#: zabbix-bot/action.py:85
 msgid "I found one trigger. Please choose a trigger or cancel\n"
 msgstr ""
 "J’ai trouvé un déclencheur. Veuillez choisir le déclencheur ou annuler\n"
 
-#: action.py:84
+#: zabbix-bot/action.py:88
 msgid "I found many triggers. Please choose one trigger or cancel\n"
 msgstr ""
 "J’ai trouvé plusieurs déclencheurs. Veuillez choisir un déclencheur ou "
 "annuler\n"
 
-#: action.py:90
+#: zabbix-bot/action.py:94
 msgid "I didn't find any problems. Please cancel\n"
 msgstr "Je n'ai pas trouvé de problème. Veuillez annuler\n"
 
-#: action.py:94
+#: zabbix-bot/action.py:98
 msgid "I found one problem. Please choose a problem or cancel\n"
 msgstr "J’ai trouvé un problème. Veuillez choisir le problème ou annuler\n"
 
-#: action.py:97
+#: zabbix-bot/action.py:101
 msgid "I found many problems. Please choose one problem or cancel\n"
 msgstr ""
 "J’ai trouvé plusieurs problèmes. Veuillez choisir un problème ou annuler\n"
 
-#: action.py:99
+#: zabbix-bot/action.py:103
 msgid " since "
 msgstr " depuis "
 
-#: action.py:103
+#: zabbix-bot/action.py:107
 msgid "I didn't find any services. Please cancel\n"
 msgstr "Je n'ai pas trouvé de service. Veuillez annuler\n"
 
-#: action.py:107
+#: zabbix-bot/action.py:111
 msgid "I found one service. Please choose a service or cancel\n"
 msgstr "J’ai trouvé un service. Veuillez choisir le service ou annuler\n"
 
-#: action.py:110
+#: zabbix-bot/action.py:114
 msgid "I found many services. Please choose one service or cancel\n"
 msgstr ""
 "J’ai trouvé plusieurs services. Veuillez choisir un service ou annuler\n"
 
-#: action.py:117
+#: zabbix-bot/action.py:121
 msgid "I didn't find any SLA attached to this service. Please cancel\n"
 msgstr "Je n'ai pas trouvé de SLA. Veuillez annuler\n"
 
-#: action.py:121
+#: zabbix-bot/action.py:125
 msgid "I found one SLA. Please choose a SLA or cancel\n"
 msgstr "J’ai trouvé un SLA. Veuillez choisir le SLA ou annuler\n"
 
-#: action.py:124
+#: zabbix-bot/action.py:128
 msgid "I found many SLA. Please choose one SLA or cancel\n"
 msgstr "J’ai trouvé plusieurs SLA. Veuillez choisir un SLA ou annuler\n"
 
-#: action.py:183
+#: zabbix-bot/action.py:189
 #, python-format
 msgid ""
 "Host *%s* is *%s*\n"
@@ -126,7 +126,11 @@ msgstr ""
 "Disponibilité: *%s*\n"
 " %s"
 
-#: action.py:208
+#: zabbix-bot/action.py:194
+msgid "*Error* in get\\_host\\_info"
+msgstr "*Erreur* pour get\\_host\\_info"
+
+#: zabbix-bot/action.py:220
 #, python-format
 msgid ""
 "Host *%s*\n"
@@ -141,7 +145,11 @@ msgstr ""
 "Dernière vérification: *%s*\n"
 " %s"
 
-#: action.py:234
+#: zabbix-bot/action.py:224
+msgid "*Error* in get\\_item\\_info"
+msgstr "*Erreur* pour get\\_item\\_info"
+
+#: zabbix-bot/action.py:251
 #, python-format
 msgid ""
 "Host *%s*\n"
@@ -158,7 +166,11 @@ msgstr ""
 "Valeur: *%s* depuis *%s*\n"
 " %s"
 
-#: action.py:258
+#: zabbix-bot/action.py:255
+msgid "*Error* in get\\_trigger\\_info"
+msgstr "*Erreur* pour get\\_trigger\\_info"
+
+#: zabbix-bot/action.py:282
 #, python-format
 msgid ""
 "Problem on *%s*\t\t*%s*\n"
@@ -171,7 +183,11 @@ msgstr ""
 "Acquitté: *%s*\n"
 "%s"
 
-#: action.py:291
+#: zabbix-bot/action.py:286
+msgid "*Error* in get\\_event\\_info"
+msgstr "*Erreur* pour get\\_event\\_info"
+
+#: zabbix-bot/action.py:320
 #, python-format
 msgid ""
 "Service *%s* is *%s*\n"
@@ -184,35 +200,39 @@ msgstr ""
 " %s\n"
 "%s"
 
-#: action.py:299 action.py:415
+#: zabbix-bot/action.py:324
+msgid "*Error* in get\\_service\\_info"
+msgstr "*Erreur* pour get\\_service\\_info"
+
+#: zabbix-bot/action.py:331 zabbix-bot/action.py:451
 msgid "OK"
 msgstr "OK"
 
-#: action.py:300 action.py:354 action.py:380
+#: zabbix-bot/action.py:332 zabbix-bot/action.py:387 zabbix-bot/action.py:416
 msgid "Not classified"
 msgstr "Non classé"
 
-#: action.py:301 action.py:354 action.py:381
+#: zabbix-bot/action.py:333 zabbix-bot/action.py:387 zabbix-bot/action.py:417
 msgid "Information"
 msgstr "Information"
 
-#: action.py:302 action.py:354 action.py:382
+#: zabbix-bot/action.py:334 zabbix-bot/action.py:387 zabbix-bot/action.py:418
 msgid "Warning"
 msgstr "Avertissement"
 
-#: action.py:303 action.py:354 action.py:383
+#: zabbix-bot/action.py:335 zabbix-bot/action.py:387 zabbix-bot/action.py:419
 msgid "Average"
 msgstr "Moyen"
 
-#: action.py:304 action.py:354 action.py:384
+#: zabbix-bot/action.py:336 zabbix-bot/action.py:387 zabbix-bot/action.py:420
 msgid "High"
 msgstr "Haut"
 
-#: action.py:305 action.py:354 action.py:385
+#: zabbix-bot/action.py:337 zabbix-bot/action.py:387 zabbix-bot/action.py:421
 msgid "Disaster"
 msgstr "Désastre"
 
-#: action.py:353
+#: zabbix-bot/action.py:386
 #, python-format
 msgid ""
 "*Host availability*\n"
@@ -245,122 +265,151 @@ msgstr ""
 "%s : %d\n"
 "TOTAL: %d"
 
-#: action.py:353 action.py:371
+#: zabbix-bot/action.py:386 zabbix-bot/action.py:407
 msgid "Available"
 msgstr "Disponible"
 
-#: action.py:353 action.py:372
+#: zabbix-bot/action.py:386 zabbix-bot/action.py:408
 msgid "Not available"
 msgstr "Non disponible"
 
-#: action.py:353 action.py:370
+#: zabbix-bot/action.py:386 zabbix-bot/action.py:406
 msgid "Unknown"
 msgstr "Inconnu"
 
-#: action.py:361
+#: zabbix-bot/action.py:390
+msgid "*Error* to get global information"
+msgstr "*Erreur* pour obtenir les informations globales"
+
+#: zabbix-bot/action.py:397
 msgid "enabled"
 msgstr "activé"
 
-#: action.py:362
+#: zabbix-bot/action.py:398
 msgid "disabled"
 msgstr "désactivé"
 
-#: action.py:416
+#: zabbix-bot/action.py:452
 msgid "PROBLEM"
 msgstr "PROBLÈME"
 
-#: action.py:470
+#: zabbix-bot/action.py:506
 msgid "No values"
 msgstr "Aucune valeur"
 
-#: action.py:509 action.py:511
+#: zabbix-bot/action.py:547 zabbix-bot/action.py:549
 msgid "Host"
 msgstr "Hôte"
 
-#: action.py:509 action.py:510
+#: zabbix-bot/action.py:547 zabbix-bot/action.py:548
 msgid "Severity-Problem"
 msgstr "Sévérité-Problème"
 
-#: action.py:509
+#: zabbix-bot/action.py:547
 msgid "Duration"
 msgstr "Depuis"
 
-#: action.py:509
+#: zabbix-bot/action.py:547
 msgid "Ack"
 msgstr "Acquittement"
 
-#: action.py:530 action.py:531 action.py:556 action.py:557
+#: zabbix-bot/action.py:562
+msgid ""
+"\n"
+"Error to get problem information"
+msgstr ""
+"\n"
+"Erreur pour obtenir les informations des problèmes"
+
+#: zabbix-bot/action.py:574 zabbix-bot/action.py:575 zabbix-bot/action.py:605
+#: zabbix-bot/action.py:606
 msgid "Name"
 msgstr "Nom"
 
-#: action.py:530
+#: zabbix-bot/action.py:574
 msgid "Active since"
 msgstr "Active depuis"
 
-#: action.py:530
+#: zabbix-bot/action.py:574
 msgid "Active till"
 msgstr "Active jusqu'à"
 
-#: action.py:530 action.py:532
+#: zabbix-bot/action.py:574 zabbix-bot/action.py:576
 msgid "State"
 msgstr "État"
 
-#: action.py:538
+#: zabbix-bot/action.py:583
 msgid "Active"
 msgstr "Actif"
 
-#: action.py:541
+#: zabbix-bot/action.py:586
 msgid "Expired"
 msgstr "Expiré"
 
-#: action.py:544
+#: zabbix-bot/action.py:589
 msgid "Approaching"
 msgstr "Proche de"
 
-#: action.py:556
+#: zabbix-bot/action.py:593
+msgid ""
+"\n"
+"Error to get maintenance information"
+msgstr ""
+"\n"
+"Erreur pour obtenir les informations des maintenances"
+
+#: zabbix-bot/action.py:605
 msgid "Last check"
 msgstr "Dernière vérification"
 
-#: action.py:556 action.py:558
+#: zabbix-bot/action.py:605 zabbix-bot/action.py:607
 msgid "Last value"
 msgstr "Dernière valeur"
 
-#: action.py:587
+#: zabbix-bot/action.py:638
 msgid "SLO"
 msgstr "SLO"
 
-#: action.py:587
+#: zabbix-bot/action.py:638
 msgid "SLI"
 msgstr "SLI"
 
-#: action.py:587
+#: zabbix-bot/action.py:638
 msgid "Uptime"
 msgstr "Temps de fonctionnement"
 
-#: action.py:587
+#: zabbix-bot/action.py:638
 msgid "Downtime"
 msgstr "Temps d'arrêt"
 
-#: action.py:587
+#: zabbix-bot/action.py:638
 msgid "Error budget"
 msgstr "Erreur budget"
 
-#: action.py:633
+#: zabbix-bot/action.py:661
+msgid ""
+"\n"
+"Error to get sla values"
+msgstr ""
+"\n"
+"Erreur pour obtenir les valeurs de SLA"
+
+#: zabbix-bot/action.py:687
 msgid "Day"
 msgstr "Jour"
 
-#: action.py:634
+#: zabbix-bot/action.py:688
 msgid "Week"
 msgstr "Semaine"
 
-#: action.py:635
+#: zabbix-bot/action.py:689
 msgid "Month"
 msgstr "Mois"
 
-#: action.py:636
+#: zabbix-bot/action.py:690
 msgid "Quarter"
 msgstr "Trimestre"
 
-#: action.py:637
+#: zabbix-bot/action.py:691
 msgid "Year"
 msgstr "Année"

@@ -1,0 +1,106 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: \n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2022-06-03 11:45+0200\n"
+"PO-Revision-Date: 2022-06-03 11:48+0200\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"Language: en\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Poedit 3.0.1\n"
+
+#: zabbix-bot/display_information.py:31
+msgid "Cancel"
+msgstr "Cancel"
+
+#: zabbix-bot/display_information.py:51 zabbix-bot/display_information.py:97
+#: zabbix-bot/display_information.py:138
+msgid "Disable"
+msgstr "Disable"
+
+#: zabbix-bot/display_information.py:54 zabbix-bot/display_information.py:100
+#: zabbix-bot/display_information.py:141
+msgid "Enable"
+msgstr "Enable"
+
+#: zabbix-bot/display_information.py:59
+msgid "Items"
+msgstr "Items"
+
+#: zabbix-bot/display_information.py:61
+msgid "Last values"
+msgstr "Last values"
+
+#: zabbix-bot/display_information.py:66 zabbix-bot/display_information.py:110
+msgid "Triggers"
+msgstr "Triggers"
+
+#: zabbix-bot/display_information.py:71
+msgid "Back to group"
+msgstr "Back to group"
+
+#: zabbix-bot/display_information.py:76 zabbix-bot/display_information.py:156
+#: zabbix-bot/display_information.py:223
+msgid "Problems"
+msgstr "Problems"
+
+#: zabbix-bot/display_information.py:80
+msgid "Location"
+msgstr "Location"
+
+#: zabbix-bot/display_information.py:83 zabbix-bot/display_information.py:231
+msgid "Report PDF"
+msgstr "Report PDF"
+
+#: zabbix-bot/display_information.py:105
+msgid "Graph"
+msgstr "Graph"
+
+#: zabbix-bot/display_information.py:115 zabbix-bot/display_information.py:151
+#: zabbix-bot/display_information.py:174
+msgid "Host"
+msgstr "Host"
+
+#: zabbix-bot/display_information.py:146
+msgid "Item"
+msgstr "Item"
+
+#: zabbix-bot/display_information.py:169
+msgid "Trigger"
+msgstr "Trigger"
+
+#: zabbix-bot/display_information.py:179
+msgid "Acknowledge"
+msgstr "Acknowledge"
+
+#: zabbix-bot/display_information.py:182
+msgid "Unacknowledge"
+msgstr "Unacknowledge"
+
+#: zabbix-bot/display_information.py:186
+msgid "Send message"
+msgstr "Send message"
+
+#: zabbix-bot/display_information.py:190
+msgid "Change severity"
+msgstr "Change severity"
+
+#: zabbix-bot/display_information.py:213
+msgid "Parents service"
+msgstr "Parents service"
+
+#: zabbix-bot/display_information.py:218
+msgid "Children service"
+msgstr "Children service"
+
+#: zabbix-bot/display_information.py:228
+msgid "SLA"
+msgstr "SLA"

@@ -1,0 +1,68 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: \n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2022-06-02 16:44+0200\n"
+"PO-Revision-Date: 2022-06-02 16:49+0200\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"Language: fr\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Poedit 3.0.1\n"
+
+#: zabbix-bot/command.py:27
+msgid ""
+"Commands:\n"
+" /start - Start a conversation\n"
+" /stop - Stop a current action and return to start menu\n"
+" /maintenances *nameServer* - Get all maintenance periods\n"
+" /problems *nameServer* - Get all problems on Zabbix server\n"
+" /global\\_status *nameServer* - Get the global information of Zabbix "
+"server. You must specify nameServer arguments or environments variables "
+"ZABBIX\\_BOT\\_USERNAME, ZABBIX\\_BOT\\_PASSWORD and ZABBIX\\_URL if you "
+"don't pass argument."
+msgstr ""
+"Commandes:\n"
+" /start - Démarrer une conversation\n"
+" /stop - Arrêter l'action courrante et retourner au menu de départ\n"
+" /maintenances *nameServer* - Obtenir toutes les périodes de maintenance\n"
+" /problems *nameServer* - Obtenir tous les problèmes\n"
+" /global\\_status *nameServer* - Obtenir les informations globales. Vous "
+"devez spécifier un nom de serveur en argument ou les variables ZABBIX\\_BOT"
+"\\_USERNAME, ZABBIX\\_BOT\\_PASSWORD et ZABBIX\\_URL si vous ne passez par "
+"d'arguments."
+
+#: zabbix-bot/command.py:62
+msgid ""
+"Can you set environments variables (ZABBIX\\_URL, ZABBIX\\_BOT\\_USERNAME "
+"and ZABBIX\\_BOT\\_PASSWORD) to use this command with any argument."
+msgstr ""
+"Pouvez-vous spécifier les variables d'environnements (ZABBIX\\_URL, ZABBIX"
+"\\_BOT\\_USERNAME et ZABBIX\\_BOT\\_PASSWORD) pour utiliser cette commande "
+"sans arguments."
+
+#: zabbix-bot/command.py:65
+#, python-format
+msgid "The server *%s* was not found in config.yaml file."
+msgstr "Le serveur *%s* n'a pas été trouvé dans le fichier config.yaml."
+
+#: zabbix-bot/command.py:84 zabbix-bot/command.py:101 zabbix-bot/command.py:125
+#, python-format
+msgid ""
+"Incorrect user name or password or account is temporarily blocked for server "
+"%s"
+msgstr ""
+"Incorrecte nom d'utilisateur ou mot de passe ou votre compte est "
+"temporairement bloqué %s"
+
+#: zabbix-bot/command.py:98
+#, python-format
+msgid "The server use is *%s*\n"
+msgstr "Le serveur utilisé est *%s*\n"

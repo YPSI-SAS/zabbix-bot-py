@@ -1,0 +1,106 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2022-06-03 11:45+0200\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=CHARSET\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: zabbix-bot/display_information.py:31
+msgid "Cancel"
+msgstr ""
+
+#: zabbix-bot/display_information.py:51 zabbix-bot/display_information.py:97
+#: zabbix-bot/display_information.py:138
+msgid "Disable"
+msgstr ""
+
+#: zabbix-bot/display_information.py:54 zabbix-bot/display_information.py:100
+#: zabbix-bot/display_information.py:141
+msgid "Enable"
+msgstr ""
+
+#: zabbix-bot/display_information.py:59
+msgid "Items"
+msgstr ""
+
+#: zabbix-bot/display_information.py:61
+msgid "Last values"
+msgstr ""
+
+#: zabbix-bot/display_information.py:66 zabbix-bot/display_information.py:110
+msgid "Triggers"
+msgstr ""
+
+#: zabbix-bot/display_information.py:71
+msgid "Back to group"
+msgstr ""
+
+#: zabbix-bot/display_information.py:76 zabbix-bot/display_information.py:156
+#: zabbix-bot/display_information.py:223
+msgid "Problems"
+msgstr ""
+
+#: zabbix-bot/display_information.py:80
+msgid "Location"
+msgstr ""
+
+#: zabbix-bot/display_information.py:83 zabbix-bot/display_information.py:231
+msgid "Report PDF"
+msgstr ""
+
+#: zabbix-bot/display_information.py:105
+msgid "Graph"
+msgstr ""
+
+#: zabbix-bot/display_information.py:115 zabbix-bot/display_information.py:151
+#: zabbix-bot/display_information.py:174
+msgid "Host"
+msgstr ""
+
+#: zabbix-bot/display_information.py:146
+msgid "Item"
+msgstr ""
+
+#: zabbix-bot/display_information.py:169
+msgid "Trigger"
+msgstr ""
+
+#: zabbix-bot/display_information.py:179
+msgid "Acknowledge"
+msgstr ""
+
+#: zabbix-bot/display_information.py:182
+msgid "Unacknowledge"
+msgstr ""
+
+#: zabbix-bot/display_information.py:186
+msgid "Send message"
+msgstr ""
+
+#: zabbix-bot/display_information.py:190
+msgid "Change severity"
+msgstr ""
+
+#: zabbix-bot/display_information.py:213
+msgid "Parents service"
+msgstr ""
+
+#: zabbix-bot/display_information.py:218
+msgid "Children service"
+msgstr ""
+
+#: zabbix-bot/display_information.py:228
+msgid "SLA"
+msgstr ""

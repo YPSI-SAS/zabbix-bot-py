@@ -2,12 +2,22 @@ from posixpath import split, splitext
 from pytest import param
 import requests
 import json
+import logging
 
+logger = logging.getLogger(__name__)
+
+class ZabbixAPIException(Exception):
+    pass
 
 class API:
     def __init__(self, url, username, password) -> None:
         self.url = url
-        self.token = self.request_login(username=username, password=password)
+        try:
+            self.token = self.request_login(username=username, password=password)
+        except Exception as e:
+            logger.error('Problems getting token authentication - %s', e)
+            raise ZabbixAPIException(e) 
+            
 
     def request_post(self, params, method, login=None):
         """Send a post request to API"""
@@ -17,23 +27,55 @@ class API:
         else:
             payload = {'jsonrpc': '2.0', 'method': method,
                     'params': params, 'auth': self.token, 'id': 1}
+
+        logger.debug("Sending: %s", json.dumps(payload))
+
         headers = {'content-type': 'application/json'}
         r = requests.post(self.url+'/api_jsonrpc.php',
                           headers=headers, json=payload)
-        return r.status_code, r.text
+        
+        if not len(r.text):
+            raise ZabbixAPIException("Received empty response")
+        
+        try:
+            json_data = json.loads(r.text)
+        except ValueError:
+            raise ZabbixAPIException(
+                "Unable to parse json: %s" % r.text
+            )
+        logger.debug("Response Body: %s", json.dumps(json_data))
+
+        if 'error' in json_data:  
+            if json_data['error']['data'] == 'Login name or password is incorrect.':
+                
+                msg = "Error {code}: {message}: {data}".format(
+                    code=json_data['error']['code'],
+                    message=json_data['error']['message'],
+                    data=json_data['error']['data'])
+
+            else:
+
+                msg = "Error {code}: {message}: {data} while sending {json}".format(
+                    code=json_data['error']['code'],
+                    message=json_data['error']['message'],
+                    data=json_data['error']['data'],
+                    json=str(payload))
+            logger.error(msg)
+            raise ZabbixAPIException(msg, json_data['error']['code'])
+        
+        
+        return json_data['result']
+        
+
 
     def request_login(self, username, password):
         """Get token to authenticate user"""
         params = {
-            "username" : username,
+            "user" : username,
             "password": password
         }
-        status_code, text = self.request_post(params=params, method='user.login', login=True)
-        json_data = json.loads(text)
-        if status_code == 200:
-            return json_data['result']
-        else:
-            return {}
+        return self.request_post(params=params, method='user.login', login=True)
+        
 
     def get_list_hosts(self):
         """Get all hosts"""
@@ -42,12 +84,8 @@ class API:
             'sortfield': 'name',
             "selectInterfaces": ["available"]
         }
-        status_code, text = self.request_post(params=params, method='host.get')
-        json_data = json.loads(text)
-        if status_code == 200:
-            return json_data['result']
-        else:
-            return {}
+        return self.request_post(params=params, method='host.get')
+        
 
     def get_list_hosts_with_name(self, name):
         """Get all hosts with a specific name"""
@@ -60,12 +98,8 @@ class API:
             'searchWildcardsEnabled': True,
             "selectInterfaces": ["available"]
         }
-        status_code, text = self.request_post(params=params, method='host.get')
-        json_data = json.loads(text)
-        if status_code == 200:
-            return json_data['result']
-        else:
-            return {}
+        return self.request_post(params=params, method='host.get')
+        
 
     def get_list_hosts_with_tag(self, tag):
         """Get all hosts with a specific tag"""
@@ -81,25 +115,16 @@ class API:
             ],
             "selectInterfaces": ["available"]
         }
-        status_code, text = self.request_post(params=params, method='host.get')
-        json_data = json.loads(text)
-        if status_code == 200:
-            return json_data['result']
-        else:
-            return {}
+        return self.request_post(params=params, method='host.get')
+        
 
     def get_list_hostgroups(self):
         """Get all hosts groups"""
         params = {
             'output': ['name', 'groupid']
         }
-        status_code, text = self.request_post(
-            params=params, method='hostgroup.get')
-        json_data = json.loads(text)
-        if status_code == 200:
-            return json_data['result']
-        else:
-            return {}
+        return  self.request_post(params=params, method='hostgroup.get')
+        
 
     def get_list_hosts_with_hostgroup(self, id_hostgroup):
         """Get all hosts in hosts group"""
@@ -109,12 +134,8 @@ class API:
             'groupids': id_hostgroup,
             "selectInterfaces": ["available"]
         }
-        status_code, text = self.request_post(params=params, method='host.get')
-        json_data = json.loads(text)
-        if status_code == 200:
-            return json_data['result']
-        else:
-            return {}
+        return self.request_post(params=params, method='host.get')
+        
 
     def get_host_info(self, id_host):
         """Get all information of the selected host"""
@@ -128,12 +149,8 @@ class API:
             "selectInterfaces": ["available"],
             "selectGroups": ["name", "groupid"]
         }
-        status_code, text = self.request_post(params=params, method='host.get')
-        json_data = json.loads(text)
-        if status_code == 200:
-            return json_data['result']
-        else:
-            return {}
+        return self.request_post(params=params, method='host.get')
+        
 
     def get_host_problem(self, id_host):
         """Get all problems of the selected host"""
@@ -141,13 +158,8 @@ class API:
             "hostids": id_host,
             "output": ["eventid", "name", "clock", "acknowledged", "severity"]
         }
-        status_code, text = self.request_post(
-            params=params, method='problem.get')
-        json_data = json.loads(text)
-        if status_code == 200:
-            return json_data['result']
-        else:
-            return {}
+        return self.request_post(params=params, method='problem.get')
+        
 
     def update_host_status(self, id_host, status):
         """Update status of host"""
@@ -155,13 +167,7 @@ class API:
             "hostid": id_host,
             "status": status
         }
-        status_code, text = self.request_post(
-            params=params, method='host.update')
-        json_data = json.loads(text)
-        if status_code == 200:
-            return json_data['result']
-        else:
-            return {}
+        return self.request_post(params=params, method='host.update')
 
     def get_list_items(self, id_host):
         """Get all items of the selected host"""
@@ -170,12 +176,8 @@ class API:
             "sortfield": "name",
             "output": ["name", "itemid", "status"],
         }
-        status_code, text = self.request_post(params=params, method='item.get')
-        json_data = json.loads(text)
-        if status_code == 200:
-            return json_data['result']
-        else:
-            return {}
+        return self.request_post(params=params, method='item.get')
+        
 
     def get_item_info(self, id_item):
         """Get all information of the selected item"""
@@ -186,12 +188,8 @@ class API:
             "selectTriggers": ["triggerid", "description", "value", "priority"],
             "selectTags": ["tag", "value"]
         }
-        status_code, text = self.request_post(params=params, method='item.get')
-        json_data = json.loads(text)
-        if status_code == 200:
-            return json_data['result']
-        else:
-            return {}
+        return self.request_post(params=params, method='item.get')
+        
 
     def update_item_status(self, id_item, status):
         """Update status of item"""
@@ -199,14 +197,8 @@ class API:
             "itemid": id_item,
             "status": status
         }
-        status_code, text = self.request_post(
-            params=params, method='item.update')
-        json_data = json.loads(text)
-        if status_code == 200:
-            return json_data['result']
-        else:
-            return {}
-
+        return self.request_post(params=params, method='item.update')
+        
     def get_list_triggers_by_host(self, id_host):
         """Get all triggers of the selected host"""
         params = {
@@ -214,13 +206,8 @@ class API:
             "sortfield": "description",
             "output": ["triggerid", "description", "status"],
         }
-        status_code, text = self.request_post(
-            params=params, method='trigger.get')
-        json_data = json.loads(text)
-        if status_code == 200:
-            return json_data['result']
-        else:
-            return {}
+        return self.request_post(params=params, method='trigger.get')
+        
 
     def get_list_triggers_by_item(self, id_item):
         """Get all triggers of the selected item"""
@@ -229,13 +216,8 @@ class API:
             "sortfield": "description",
             "output": ["triggerid", "description", "status"],
         }
-        status_code, text = self.request_post(
-            params=params, method='trigger.get')
-        json_data = json.loads(text)
-        if status_code == 200:
-            return json_data['result']
-        else:
-            return {}
+        return self.request_post(params=params, method='trigger.get')
+        
 
     def get_trigger_info(self, id_trigger):
         """Get all information of the selected trigger"""
@@ -247,13 +229,8 @@ class API:
             "selectItems": ["hostid", "name"],
             "expandExpression": "true"
         }
-        status_code, text = self.request_post(
-            params=params, method='trigger.get')
-        json_data = json.loads(text)
-        if status_code == 200:
-            return json_data['result']
-        else:
-            return {}
+        return self.request_post(params=params, method='trigger.get')
+        
 
     def get_trigger_problem(self, id_trigger):
         """Get all problems of the selected trigger"""
@@ -261,13 +238,8 @@ class API:
             "objectids": id_trigger,
             "output": ["eventid", "name", "clock", "acknowledged", "severity"]
         }
-        status_code, text = self.request_post(
-            params=params, method='problem.get')
-        json_data = json.loads(text)
-        if status_code == 200:
-            return json_data['result']
-        else:
-            return {}
+        return self.request_post(params=params, method='problem.get')
+        
 
     def update_trigger_status(self, id_trigger, status):
         """Update status of trigger"""
@@ -275,13 +247,8 @@ class API:
             "triggerid": id_trigger,
             "status": status
         }
-        status_code, text = self.request_post(
-            params=params, method='trigger.update')
-        json_data = json.loads(text)
-        if status_code == 200:
-            return json_data['result']
-        else:
-            return {}
+        return self.request_post(params=params,method='trigger.update')
+        
 
     def get_list_problems_by_host(self, id_host):
         """Get all problems of the selected host"""
@@ -289,13 +256,8 @@ class API:
             "hostids": id_host,
             "output": ["eventid", "name", "clock", "acknowledged", "severity"],
         }
-        status_code, text = self.request_post(
-            params=params, method='problem.get')
-        json_data = json.loads(text)
-        if status_code == 200:
-            return json_data['result']
-        else:
-            return {}
+        return self.request_post(params=params,method='problem.get')
+        
 
     def get_list_problems_by_trigger(self, id_trigger):
         """Get all problems of the selected trigger"""
@@ -303,13 +265,8 @@ class API:
             "objectids": id_trigger,
             "output": ["eventid", "name", "clock", "acknowledged", "severity"],
         }
-        status_code, text = self.request_post(
-            params=params, method='problem.get')
-        json_data = json.loads(text)
-        if status_code == 200:
-            return json_data['result']
-        else:
-            return {}
+        return self.request_post(params=params,method='problem.get')
+        
 
     def get_event_info(self, id_event):
         """Get all information of the selected event"""
@@ -319,13 +276,8 @@ class API:
             "selectTags": ["tag", "value"],
             "selectHosts": ["hostid", "name"]
         }
-        status_code, text = self.request_post(
-            params=params, method='event.get')
-        json_data = json.loads(text)
-        if status_code == 200:
-            return json_data['result']
-        else:
-            return {}
+        return self.request_post(params=params,method='event.get')
+        
 
     def action_event(self, id_event, action, message=None, severity=None):
         """Send action event"""
@@ -346,26 +298,16 @@ class API:
                 "action": action,
                 "severity": severity
             }
-        status_code, text = self.request_post(
-            params=params, method='event.acknowledge')
-        json_data = json.loads(text)
-        if status_code == 200:
-            return json_data['result']
-        else:
-            return {}
+        return self.request_post(params=params,method='event.acknowledge')
+        
 
     def get_list_problems(self):
         """Get all problems"""
         params = {
             "output": ["eventid", "name", "clock", "acknowledged", "severity"],
         }
-        status_code, text = self.request_post(
-            params=params, method='problem.get')
-        json_data = json.loads(text)
-        if status_code == 200:
-            return json_data['result']
-        else:
-            return {}
+        return self.request_post(params=params, method='problem.get')
+        
 
     def get_list_history_item(self, item_id, history):
         """Get history values for item"""
@@ -376,37 +318,22 @@ class API:
             "sortorder": "DESC",
             "limit": 60
         }
-        status_code, text = self.request_post(
-            params=params, method='history.get')
-        json_data = json.loads(text)
-        if status_code == 200:
-            return json_data['result']
-        else:
-            return {}
+        return self.request_post(params=params,method='history.get')
+        
 
     def get_list_maintenances(self):
         """Get all maintenances"""
         params = {}
-        status_code, text = self.request_post(
-            params=params, method='maintenance.get')
-        json_data = json.loads(text)
-        if status_code == 200:
-            return json_data['result']
-        else:
-            return {}
+        return self.request_post(params=params,method='maintenance.get')
+        
 
     def get_list_services(self):
         """Get all services"""
         params = {
             'output': ['name', 'serviceid', 'status']
         }
-        status_code, text = self.request_post(
-            params=params, method='service.get')
-        json_data = json.loads(text)
-        if status_code == 200:
-            return json_data['result']
-        else:
-            return {}
+        return self.request_post(params=params,method='service.get')
+        
 
     def get_service_info(self, serviceid):
         """Get information service"""
@@ -419,13 +346,8 @@ class API:
             "selectProblemEvents": "extend",
             "selectProblemTags": "extend"
         }
-        status_code, text = self.request_post(
-            params=params, method='service.get')
-        json_data = json.loads(text)
-        if status_code == 200:
-            return json_data['result']
-        else:
-            return {}
+        return self.request_post(params=params,method='service.get')
+        
 
     def get_list_services_parent_child(self, parentid):
         """Get all services"""
@@ -438,13 +360,8 @@ class API:
             'serviceids': services,
             'output': ['name', 'serviceid', 'status']
         }
-        status_code, text = self.request_post(
-            params=params, method='service.get')
-        json_data = json.loads(text)
-        if status_code == 200:
-            return json_data['result']
-        else:
-            return {}
+        return self.request_post(params=params,method='service.get')
+        
 
     def get_list_problems_by_service(self, problemid):
         """Get all problems"""
@@ -457,13 +374,8 @@ class API:
             "eventids": events,
             "output": ["eventid", "name", "clock", "acknowledged", "severity"],
         }
-        status_code, text = self.request_post(
-            params=params, method='problem.get')
-        json_data = json.loads(text)
-        if status_code == 200:
-            return json_data['result']
-        else:
-            return {}
+        return self.request_post(params=params,method='problem.get')
+        
 
     def get_sla_by_service(self, service_id=None, sla_id=None):
         """Get SLA values"""
@@ -477,13 +389,8 @@ class API:
                 "slaids": sla_id,
                 "output": ["slaid", "name", "slo", "period"]
             }
-        status_code, text = self.request_post(
-            params=params, method='sla.get')
-        json_data = json.loads(text)
-        if status_code == 200:
-            return json_data['result']
-        else:
-            return {}
+        return self.request_post(params=params,method='sla.get')
+        
 
     def get_sla_report_by_service(self, sla_id, service_id):
         """Get SLA report for service"""
@@ -491,13 +398,8 @@ class API:
             "serviceids": service_id,
             "slaid": sla_id
         }
-        status_code, text = self.request_post(
-            params=params, method='sla.getsli')
-        json_data = json.loads(text)
-        if status_code == 200:
-            return json_data['result']
-        else:
-            return {}
+        return self.request_post(params=params,method='sla.getsli')
+        
 
     def get_problem_info(self, id_event):
         """Get all information of the problem"""
@@ -510,10 +412,5 @@ class API:
             "selectRelatedObject": "extend",
             "select_alerts":"extend"
         }
-        status_code, text = self.request_post(
-            params=params, method='event.get')
-        json_data = json.loads(text)
-        if status_code == 200:
-            return json_data['result']
-        else:
-            return {}
+        return self.request_post(params=params,method='event.get')
+        

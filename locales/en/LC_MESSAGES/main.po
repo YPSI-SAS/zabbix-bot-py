@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-06-01 15:34+0200\n"
-"PO-Revision-Date: 2022-06-01 15:35+0200\n"
+"POT-Creation-Date: 2022-06-03 11:48+0200\n"
+"PO-Revision-Date: 2022-06-02 15:48+0200\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: en\n"
@@ -17,232 +17,318 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "X-Generator: Poedit 3.0.1\n"
 
-#: main.py:153
-msgid "Cancel"
-msgstr "Cancel"
-
-#: main.py:180
-msgid ""
-"Commands:\n"
-" /start - Start a conversation\n"
-" /stop - Stop a current action and return to start menu\n"
-" /maintenances *nameServer* - Get all maintenance periods\n"
-" /problems *nameServer* - Get all problems on Zabbix server\n"
-" /global\\_status *nameServer* - Get the global information of Zabbix "
-"server. You must specify nameServer arguments or environments variables "
-"ZABBIX\\_BOT\\_USERNAME, ZABBIX\\_BOT\\_PASSWORD and ZABBIX\\_URL if you "
-"don't pass argument."
-msgstr ""
-"Commands:\n"
-" /start - Start a conversation\n"
-" /stop - Stop a current action and return to start menu\n"
-" /maintenances *nameServer* - Get all maintenance periods\n"
-" /problems *nameServer* - Get all problems on Zabbix server\n"
-" /global\\_status *nameServer* - Get the global information of Zabbix "
-"server. You must specify nameServer arguments or environments variables "
-"ZABBIX\\_BOT\\_USERNAME, ZABBIX\\_BOT\\_PASSWORD and ZABBIX\\_URL if you "
-"don't pass argument."
-
-#: main.py:216 main.py:263 main.py:305
-msgid ""
-"Can you set environments variables (ZABBIX\\_URL, ZABBIX\\_BOT\\_USERNAME "
-"and ZABBIX\\_BOT\\_PASSWORD) to use this command with any argument."
-msgstr ""
-"Can you set environments variables (ZABBIX\\_URL, ZABBIX\\_BOT\\_USERNAME "
-"and ZABBIX\\_BOT\\_PASSWORD) to use this command with any argument."
-
-#: main.py:219 main.py:267 main.py:309
-#, python-format
-msgid "The server *%s* was not found in config.yaml file."
-msgstr "The server *%s* was not found in config.yaml file."
-
-#: main.py:226
-#, python-format
-msgid "The server use is *%s*\n"
-msgstr "The server use is *%s*\n"
-
-#: main.py:384 main.py:1416
+#: zabbix-bot/main.py:220 zabbix-bot/main.py:975
 #, python-format
 msgid "Page %s"
 msgstr "Page %s"
 
-#: main.py:470
+#: zabbix-bot/main.py:261
+msgid ""
+"*Error* to list all hosts\n"
+"\n"
+msgstr ""
+"*Error* to list all hosts\n"
+"\n"
+
+#: zabbix-bot/main.py:312
 msgid "Okay, give me the name of the host"
 msgstr "Okay, give me the name of the host"
 
-#: main.py:479
+#: zabbix-bot/main.py:321
 msgid "Okay, give me the tag of the host (NAME=VALUE)"
 msgstr "Okay, give me the tag of the host (NAME=VALUE)"
 
-#: main.py:674 main.py:764 main.py:823
-msgid "Disable"
-msgstr "Disable"
+#: zabbix-bot/main.py:337
+msgid ""
+"*Error* to list host with name\n"
+"\n"
+msgstr ""
+"*Error* to list host with name\n"
+"\n"
 
-#: main.py:681 main.py:771 main.py:830
-msgid "Enable"
-msgstr "Enable"
+#: zabbix-bot/main.py:353
+msgid ""
+"*Error* to list host with tag\n"
+"\n"
+msgstr ""
+"*Error* to list host with tag\n"
+"\n"
 
-#: main.py:690
-msgid "Items"
-msgstr "Items"
+#: zabbix-bot/main.py:369
+msgid ""
+"*Error* to list items\n"
+"\n"
+msgstr ""
+"*Error* to list items\n"
+"\n"
 
-#: main.py:696
-msgid "Last values"
-msgstr "Last values"
+#: zabbix-bot/main.py:385
+msgid ""
+"*Error* to list SLA\n"
+"\n"
+msgstr ""
+"*Error* to list SLA\n"
+"\n"
 
-#: main.py:706 main.py:790
-msgid "Triggers"
-msgstr "Triggers"
+#: zabbix-bot/main.py:400
+msgid ""
+"*Error* to list hostgroups\n"
+"\n"
+msgstr ""
+"*Error* to list hostgroups\n"
+"\n"
 
-#: main.py:717
-msgid "Back to group"
-msgstr "Back to group"
+#: zabbix-bot/main.py:415
+msgid ""
+"*Error* to list services\n"
+"\n"
+msgstr ""
+"*Error* to list services\n"
+"\n"
 
-#: main.py:727 main.py:859 main.py:973
-msgid "Problems"
-msgstr "Problems"
+#: zabbix-bot/main.py:435 zabbix-bot/main.py:446
+msgid ""
+"*Error* to list parents service\n"
+"\n"
+msgstr ""
+"*Error* to list parents service\n"
+"\n"
 
-#: main.py:734
-msgid "Location"
-msgstr "Location"
+#: zabbix-bot/main.py:460 zabbix-bot/main.py:471
+msgid ""
+"*Error* to list children service\n"
+"\n"
+msgstr ""
+"*Error* to list children service\n"
+"\n"
 
-#: main.py:742 main.py:992
-msgid "Report PDF"
-msgstr "Report PDF"
+#: zabbix-bot/main.py:486 zabbix-bot/main.py:496 zabbix-bot/main.py:565
+#: zabbix-bot/main.py:582
+msgid ""
+"*Error* to list problems\n"
+"\n"
+msgstr ""
+"*Error* to list problems\n"
+"\n"
 
-#: main.py:780
-msgid "Graph"
-msgstr "Graph"
+#: zabbix-bot/main.py:512 zabbix-bot/main.py:529
+msgid ""
+"*Error* to list triggers\n"
+"\n"
+msgstr ""
+"*Error* to list triggers\n"
+"\n"
 
-#: main.py:799 main.py:849 main.py:890
-msgid "Host"
-msgstr "Host"
+#: zabbix-bot/main.py:548
+msgid ""
+"*Error* to select hosts in hostgroup\n"
+"\n"
+msgstr ""
+"*Error* to select hosts in hostgroup\n"
+"\n"
 
-#: main.py:839
-msgid "Item"
-msgstr "Item"
-
-#: main.py:881
-msgid "Trigger"
-msgstr "Trigger"
-
-#: main.py:901
-msgid "Acknowledge"
-msgstr "Acknowledge"
-
-#: main.py:908
-msgid "Unacknowledge"
-msgstr "Unacknowledge"
-
-#: main.py:916
-msgid "Send message"
-msgstr "Send message"
-
-#: main.py:925
-msgid "Change severity"
-msgstr "Change severity"
-
-#: main.py:950
-msgid "Parents service"
-msgstr "Parents service"
-
-#: main.py:962
-msgid "Children service"
-msgstr "Children service"
-
-#: main.py:984
-msgid "SLA"
-msgstr "SLA"
-
-#: main.py:1103 main.py:1342
+#: zabbix-bot/main.py:693 zabbix-bot/main.py:892
 msgid "Back to service"
 msgstr "Back to service"
 
-#: main.py:1126
+#: zabbix-bot/main.py:714
 msgid "Host enabled OK\n"
 msgstr ""
 "Host enabled OK\n"
 "\n"
 
-#: main.py:1146
+#: zabbix-bot/main.py:717
+msgid ""
+"*Error* to enable host\n"
+"\n"
+msgstr ""
+"*Error* to enable host\n"
+"\n"
+
+#: zabbix-bot/main.py:730
 msgid "Host disabled OK\n"
 msgstr ""
 "Host disabled OK\n"
 "\n"
 
-#: main.py:1166
+#: zabbix-bot/main.py:733
+msgid ""
+"*Error* to disable host\n"
+"\n"
+msgstr ""
+"*Error* to disable host\n"
+"\n"
+
+#: zabbix-bot/main.py:746
 msgid "Item enabled OK\n"
 msgstr "Item enabled OK\n"
 
-#: main.py:1186
+#: zabbix-bot/main.py:749
+msgid ""
+"*Error* to enable item\n"
+"\n"
+msgstr ""
+"*Error* to enable item\n"
+"\n"
+
+#: zabbix-bot/main.py:762
 msgid "Item disabled OK\n"
 msgstr "Item disabled OK\n"
 
-#: main.py:1206
+#: zabbix-bot/main.py:765
+msgid ""
+"*Error* to disable item\n"
+"\n"
+msgstr ""
+"*Error* to disable item\n"
+"\n"
+
+#: zabbix-bot/main.py:778
 msgid "Trigger enabled OK\n"
 msgstr "Trigger enabled OK\n"
 
-#: main.py:1227
+#: zabbix-bot/main.py:781
+msgid ""
+"*Error* to enable trigger\n"
+"\n"
+msgstr ""
+"*Error* to enable trigger\n"
+"\n"
+
+#: zabbix-bot/main.py:795
 msgid "Trigger disabled OK\n"
 msgstr "Trigger disabled OK\n"
 
-#: main.py:1248
+#: zabbix-bot/main.py:798
+msgid ""
+"*Error* to disable trigger\n"
+"\n"
+msgstr ""
+"*Error* to disable trigger\n"
+"\n"
+
+#: zabbix-bot/main.py:813
 msgid "Problem acknowledged OK\n"
 msgstr "Problem acknowledged OK\n"
 
-#: main.py:1269
+#: zabbix-bot/main.py:816
+msgid ""
+"*Error* to acknowledge problem\n"
+"\n"
+msgstr ""
+"*Error* to acknowledge problem\n"
+"\n"
+
+#: zabbix-bot/main.py:830
 msgid "Problem unacknowledged OK\n"
 msgstr "Problem unacknowledged OK\n"
 
-#: main.py:1294 main.py:1328 main.py:1403 main.py:1575
+#: zabbix-bot/main.py:833
+msgid ""
+"*Error* to unacknowledge problem\n"
+"\n"
+msgstr ""
+"*Error* to unacknowledge problem\n"
+"\n"
+
+#: zabbix-bot/main.py:848 zabbix-bot/main.py:884 zabbix-bot/main.py:968
+#: zabbix-bot/main.py:1139
 msgid "Back to host"
 msgstr "Back to host"
 
-#: main.py:1465
+#: zabbix-bot/main.py:858
+msgid ""
+"*Error* to get location\n"
+"\n"
+msgstr ""
+"*Error* to get location\n"
+"\n"
+
+#: zabbix-bot/main.py:905
+msgid ""
+"*Error* to generate host report\n"
+"\n"
+msgstr ""
+"*Error* to generate host report\n"
+"\n"
+
+#: zabbix-bot/main.py:911
+msgid ""
+"*Error* to generate service report\n"
+"\n"
+msgstr ""
+"*Error* to generate service report\n"
+"\n"
+
+#: zabbix-bot/main.py:1021
 msgid "Okay, give me the message"
 msgstr "Okay, give me the message"
 
-#: main.py:1477
+#: zabbix-bot/main.py:1034
 msgid "Send message to problem OK\n"
 msgstr "Send message to problem OK\n"
 
-#: main.py:1492
+#: zabbix-bot/main.py:1037
+msgid ""
+"*Error* to send message\n"
+"\n"
+msgstr ""
+"*Error* to send message\n"
+"\n"
+
+#: zabbix-bot/main.py:1054
 msgid "Choose new severity"
 msgstr "Choose new severity"
 
-#: main.py:1496 main.py:1526
+#: zabbix-bot/main.py:1058 zabbix-bot/main.py:1089
 msgid "Not classified"
 msgstr "Not classified"
 
-#: main.py:1499 main.py:1528
+#: zabbix-bot/main.py:1061 zabbix-bot/main.py:1091
 msgid "Information"
 msgstr "Information"
 
-#: main.py:1502 main.py:1530
+#: zabbix-bot/main.py:1064 zabbix-bot/main.py:1093
 msgid "Warning"
 msgstr "Warning"
 
-#: main.py:1505 main.py:1532
+#: zabbix-bot/main.py:1067 zabbix-bot/main.py:1095
 msgid "Average"
 msgstr "Average"
 
-#: main.py:1508 main.py:1534
+#: zabbix-bot/main.py:1070 zabbix-bot/main.py:1097
 msgid "High"
 msgstr "High"
 
-#: main.py:1510 main.py:1536
+#: zabbix-bot/main.py:1072 zabbix-bot/main.py:1099
 msgid "Disaster"
 msgstr "Disaster"
 
-#: main.py:1541
+#: zabbix-bot/main.py:1105
 msgid "Severity change to problem OK\n"
 msgstr "Severity change to problem OK\n"
 
-#: main.py:1569
+#: zabbix-bot/main.py:1108
+msgid ""
+"*Error* to change severity\n"
+"\n"
+msgstr ""
+"*Error* to change severity\n"
+"\n"
+
+#: zabbix-bot/main.py:1138
 msgid "Back to item"
 msgstr "Back to item"
 
-#: main.py:1600 main.py:1613 main.py:1625
+#: zabbix-bot/main.py:1148
+msgid ""
+"*Error* to display graph\n"
+"\n"
+msgstr ""
+"*Error* to display graph\n"
+"\n"
+
+#: zabbix-bot/main.py:1169 zabbix-bot/main.py:1182 zabbix-bot/main.py:1194
 #, python-format
 msgid ""
 "Hey, I'm %s !\n"
@@ -253,35 +339,35 @@ msgstr ""
 "I will help you to handle Zabbix problems !\n"
 "I'm connected to the server : *%s*"
 
-#: main.py:1635
+#: zabbix-bot/main.py:1200
 msgid "Search host name"
 msgstr "Search host name"
 
-#: main.py:1641
+#: zabbix-bot/main.py:1201
 msgid "Search host tag"
 msgstr "Search host tag"
 
-#: main.py:1649
+#: zabbix-bot/main.py:1202
 msgid "Hostgroups"
 msgstr "Hostgroups"
 
-#: main.py:1654
+#: zabbix-bot/main.py:1203
 msgid "All Hosts"
 msgstr "All Hosts"
 
-#: main.py:1661
+#: zabbix-bot/main.py:1204
 msgid "Services"
 msgstr "Services"
 
-#: main.py:1667 main.py:1691
+#: zabbix-bot/main.py:1206 zabbix-bot/main.py:1221 zabbix-bot/main.py:1230
 msgid "Settings"
 msgstr "Settings"
 
-#: main.py:1671 main.py:1697
+#: zabbix-bot/main.py:1207 zabbix-bot/main.py:1222 zabbix-bot/main.py:1231
 msgid "Done"
 msgstr "Done"
 
-#: main.py:1683
+#: zabbix-bot/main.py:1218
 msgid ""
 "\n"
 "\n"
@@ -293,31 +379,39 @@ msgstr ""
 "Type /help to show all commands\n"
 "   Choose an option:"
 
-#: main.py:1687
+#: zabbix-bot/main.py:1229
 msgid "The server is incorrect. Please change the name in setting."
 msgstr "The server is incorrect. Please change the name in setting."
 
-#: main.py:1719
+#: zabbix-bot/main.py:1252
 msgid "Change language"
 msgstr "Change language"
 
-#: main.py:1725
+#: zabbix-bot/main.py:1253
 msgid "Change server"
 msgstr "Change server"
 
-#: main.py:1733
+#: zabbix-bot/main.py:1254
+msgid "Change level logger"
+msgstr "Change level logger"
+
+#: zabbix-bot/main.py:1260
 msgid "Choose what you want to change"
 msgstr "Choose what you want to change"
 
-#: main.py:1746
+#: zabbix-bot/main.py:1273
 msgid "Please choose your language"
 msgstr "Please choose your language"
 
-#: main.py:1780
+#: zabbix-bot/main.py:1304
+msgid "Please choose your level logger"
+msgstr "Please choose your level logger"
+
+#: zabbix-bot/main.py:1340
 msgid "Choose one server or cancel"
 msgstr "Choose one server or cancel"
 
-#: main.py:1783
+#: zabbix-bot/main.py:1343
 msgid ""
 "The file *config.yaml* doesn't exists. Create file or use environment "
 "variables."
@@ -325,10 +419,114 @@ msgstr ""
 "The file *config.yaml* doesn't exists. Create file or use environment "
 "variables."
 
-#: main.py:1813
+#: zabbix-bot/main.py:1376
 msgid "Okay, bye."
 msgstr "Okay, bye."
 
-#: main.py:1828
+#: zabbix-bot/main.py:1393
 msgid "See you !"
 msgstr "See you !"
+
+#~ msgid "Cancel"
+#~ msgstr "Cancel"
+
+#~ msgid "Disable"
+#~ msgstr "Disable"
+
+#~ msgid "Enable"
+#~ msgstr "Enable"
+
+#~ msgid "Items"
+#~ msgstr "Items"
+
+#~ msgid "Last values"
+#~ msgstr "Last values"
+
+#~ msgid "Triggers"
+#~ msgstr "Triggers"
+
+#~ msgid "Back to group"
+#~ msgstr "Back to group"
+
+#~ msgid "Problems"
+#~ msgstr "Problems"
+
+#~ msgid "Location"
+#~ msgstr "Location"
+
+#~ msgid "Report PDF"
+#~ msgstr "Report PDF"
+
+#~ msgid "Graph"
+#~ msgstr "Graph"
+
+#~ msgid "Host"
+#~ msgstr "Host"
+
+#~ msgid "Item"
+#~ msgstr "Item"
+
+#~ msgid "Trigger"
+#~ msgstr "Trigger"
+
+#~ msgid "Acknowledge"
+#~ msgstr "Acknowledge"
+
+#~ msgid "Unacknowledge"
+#~ msgstr "Unacknowledge"
+
+#~ msgid "Send message"
+#~ msgstr "Send message"
+
+#~ msgid "Change severity"
+#~ msgstr "Change severity"
+
+#~ msgid "Parents service"
+#~ msgstr "Parents service"
+
+#~ msgid "Children service"
+#~ msgstr "Children service"
+
+#~ msgid "SLA"
+#~ msgstr "SLA"
+
+#~ msgid ""
+#~ "Commands:\n"
+#~ " /start - Start a conversation\n"
+#~ " /stop - Stop a current action and return to start menu\n"
+#~ " /maintenances *nameServer* - Get all maintenance periods\n"
+#~ " /problems *nameServer* - Get all problems on Zabbix server\n"
+#~ " /global\\_status *nameServer* - Get the global information of Zabbix "
+#~ "server. You must specify nameServer arguments or environments variables "
+#~ "ZABBIX\\_BOT\\_USERNAME, ZABBIX\\_BOT\\_PASSWORD and ZABBIX\\_URL if you "
+#~ "don't pass argument."
+#~ msgstr ""
+#~ "Commands:\n"
+#~ " /start - Start a conversation\n"
+#~ " /stop - Stop a current action and return to start menu\n"
+#~ " /maintenances *nameServer* - Get all maintenance periods\n"
+#~ " /problems *nameServer* - Get all problems on Zabbix server\n"
+#~ " /global\\_status *nameServer* - Get the global information of Zabbix "
+#~ "server. You must specify nameServer arguments or environments variables "
+#~ "ZABBIX\\_BOT\\_USERNAME, ZABBIX\\_BOT\\_PASSWORD and ZABBIX\\_URL if you "
+#~ "don't pass argument."
+
+#~ msgid ""
+#~ "Can you set environments variables (ZABBIX\\_URL, ZABBIX\\_BOT\\_USERNAME "
+#~ "and ZABBIX\\_BOT\\_PASSWORD) to use this command with any argument."
+#~ msgstr ""
+#~ "Can you set environments variables (ZABBIX\\_URL, ZABBIX\\_BOT\\_USERNAME "
+#~ "and ZABBIX\\_BOT\\_PASSWORD) to use this command with any argument."
+
+#~ msgid "The server *%s* was not found in config.yaml file."
+#~ msgstr "The server *%s* was not found in config.yaml file."
+
+#~ msgid "The server use is *%s*\n"
+#~ msgstr "The server use is *%s*\n"
+
+#~ msgid ""
+#~ "Incorrect user name or password or account is temporarily blocked for "
+#~ "server %s"
+#~ msgstr ""
+#~ "Incorrect user name or password or account is temporarily blocked for "
+#~ "server %s"

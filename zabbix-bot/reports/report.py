@@ -2,7 +2,7 @@ from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.lib.fonts import tt2ps
 from reportlab.lib.enums import TA_JUSTIFY, TA_CENTER
 from reportlab.rl_config import canvas_basefontname as _baseFontName
-from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Image, Table, TableStyle
+from reportlab.platypus import Paragraph, Spacer, Image, Table, TableStyle
 from reportlab.lib import colors
 from reportlab.lib.units import inch
 from datetime import datetime
@@ -21,7 +21,7 @@ class Report:
         self.styles = getSampleStyleSheet()
         self.set_styles()
         lang_translations = gettext.translation(
-            'report', localedir='locales', languages=[LANG])
+            'report', localedir='../locales', languages=[LANG])
         lang_translations.install()
         self._ = lang_translations.gettext
 

@@ -9,6 +9,6 @@ RUN apt-get update && \
 #Install dependencies
 RUN ln -s /usr/include/locale.h /usr/include/xlocale.h \
     && pip install -r requirements.txt 
-WORKDIR /opt
+WORKDIR /opt/zabbix-bot
 
 CMD ["python", "main.py"]

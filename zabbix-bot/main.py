@@ -1,45 +1,33 @@
 #! /usr/bin/python3
 # -*- coding: utf-8 -*-
+from distutils.command.build import build
 import logging
-import time
 from telegram.ext import *
 from telegram import *
-from action import (
-    build_menu,
-    display_object_button,
-    display_host_characteristics,
-    display_item_characteristics,
-    display_trigger_characteristics,
-    display_problem_characteristics,
-    display_global_status,
-    get_image_data,
-    get_table_information_problem,
-    get_table_information_maintenance,
-    display_service_characteristics,
-    get_table_last_values_host,
-    get_table_sla_report,
-)
+from action import *
 from functools import wraps
 import gettext
 from emojiDict import telegramEmojiDict
 import json
 import yaml
 import os
-from report_service import ReportService
-from report_host import ReportHost
-
+from reports.report_service import ReportService
+from reports.report_host import ReportHost
+from command import Command
+from display_information import DisplayInformation
 
 from request_API import API
 
 # log Management
 logging.basicConfig(
-    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s", level=logging.INFO
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s", filename='zabbix-bot.log'
 )
 
 logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
 
 # Global variables
-START_OVER, ZABBIX_URL, API_VAR, TYPING, ZABBIX_BOT_USERNAME, ZABBIX_BOT_PASSWORD = map(chr, range(6))
+START_OVER, ZABBIX_URL, API_VAR, TYPING, ZABBIX_BOT_USERNAME, ZABBIX_BOT_PASSWORD, DISPLAY_INFORMATION = map(chr, range(7))
 
 DISPLAY_ACTION_SERVICE = "display_action_service"
 CHOOSE_SERVICE = "choose_service"
@@ -59,6 +47,7 @@ CHOOSE_HOST = "choose_host"
 STOPPING = "stopping"
 SERVER = "server"
 CHOOSE_LANG = "choose_lang"
+CHOOSE_MODE_LOGGER = "choose_mode_logger"
 CHOOSE_SETTING = "choose_setting"
 CANCEL = "cancel"
 ACTION_START = "action_start"
@@ -102,7 +91,7 @@ LANG = "en"
 NAME_SERVER = ""
 
 lang_translations = gettext.translation(
-    "main", localedir="locales", languages=[LANG])
+    "main", localedir="../locales", languages=[LANG])
 lang_translations.install()
 _ = lang_translations.gettext
 
@@ -145,18 +134,6 @@ def send_photo_action(func):
     return command_func
 
 
-def get_cancel_button():
-    """Return cancel button in list"""
-    cancel_button = list()
-    cancel_button.append(
-        InlineKeyboardButton(
-            text=telegramEmojiDict["cross mark"] + _("Cancel"),
-            callback_data=str(CANCEL),
-        )
-    )
-    return cancel_button
-
-
 def display_message_bot(update, context, message, reply_markup):
     """Display message and keyboard in conversation"""
     if context.user_data['AFTER_GRAPH'] == True:
@@ -174,251 +151,116 @@ def display_message_bot(update, context, message, reply_markup):
     context.user_data[START_OVER] = False
 
 
-def help_msg(update, context):
-    """Display help message"""
-    message = _(
-        "Commands:\n /start - Start a conversation\n /stop - Stop a current action and return to start menu\n /maintenances *nameServer* - Get all maintenance periods\n /problems *nameServer* - Get all problems on Zabbix server\n /global\_status *nameServer* - Get the global information of Zabbix server. You must specify nameServer arguments or environments variables ZABBIX\_BOT\_USERNAME, ZABBIX\_BOT\_PASSWORD and ZABBIX\_URL if you don't pass argument."
-    )
-    if context.user_data.get(START_OVER):
-        update.callback_query.edit_message_text(
-            text=message, parse_mode=ParseMode.MARKDOWN
-        )
-    else:
-        update.message.reply_text(text=message, parse_mode=ParseMode.MARKDOWN)
-    context.user_data[START_OVER] = False
-
-
-def global_status(update, context):
-    """Diplay all global informations about Zabbix server"""
-    servFind = False
-    server_name = ""
-    if len(context.args) != 0:
-        server_name = context.args[0]
-    if server_name == "" and os.getenv("ZABBIX_URL") != None and os.getenv("ZABBIX_BOT_USERNAME") != None and os.getenv("ZABBIX_BOT_PASSWORD") != None:
-        server_name = os.getenv("ZABBIX_URL")
-        servFind = True
-        context.user_data[str(ZABBIX_URL)] = os.getenv("ZABBIX_URL")
-        context.user_data[str(ZABBIX_BOT_USERNAME)] = os.getenv("ZABBIX_BOT_USERNAME")
-        context.user_data[str(ZABBIX_BOT_PASSWORD)] = os.getenv("ZABBIX_BOT_PASSWORD")
-    elif server_name != "":
-        with open("config.yaml", "r") as stream:
-            data_loaded = yaml.safe_load(stream)
-        for __, doc in data_loaded.items():
-            for i in range(len(data_loaded["servers"])):
-                if server_name == doc[i]["server"]:
-                    servFind = True
-                    context.user_data[str(ZABBIX_URL)] = doc[i]["url"]
-                    context.user_data[str(ZABBIX_BOT_USERNAME)] = doc[i]["username"]
-                    context.user_data[str(ZABBIX_BOT_PASSWORD)] = doc[i]["password"]
-
-    if servFind == False and server_name == "":
-        message = _(
-            "Can you set environments variables (ZABBIX\_URL, ZABBIX\_BOT\_USERNAME and ZABBIX\_BOT\_PASSWORD) to use this command with any argument."
-        )
-    elif servFind == False and server_name != "":
-        message = _("The server *%s* was not found in config.yaml file.") % (
-            server_name
-        )
-    else:
-        api = API(
-            context.user_data[str(ZABBIX_URL)], context.user_data[str(ZABBIX_BOT_USERNAME)],context.user_data[str(ZABBIX_BOT_PASSWORD)]
-        )
-        message = _("The server use is *%s*\n") % (server_name)
-        message = message + display_global_status(api, LANG)
-
-    if context.user_data.get(START_OVER):
-        update.callback_query.edit_message_text(
-            text=message, parse_mode=ParseMode.MARKDOWN
-        )
-    else:
-        update.message.reply_text(text=message, parse_mode=ParseMode.MARKDOWN)
-    context.user_data[START_OVER] = False
-
-
-def show_problem(update, context):
-    """Get all problems on Zabbix server"""
-    servFind = False
-    server_name = ""
-    if len(context.args) != 0:
-        server_name = context.args[0]
-    if server_name == "" and os.getenv("ZABBIX_URL") != None and os.getenv("ZABBIX_BOT_USERNAME") != None and os.getenv("ZABBIX_BOT_PASSWORD") != None:
-        server_name = os.getenv("ZABBIX_URL")
-        servFind = True
-        context.user_data[str(ZABBIX_URL)] = os.getenv("ZABBIX_URL")
-        context.user_data[str(ZABBIX_BOT_USERNAME)] = os.getenv("ZABBIX_BOT_USERNAME")
-        context.user_data[str(ZABBIX_BOT_PASSWORD)] = os.getenv("ZABBIX_BOT_PASSWORD")
-    elif server_name != "":
-        with open("config.yaml", "r") as stream:
-            data_loaded = yaml.safe_load(stream)
-        for __, doc in data_loaded.items():
-            for i in range(len(data_loaded["servers"])):
-                if server_name == doc[i]["server"]:
-                    servFind = True
-                    context.user_data[str(ZABBIX_URL)] = doc[i]["url"]
-                    context.user_data[str(ZABBIX_BOT_USERNAME)] = doc[i]["username"]
-                    context.user_data[str(ZABBIX_BOT_PASSWORD)] = doc[i]["password"]
-
-    if servFind == False and server_name == "":
-        message = _(
-            "Can you set environments variables (ZABBIX\_URL, ZABBIX\_BOT\_USERNAME and ZABBIX\_BOT\_PASSWORD) to use this command with any argument."
-        )
-        update.message.reply_text(text=message, parse_mode=ParseMode.MARKDOWN)
-    elif servFind == False and servFind != "":
-        message = _("The server *%s* was not found in config.yaml file.") % (
-            server_name
-        )
-        update.message.reply_text(text=message, parse_mode=ParseMode.MARKDOWN)
-    else:
-        api = API(
-            context.user_data[str(ZABBIX_URL)], context.user_data[str(ZABBIX_BOT_USERNAME)],context.user_data[str(ZABBIX_BOT_PASSWORD)]
-        )
-        table = get_table_information_problem(api, LANG)
-        update.message.reply_text(
-            f'```{table}```', parse_mode=ParseMode.MARKDOWN_V2)
-
-
-def show_maintenance(update, context):
-    """Get all maintenances on Zabbix server"""
-    servFind = False
-    server_name = ""
-    if len(context.args) != 0:
-        server_name = context.args[0]
-    if server_name == "" and os.getenv("ZABBIX_URL") != None and os.getenv("ZABBIX_BOT_USERNAME") != None and os.getenv("ZABBIX_BOT_PASSWORD") != None:
-        server_name = os.getenv("ZABBIX_URL")
-        servFind = True
-        context.user_data[str(ZABBIX_URL)] = os.getenv("ZABBIX_URL")
-        context.user_data[str(ZABBIX_BOT_USERNAME)] = os.getenv("ZABBIX_BOT_USERNAME")
-        context.user_data[str(ZABBIX_BOT_PASSWORD)] = os.getenv("ZABBIX_BOT_PASSWORD")
-    elif server_name != "":
-        with open("config.yaml", "r") as stream:
-            data_loaded = yaml.safe_load(stream)
-        for __, doc in data_loaded.items():
-            for i in range(len(data_loaded["servers"])):
-                if server_name == doc[i]["server"]:
-                    servFind = True
-                    context.user_data[str(ZABBIX_URL)] = doc[i]["url"]
-                    context.user_data[str(ZABBIX_BOT_USERNAME)] = doc[i]["username"]
-                    context.user_data[str(ZABBIX_BOT_PASSWORD)] = doc[i]["password"]
-
-    if servFind == False and server_name == "":
-        message = _(
-            "Can you set environments variables (ZABBIX\_URL, ZABBIX\_BOT\_USERNAME and ZABBIX\_BOT\_PASSWORD) to use this command with any argument."
-        )
-        update.message.reply_text(text=message, parse_mode=ParseMode.MARKDOWN)
-    elif servFind == False and servFind != "":
-        message = _("The server *%s* was not found in config.yaml file.") % (
-            server_name
-        )
-        update.message.reply_text(text=message, parse_mode=ParseMode.MARKDOWN)
-    else:
-        api = API(
-            context.user_data[str(ZABBIX_URL)], context.user_data[str(ZABBIX_BOT_USERNAME)],context.user_data[str(ZABBIX_BOT_PASSWORD)]
-        )
-        table = get_table_information_maintenance(api, LANG)
-        update.message.reply_text(
-            f'```{table}```', parse_mode=ParseMode.MARKDOWN_V2)
-
-
 @send_typing_action
 def navigation_elements(update, context):
     """Navigate in differents pages of elements"""
     ud = context.user_data
     # Get the correct list of objects depending to type request
-    if ud["TYPE_REQUEST"] == "all_host":
-        elements_list = ud[API_VAR].get_list_hosts()
-    elif ud["TYPE_REQUEST"] == "all_host_name":
-        elements_list = ud[API_VAR].get_list_hosts_with_name(ud["NAME_HOST"])
-    elif ud["TYPE_REQUEST"] == "all_host_tag":
-        elements_list = ud[API_VAR].get_list_hosts_with_tag(ud["TAG_HOST"])
-    elif ud["TYPE_REQUEST"] == "all_hostgroup":
-        elements_list = ud[API_VAR].get_list_hostgroups()
-    elif ud["TYPE_REQUEST"] == "all_host_hostgroup":
-        elements_list = ud[API_VAR].get_list_hosts_with_hostgroup(
-            ud["ID_HOSTGROUP"])
-    elif ud["TYPE_REQUEST"] == "all_item":
-        elements_list = ud[API_VAR].get_list_items(ud["ID_HOST"])
-    elif ud["TYPE_REQUEST"] == "all_trigger_host":
-        elements_list = ud[API_VAR].get_list_triggers_by_host(ud["ID_HOST"])
-    elif ud["TYPE_REQUEST"] == "all_trigger_item":
-        elements_list = ud[API_VAR].get_list_triggers_by_item(ud["ID_ITEM"])
-    elif ud["TYPE_REQUEST"] == "all_problem_host":
-        elements_list = ud[API_VAR].get_list_problems_by_host(ud["ID_HOST"])
-    elif ud["TYPE_REQUEST"] == "all_problem_trigger":
-        elements_list = ud[API_VAR].get_list_problems_by_trigger(
-            ud["ID_TRIGGER"])
-    elif ud["TYPE_REQUEST"] == "all_service":
-        elements_list = ud[API_VAR].get_list_services()
-    elif ud["TYPE_REQUEST"] == "all_service_parent":
-        elements_list = ud[API_VAR].get_list_services_parent_child(
-            ud["PARENT_CHILD_ID"])
-    elif ud["TYPE_REQUEST"] == "all_problem_service":
-        elements_list = ud[API_VAR].get_list_problems_by_service(
-            ud["PROBLEM_ID"])
-    elif ud["TYPE_REQUEST"] == "all_sla_service":
-        elements_list = ud[API_VAR].get_sla_by_service(
-            service_id=ud['ID_SERVICE'])
-    if ud['OBJECT'] == 'problem':
-        numberHostDisplay = 15
-    else:
-        numberHostDisplay = 26  # Max number of objects by pages
-    numberPages = int(len(elements_list) / numberHostDisplay)
+    try:
+        if ud["TYPE_REQUEST"] == "get_list_hosts":
+            elements_list = ud[API_VAR].get_list_hosts()
+        elif ud["TYPE_REQUEST"] == "get_list_hosts_with_name":
+            elements_list = ud[API_VAR].get_list_hosts_with_name(ud["NAME_HOST"])
+        elif ud["TYPE_REQUEST"] == "get_list_hosts_with_tag":
+            elements_list = ud[API_VAR].get_list_hosts_with_tag(ud["TAG_HOST"])
+        elif ud["TYPE_REQUEST"] == "get_list_hostgroups":
+            elements_list = ud[API_VAR].get_list_hostgroups()
+        elif ud["TYPE_REQUEST"] == "get_list_hosts_with_hostgroup":
+            elements_list = ud[API_VAR].get_list_hosts_with_hostgroup(
+                ud["ID_HOSTGROUP"])
+        elif ud["TYPE_REQUEST"] == "get_list_items":
+            elements_list = ud[API_VAR].get_list_items(ud["ID_HOST"])
+        elif ud["TYPE_REQUEST"] == "get_list_triggers_by_host":
+            elements_list = ud[API_VAR].get_list_triggers_by_host(ud["ID_HOST"])
+        elif ud["TYPE_REQUEST"] == "get_list_triggers_by_item":
+            elements_list = ud[API_VAR].get_list_triggers_by_item(ud["ID_ITEM"])
+        elif ud["TYPE_REQUEST"] == "get_list_problems_by_host":
+            elements_list = ud[API_VAR].get_list_problems_by_host(ud["ID_HOST"])
+        elif ud["TYPE_REQUEST"] == "get_list_problems_by_trigger":
+            elements_list = ud[API_VAR].get_list_problems_by_trigger(
+                ud["ID_TRIGGER"])
+        elif ud["TYPE_REQUEST"] == "get_list_services":
+            elements_list = ud[API_VAR].get_list_services()
+        elif ud["TYPE_REQUEST"] == "get_list_services_parent_child":
+            elements_list = ud[API_VAR].get_list_services_parent_child(
+                ud["PARENT_CHILD_ID"])
+        elif ud["TYPE_REQUEST"] == "get_list_problems_by_service":
+            elements_list = ud[API_VAR].get_list_problems_by_service(
+                ud["PROBLEM_ID"])
+        elif ud["TYPE_REQUEST"] == "get_sla_by_service":
+            elements_list = ud[API_VAR].get_sla_by_service(
+                service_id=ud['ID_SERVICE'])
 
-    # Get correct elements depending the selected page
-    if ud["NUMBER"] < numberPages:
-        elements_list = elements_list[
-            ud["NUMBER"] * numberHostDisplay: (ud["NUMBER"] + 1) * numberHostDisplay
-        ]
-    else:
-        elements_list = elements_list[ud["NUMBER"] * numberHostDisplay:]
+        logger.info("Request %s executed", ud["TYPE_REQUEST"])
+        
+        if ud['OBJECT'] == 'problem':
+            numberHostDisplay = 15
+        else:
+            numberHostDisplay = 26  # Max number of objects by pages
+        numberPages = int(len(elements_list) / numberHostDisplay)
 
-    # Get elements in button_list
-    message, button_list = display_object_button(
-        ud["OBJECT"], elements_list, LANG)
+        # Get correct elements depending the selected page
+        if ud["NUMBER"] < numberPages:
+            elements_list = elements_list[
+                ud["NUMBER"] * numberHostDisplay: (ud["NUMBER"] + 1) * numberHostDisplay
+            ]
+        else:
+            elements_list = elements_list[ud["NUMBER"] * numberHostDisplay:]
 
-    # Create footer elements
-    footer_buttons = list()
-    if ud["NUMBER"] > 0:
-        footer_buttons.append(
-            InlineKeyboardButton(text="<<", callback_data=str(PRECEDENT))
-        )
-    text_button = _("Page %s") % (str(ud["NUMBER"] + 1))
-    footer_buttons.append(
-        InlineKeyboardButton(text=text_button, callback_data=str(ud["NUMBER"]))
-    )
-    if ud["NUMBER"] < numberPages:
-        footer_buttons.append(InlineKeyboardButton(
-            text=">>", callback_data=str(NEXT)))
+        # Get elements in button_list
+        message, button_list = display_object_button(
+            ud["OBJECT"], elements_list, LANG)
 
-    # Create cancel button
-    cancel_button = get_cancel_button()
-    if ud["OBJECT"] == "problem":
-        reply_markup = InlineKeyboardMarkup(
-            build_menu(
-                button_list,
-                n_cols=1,
-                footer_buttons=footer_buttons,
-                cancel_button=cancel_button,
+        display_information = DisplayInformation(LANG, ud[API_VAR])
+        # Create footer elements
+        footer_buttons = list()
+        if ud["NUMBER"] > 0:
+            display_information.add_button_in_list(footer_buttons, "<<", str(PRECEDENT))
+        
+        text_button = _("Page %s") % (str(ud["NUMBER"] + 1))
+        display_information.add_button_in_list(footer_buttons, text_button, str(ud["NUMBER"]))
+
+        if ud["NUMBER"] < numberPages:
+            display_information.add_button_in_list(footer_buttons, ">>", str(NEXT))
+            
+        # Create cancel button
+        cancel_button = display_information.get_cancel_button()
+        if ud["OBJECT"] == "problem":
+            reply_markup = InlineKeyboardMarkup(
+                build_menu(
+                    button_list,
+                    n_cols=1,
+                    footer_buttons=footer_buttons,
+                    cancel_button=cancel_button,
+                )
             )
-        )
-    else:
-        reply_markup = InlineKeyboardMarkup(
-            build_menu(
-                button_list,
-                n_cols=2,
-                footer_buttons=footer_buttons,
-                cancel_button=cancel_button,
+        else:
+            reply_markup = InlineKeyboardMarkup(
+                build_menu(
+                    button_list,
+                    n_cols=2,
+                    footer_buttons=footer_buttons,
+                    cancel_button=cancel_button,
+                )
             )
-        )
-    display_message_bot(update, context, message, reply_markup)
+        display_message_bot(update, context, message, reply_markup)
+    except Exception as e:
+        logger.error("Error in "+ud["TYPE_REQUEST"])
+        return True
 
 
 def list_host(update, context):
     """Display all hosts"""
     ud = context.user_data
-    ud["TYPE_REQUEST"] = "all_host"
+    ud["TYPE_REQUEST"] = "get_list_hosts"
     ud["OBJECT"] = "host"
     ud["NUMBER"] = 0
-    navigation_elements(update, context)
+    error = navigation_elements(update, context)
+    if error :
+        context.user_data[START_OVER] = True
+        message_update = _("*Error* to list all hosts\n\n")
+        start(update, context, message_update)
+        return END
     return CHOOSE_HOST
 
 
@@ -486,10 +328,15 @@ def list_host_with_name(update, context):
     """Display the list of host which contains the name of the host enter by the user"""
     ud = context.user_data
     ud["NAME_HOST"] = update.message.text
-    ud["TYPE_REQUEST"] = "all_host_name"
+    ud["TYPE_REQUEST"] = "get_list_hosts_with_name"
     ud["OBJECT"] = "host"
     ud["NUMBER"] = 0
-    navigation_elements(update, context)
+    error = navigation_elements(update, context)
+    if error :
+        context.user_data[START_OVER] = False
+        message_update = _("*Error* to list host with name\n\n")
+        start(update, context, message_update)
+        return END
     return CHOOSE_HOST
 
 
@@ -497,53 +344,77 @@ def list_host_with_tag(update, context):
     """Display the list of host which contains the tag of the host enter by the user"""
     ud = context.user_data
     ud["TAG_HOST"] = update.message.text
-    ud["TYPE_REQUEST"] = "all_host_tag"
+    ud["TYPE_REQUEST"] = "get_list_hosts_with_tag"
     ud["OBJECT"] = "host"
     ud["NUMBER"] = 0
-    navigation_elements(update, context)
+    error = navigation_elements(update, context)
+    if error :
+        context.user_data[START_OVER] = False
+        message_update = _("*Error* to list host with tag\n\n")
+        start(update, context, message_update)
+        return END
     return CHOOSE_HOST
 
 
 def list_item(update, context):
     """Display the list of item for the host selected by the user"""
     ud = context.user_data
-    ud["TYPE_REQUEST"] = "all_item"
+    ud["TYPE_REQUEST"] = "get_list_items"
     Cdata = json.loads(ud["HOST_INFO"])
     ud["ID_HOST"] = Cdata["HID"]
     ud["OBJECT"] = "item"
     ud["NUMBER"] = 0
-    navigation_elements(update, context)
+    error = navigation_elements(update, context)
+    if error:
+        message_update = _("*Error* to list items\n\n")
+        display_information = DisplayInformation(LANG, ud[API_VAR])
+        display_information.reply_host(update, context, message_update)
+        return DISPLAY_ACTION
     return CHOOSE_ITEM
 
 
 def list_sla_service(update, context):
     ud = context.user_data
-    ud["TYPE_REQUEST"] = "all_sla_service"
+    ud["TYPE_REQUEST"] = "get_sla_by_service"
     Cdata = json.loads(ud["SERVICE_INFO"])
     ud["ID_SERVICE"] = Cdata["SID"]
     ud["OBJECT"] = "sla"
     ud["NUMBER"] = 0
-    navigation_elements(update, context)
+    error = navigation_elements(update, context)
+    if error:
+        message_update = _("*Error* to list SLA\n\n")
+        reply_service(update, context, message_update)
+        return DISPLAY_ACTION_SERVICE
     return CHOOSE_SLA
 
 
 def list_hostgroups(update, context):
     """Display all hostgroups"""
     ud = context.user_data
-    ud["TYPE_REQUEST"] = "all_hostgroup"
+    ud["TYPE_REQUEST"] = "get_list_hostgroups"
     ud["OBJECT"] = "HG"
     ud["NUMBER"] = 0
-    navigation_elements(update, context)
+    error = navigation_elements(update, context)
+    if error :
+        context.user_data[START_OVER] = True
+        message_update = _("*Error* to list hostgroups\n\n")
+        start(update, context, message_update)
+        return END
     return CHOOSE_HOSTGROUP
 
 
 def list_services(update, context):
     """Display all services"""
     ud = context.user_data
-    ud["TYPE_REQUEST"] = "all_service"
+    ud["TYPE_REQUEST"] = "get_list_services"
     ud["OBJECT"] = "service"
     ud["NUMBER"] = 0
-    navigation_elements(update, context)
+    error = navigation_elements(update, context)
+    if error :
+        context.user_data[START_OVER] = True
+        message_update = _("*Error* to list services\n\n")
+        start(update, context, message_update)
+        return END
     return CHOOSE_SERVICE
 
 
@@ -558,13 +429,24 @@ def list_service_parent(update, context):
     """Display all parents services"""
     ud = context.user_data
     Cdata = json.loads(update.callback_query.data)
-    value = ud[API_VAR].get_service_info(Cdata['PARID'])
+    try:
+        value = ud[API_VAR].get_service_info(Cdata['PARID'])
+    except Exception as e:
+        message_update = _("*Error* to list parents service\n\n")
+        reply_service(update, context, message_update)
+        return DISPLAY_ACTION_SERVICE
+
     ud["PARENT_CHILD_ID"] = concatenate_id(
         value[0], "parents", "serviceid")
-    ud["TYPE_REQUEST"] = "all_service_parent"
+    ud["TYPE_REQUEST"] = "get_list_services_parent_child"
     ud["OBJECT"] = "service"
     ud["NUMBER"] = 0
-    navigation_elements(update, context)
+    error = navigation_elements(update, context)
+    if error:
+        message_update = _("*Error* to list parents service\n\n")
+        reply_service(update, context, message_update)
+        return DISPLAY_ACTION_SERVICE
+    
     return CHOOSE_SERVICE
 
 
@@ -572,51 +454,82 @@ def list_service_child(update, context):
     """Display all children services"""
     ud = context.user_data
     Cdata = json.loads(update.callback_query.data)
-    value = ud[API_VAR].get_service_info(Cdata["CHILDID"])
+    try:
+        value = ud[API_VAR].get_service_info(Cdata["CHILDID"])
+    except Exception as e:
+        message_update = _("*Error* to list children service\n\n")
+        reply_service(update, context, message_update)
+        return DISPLAY_ACTION_SERVICE
+
     ud["PARENT_CHILD_ID"] = concatenate_id(
         value[0], "children", "serviceid")
-    ud["TYPE_REQUEST"] = "all_service_parent"
+    ud["TYPE_REQUEST"] = "get_list_services_parent_child"
     ud["OBJECT"] = "service"
     ud["NUMBER"] = 0
-    navigation_elements(update, context)
+    error = navigation_elements(update, context)
+    if error:
+        message_update = _("*Error* to list children service\n\n")
+        reply_service(update, context, message_update)
+        return DISPLAY_ACTION_SERVICE
     return CHOOSE_SERVICE
 
 
 def list_problem_by_service(update, context):
     """Display the list of problem for the service selected by the user"""
     ud = context.user_data
-    ud["TYPE_REQUEST"] = "all_problem_service"
+    ud["TYPE_REQUEST"] = "get_list_problems_by_service"
     Cdata = json.loads(update.callback_query.data)
-    value = ud[API_VAR].get_service_info(Cdata["PROID"])
+
+    try:
+        value = ud[API_VAR].get_service_info(Cdata["PROID"])
+    except Exception as e:
+        message_update = _("*Error* to list problems\n\n")
+        reply_service(update, context, message_update)
+        return DISPLAY_ACTION_SERVICE
+
     ud["PROBLEM_ID"] = concatenate_id(
         value[0], "problem_events", "eventid")
     ud["OBJECT"] = "problem"
     ud["NUMBER"] = 0
-    navigation_elements(update, context)
+    error = navigation_elements(update, context)
+    if error:
+        message_update = _("*Error* to list problems\n\n")
+        reply_service(update, context, message_update)
+        return DISPLAY_ACTION_SERVICE
     return CHOOSE_PROBLEM
 
 
 def list_trigger_by_host(update, context):
     """Display the list of trigger for the host selected by the user"""
     ud = context.user_data
-    ud["TYPE_REQUEST"] = "all_trigger_host"
+    ud["TYPE_REQUEST"] = "get_list_triggers_by_host"
     Cdata = json.loads(ud["HOST_INFO"])
     ud["ID_HOST"] = Cdata["HID"]
     ud["OBJECT"] = "trigger"
     ud["NUMBER"] = 0
-    navigation_elements(update, context)
+    error = navigation_elements(update, context)
+    if error:
+        message_update = _("*Error* to list triggers\n\n")
+        display_information = DisplayInformation(LANG, ud[API_VAR])
+        display_information.reply_host(update, context, message_update)
+        return DISPLAY_ACTION
     return CHOOSE_TRIGGER
 
 
 def list_trigger_by_item(update, context):
     """Display the list of trigger for the item selected by the user"""
     ud = context.user_data
-    ud["TYPE_REQUEST"] = "all_trigger_item"
+    ud["TYPE_REQUEST"] = "get_list_triggers_by_item"
     Cdata = json.loads(ud["ITEM_INFO"])
     ud["ID_ITEM"] = Cdata["IID"]
     ud["OBJECT"] = "trigger"
     ud["NUMBER"] = 0
-    navigation_elements(update, context)
+    error = navigation_elements(update, context)
+    if error:
+        message_update = _("*Error* to list triggers\n\n")
+        display_information = DisplayInformation(LANG, ud[API_VAR])
+        display_information.reply_item(update, context, message_update)
+        return DISPLAY_ACTION_ITEM
     return CHOOSE_TRIGGER
 
 
@@ -626,389 +539,65 @@ def select_hostgroups(update, context):
     ud["HOSTGROUP_INFO"] = update.callback_query.data
     Cdata = json.loads(ud["HOSTGROUP_INFO"])
     ud["ID_HOSTGROUP"] = Cdata["HGID"]
-    ud["TYPE_REQUEST"] = "all_host_hostgroup"
+    ud["TYPE_REQUEST"] = "get_list_hosts_with_hostgroup"
     ud["OBJECT"] = "host"
     ud["NUMBER"] = 0
-    navigation_elements(update, context)
+    error = navigation_elements(update, context)
+    if error :
+        context.user_data[START_OVER] = True
+        message_update = _("*Error* to select hosts in hostgroup\n\n")
+        start(update, context, message_update)
+        return END
+    logger.info("Request select host in hostgroup executed")
     return CHOOSE_HOST
 
 
 def list_problem_by_host(update, context):
     """Display the list of problem for the host selected by the user"""
     ud = context.user_data
-    ud["TYPE_REQUEST"] = "all_problem_host"
+    ud["TYPE_REQUEST"] = "get_list_problems_by_host"
     Cdata = json.loads(ud["HOST_INFO"])
     ud["ID_HOST"] = Cdata["HID"]
     ud["OBJECT"] = "problem"
     ud["NUMBER"] = 0
-    navigation_elements(update, context)
+    error = navigation_elements(update, context)
+    if error:
+        message_update = _("*Error* to list problems\n\n")
+        display_information = DisplayInformation(LANG, ud[API_VAR])
+        display_information.reply_host(update, context, message_update)
+        return DISPLAY_ACTION
     return CHOOSE_PROBLEM
 
 
 def list_problem_by_trigger(update, context):
     """Display the list of problem for the trigger selected by the user"""
     ud = context.user_data
-    ud["TYPE_REQUEST"] = "all_problem_trigger"
+    ud["TYPE_REQUEST"] = "get_list_problems_by_trigger"
     Cdata = json.loads(ud["TRIGGER_INFO"])
     ud["ID_TRIGGER"] = Cdata["TID"]
     ud["OBJECT"] = "problem"
     ud["NUMBER"] = 0
-    navigation_elements(update, context)
+    error = navigation_elements(update, context)
+    if error:
+        message_update = _("*Error* to list problems\n\n")
+        display_information = DisplayInformation(LANG, ud[API_VAR])
+        display_information.reply_trigger(update, context, message_update)
+        return DISPLAY_ACTION_TRIGGER
     return CHOOSE_PROBLEM
-
-
-def display_action_host(context):
-    """Return buttons list for create host menu"""
-    ud = context.user_data
-    button_list = list()
-    Cdata = json.loads(ud["HOST_INFO"])
-    hostID = Cdata["HID"]
-    list_host = ud[API_VAR].get_host_info(hostID)
-    list_host_problems = ud[API_VAR].get_host_problem(hostID)
-
-    for host in list_host:
-        # Display enable or not
-        if host["status"] == "0":
-            button_list.append(
-                InlineKeyboardButton(
-                    text=telegramEmojiDict["prohibited"] + _("Disable"),
-                    callback_data=str(DISABLE_HOST),
-                )
-            )
-        else:
-            button_list.append(
-                InlineKeyboardButton(
-                    text=telegramEmojiDict["check mark button"] + _("Enable"),
-                    callback_data=str(ENABLE_HOST),
-                )
-            )
-
-        # Display items button if it has item
-        if len(host["items"]) != 0:
-            button_list.append(
-                InlineKeyboardButton(
-                    text=telegramEmojiDict["spiral notepad"] + _("Items"),
-                    callback_data=str(ITEM_MENU),
-                )
-            )
-            button_list.append(
-                InlineKeyboardButton(
-                    text=telegramEmojiDict["memo"] + _("Last values"),
-                    callback_data=str(LAST_VALUE),
-                )
-            )
-
-        # Display triggers button if it has trigger
-        if len(host["triggers"]) != 0:
-            button_list.append(
-                InlineKeyboardButton(
-                    text=telegramEmojiDict["vertical traffic light"] +
-                    _("Triggers"),
-                    callback_data=str(TRIGGER_MENU),
-                )
-            )
-
-        # Display groups button if it has group
-        if len(host["groups"]) != 0:
-            button_list.append(
-                InlineKeyboardButton(
-                    text=telegramEmojiDict["laptop"]
-                    + telegramEmojiDict["laptop"] +
-                    _("Back to group"),
-                    callback_data='{"HGID":"' +
-                    host['groups'][0]['groupid']+'"}',
-                )
-            )
-
-        # Display problems button if it has problem
-        if len(list_host_problems) != 0:
-            button_list.append(
-                InlineKeyboardButton(
-                    text=telegramEmojiDict["police car light"] + _("Problems"),
-                    callback_data=str(PROBLEM_MENU),
-                )
-            )
-        if type(host['inventory']) != list and host['inventory']['location_lat'] != "" and host['inventory']['location_lon'] != "":
-            button_list.append(
-                InlineKeyboardButton(
-                    text=telegramEmojiDict["world map"] + _("Location"),
-                    callback_data=str(LOCATION_MENU),
-                )
-            )
-
-        button_list.append(
-            InlineKeyboardButton(
-                text=telegramEmojiDict["page with curl"] +
-                _("Report PDF"),
-                callback_data=str(PDF_MENU),
-            )
-        )
-
-    cancel_button = get_cancel_button()
-    return button_list, cancel_button
-
-
-def display_action_item(context):
-    """Return buttons list for create item menu"""
-    ud = context.user_data
-    button_list = list()
-    Cdata = json.loads(ud["ITEM_INFO"])
-    itemID = Cdata["IID"]
-    list_item = ud[API_VAR].get_item_info(itemID)
-
-    for item in list_item:
-        # Display enable or not
-        if item["status"] == "0":
-            button_list.append(
-                InlineKeyboardButton(
-                    text=telegramEmojiDict["prohibited"] + _("Disable"),
-                    callback_data=str(DISABLE_ITEM),
-                )
-            )
-        else:
-            button_list.append(
-                InlineKeyboardButton(
-                    text=telegramEmojiDict["check mark button"] + _("Enable"),
-                    callback_data=str(ENABLE_ITEM),
-                )
-            )
-
-        # Display graph button if his value type in unsigned or float
-        if item["value_type"] == "0" or item["value_type"] == "3":
-            button_list.append(
-                InlineKeyboardButton(
-                    text=telegramEmojiDict["chart decreasing"] + _("Graph"),
-                    callback_data=str(GRAPH_MENU),
-                )
-            )
-
-        # Display triggers button if it has trigger
-        if len(item["triggers"]) != 0:
-            button_list.append(
-                InlineKeyboardButton(
-                    text=telegramEmojiDict["vertical traffic light"] +
-                    _("Triggers"),
-                    callback_data=str(TRIGGER_MENU),
-                )
-            )
-
-        # Display host button if it has one
-        if len(item["hosts"]) != 0:
-            button_list.append(
-                InlineKeyboardButton(
-                    text=telegramEmojiDict["laptop"] + _("Host"),
-                    callback_data='{"HID":"' +
-                    item["hosts"][0]["hostid"] + '"}',
-                )
-            )
-
-    cancel_button = get_cancel_button()
-    return button_list, cancel_button
-
-
-def display_action_trigger(context):
-    """Return buttons list for create trigger menu"""
-    ud = context.user_data
-    button_list = list()
-    Cdata = json.loads(ud["TRIGGER_INFO"])
-    triggerID = Cdata["TID"]
-    list_trigger = ud[API_VAR].get_trigger_info(triggerID)
-    list_trigger_problems = ud[API_VAR].get_trigger_problem(triggerID)
-
-    for trigger in list_trigger:
-        # Display enable or not
-        if trigger["status"] == "0":
-            button_list.append(
-                InlineKeyboardButton(
-                    text=telegramEmojiDict["prohibited"] + _("Disable"),
-                    callback_data=str(DISABLE_TRIGGER),
-                )
-            )
-        else:
-            button_list.append(
-                InlineKeyboardButton(
-                    text=telegramEmojiDict["check mark button"] + _("Enable"),
-                    callback_data=str(ENABLE_TRIGGER),
-                )
-            )
-
-        # Display items button if it has item
-        if len(trigger["items"]) != 0:
-            button_list.append(
-                InlineKeyboardButton(
-                    text=telegramEmojiDict["spiral notepad"] + _("Item"),
-                    callback_data='{"IID":"' +
-                    trigger["items"][0]["itemid"] + '"}',
-                )
-            )
-
-        # Display host button if it has one
-        if len(trigger["hosts"]) != 0:
-            button_list.append(
-                InlineKeyboardButton(
-                    text=telegramEmojiDict["laptop"] + _("Host"),
-                    callback_data='{"HID":"' +
-                    trigger["hosts"][0]["hostid"] + '"}',
-                )
-            )
-
-        # Display problems button if it has problem
-        if len(list_trigger_problems) != 0:
-            button_list.append(
-                InlineKeyboardButton(
-                    text=telegramEmojiDict["police car light"] + _("Problems"),
-                    callback_data=str(PROBLEM_MENU),
-                )
-            )
-
-    cancel_button = get_cancel_button()
-    return button_list, cancel_button
-
-
-def display_action_problem(context):
-    """Return buttons list for create problem menu"""
-    ud = context.user_data
-    button_list = list()
-    Cdata = json.loads(ud["PROBLEM_INFO"])
-    problemID = Cdata["PID"]
-    list_problem = ud[API_VAR].get_event_info(problemID)
-    for problem in list_problem:
-        # Display trigger buttons if problem is bind to trigger
-        if problem["object"] == "0":
-            button_list.append(
-                InlineKeyboardButton(
-                    text=telegramEmojiDict["vertical traffic light"] +
-                    _("Trigger"),
-                    callback_data='{"TID":"' + problem["objectid"] + '"}',
-                )
-            )
-
-        # Display host button if it has one
-        if len(problem["hosts"]) != 0:
-            button_list.append(
-                InlineKeyboardButton(
-                    text=telegramEmojiDict["laptop"] + _("Host"),
-                    callback_data='{"HID":"' +
-                    problem["hosts"][0]["hostid"] + '"}',
-                )
-            )
-
-        # Display acknowledge or unacknowledge button
-        if problem["acknowledged"] == "0":
-            button_list.append(
-                InlineKeyboardButton(
-                    text=telegramEmojiDict["check mark button"] +
-                    _("Acknowledge"),
-                    callback_data=str(ACKNOWLEDGE),
-                )
-            )
-        else:
-            button_list.append(
-                InlineKeyboardButton(
-                    text=telegramEmojiDict["cross mark"] + _("Unacknowledge"),
-                    callback_data=str(UNACKNOWLEDGE),
-                )
-            )
-
-        # Display send messsage button
-        button_list.append(
-            InlineKeyboardButton(
-                text=telegramEmojiDict["speech balloon"] + _("Send message"),
-                callback_data=str(MESSAGE_MENU),
-            )
-        )
-
-        # Display change severity button
-        button_list.append(
-            InlineKeyboardButton(
-                text=telegramEmojiDict["horizontal traffic light"]
-                + _("Change severity"),
-                callback_data=str(CHANGE_SEVERITY_MENU),
-            )
-        )
-
-    cancel_button = get_cancel_button()
-    return button_list, cancel_button
-
-
-def display_action_service(context):
-    """Return buttons list for create service menu"""
-    ud = context.user_data
-    button_list = list()
-    Cdata = json.loads(ud["SERVICE_INFO"])
-    serviceID = Cdata["SID"]
-    list_service = ud[API_VAR].get_service_info(serviceID)
-    list_sla = ud[API_VAR].get_sla_by_service(serviceID)
-    for service in list_service:
-
-        # Display parent button if it has one
-        if len(service["parents"]) != 0:
-            button_list.append(
-                InlineKeyboardButton(
-                    text=telegramEmojiDict["level slider"] +
-                    telegramEmojiDict["baby"] +
-                    _("Parents service"),
-                    callback_data='{"PARID":"' +
-                    service['serviceid'] + '"}',
-                )
-            )
-
-        # Display children button if it has one
-        if len(service["children"]) != 0:
-            button_list.append(
-                InlineKeyboardButton(
-                    text=telegramEmojiDict["level slider"] +
-                    telegramEmojiDict["older person"] +
-                    _("Children service"),
-                    callback_data='{"CHILDID":"' +
-                    service['serviceid'] + '"}',
-                )
-            )
-
-        # Display problem button if it has one
-        if len(service["problem_events"]) != 0:
-            button_list.append(
-                InlineKeyboardButton(
-                    text=telegramEmojiDict["police car light"] +
-                    _("Problems"),
-                    callback_data='{"PROID":"' +
-                    service['serviceid'] + '"}',
-                )
-            )
-
-        # Display sla button
-        if len(list_sla) != 0:
-            button_list.append(
-                InlineKeyboardButton(
-                    text=telegramEmojiDict["bar chart"] +
-                    _("SLA"),
-                    callback_data=str(SLA_MENU),
-                )
-            )
-
-        button_list.append(
-            InlineKeyboardButton(
-                text=telegramEmojiDict["page with curl"] +
-                _("Report PDF"),
-                callback_data=str(PDF_MENU),
-            )
-        )
-
-    cancel_button = get_cancel_button()
-    return button_list, cancel_button
-
 
 def get_host(update, context):
     """Go back to host after last values"""
     ud = context.user_data
     ud["HOST_INFO"] = update.callback_query.data
     ud['OBJECT'] = 'host'
-    message = display_host_characteristics(context, LANG, ud[API_VAR])
-    button_list, cancel_button = display_action_host(context)
+    display_information = DisplayInformation(LANG, ud[API_VAR])
+    message, list_host = display_host_characteristics(context, LANG, ud[API_VAR])
+    button_list, cancel_button = display_information.display_action_host(context, list_host)
     reply_markup = InlineKeyboardMarkup(
         build_menu(button_list, n_cols=2, cancel_button=cancel_button)
     )
     display_message_bot(update, context, message, reply_markup)
+    logger.info("Request get host executed")
     return END
 
 
@@ -1018,12 +607,14 @@ def select_host(update, context):
     ud = context.user_data
     ud["HOST_INFO"] = update.callback_query.data
     ud['OBJECT'] = 'host'
-    message = display_host_characteristics(context, LANG, ud[API_VAR])
-    button_list, cancel_button = display_action_host(context)
+    display_information = DisplayInformation(LANG, ud[API_VAR])
+    message, list_host = display_host_characteristics(context, LANG, ud[API_VAR])
+    button_list, cancel_button = display_information.display_action_host(context, list_host)
     reply_markup = InlineKeyboardMarkup(
         build_menu(button_list, n_cols=2, cancel_button=cancel_button)
     )
     display_message_bot(update, context, message, reply_markup)
+    logger.info("Request select host executed")
     return DISPLAY_ACTION
 
 
@@ -1032,13 +623,14 @@ def select_item(update, context):
     """Display all informations and button about item selected"""
     ud = context.user_data
     ud["ITEM_INFO"] = update.callback_query.data
-    message = display_item_characteristics(context, LANG, ud[API_VAR])
-    button_list, cancel_button = display_action_item(context)
+    display_information = DisplayInformation(LANG, ud[API_VAR])
+    message, list_item = display_item_characteristics(context, LANG, ud[API_VAR])
+    button_list, cancel_button = display_information.display_action_item(list_item)
     reply_markup = InlineKeyboardMarkup(
         build_menu(button_list, n_cols=2, cancel_button=cancel_button)
     )
     display_message_bot(update, context, message, reply_markup)
-
+    logger.info("Request select item executed")
     return DISPLAY_ACTION_ITEM
 
 
@@ -1047,12 +639,14 @@ def select_trigger(update, context):
     """Display all informations and button about trigger selected"""
     ud = context.user_data
     ud["TRIGGER_INFO"] = update.callback_query.data
-    message = display_trigger_characteristics(context, LANG, ud[API_VAR])
-    button_list, cancel_button = display_action_trigger(context)
+    display_information = DisplayInformation(LANG, ud[API_VAR])
+    message, list_trigger = display_trigger_characteristics(context, LANG, ud[API_VAR])
+    button_list, cancel_button = display_information.display_action_trigger(context,list_trigger)
     reply_markup = InlineKeyboardMarkup(
         build_menu(button_list, n_cols=2, cancel_button=cancel_button)
     )
     display_message_bot(update, context, message, reply_markup)
+    logger.info("Request select trigger executed")
     return DISPLAY_ACTION_TRIGGER
 
 
@@ -1061,12 +655,14 @@ def select_problem(update, context):
     """Display all informations and button about problem selected"""
     ud = context.user_data
     ud["PROBLEM_INFO"] = update.callback_query.data
-    message = display_problem_characteristics(context, LANG, ud[API_VAR])
-    button_list, cancel_button = display_action_problem(context)
+    display_information = DisplayInformation(LANG, ud[API_VAR])
+    message,list_problem = display_problem_characteristics(context, LANG, ud[API_VAR])
+    button_list, cancel_button = display_information.display_action_problem(list_problem)
     reply_markup = InlineKeyboardMarkup(
         build_menu(button_list, n_cols=2, cancel_button=cancel_button)
     )
     display_message_bot(update, context, message, reply_markup)
+    logger.info("Request select problem executed")
     return DISPLAY_ACTION_PROBLEM
 
 
@@ -1075,12 +671,8 @@ def select_service(update, context):
     """Display all informations and button about service selected"""
     ud = context.user_data
     ud["SERVICE_INFO"] = update.callback_query.data
-    message = display_service_characteristics(context, LANG, ud[API_VAR])
-    button_list, cancel_button = display_action_service(context)
-    reply_markup = InlineKeyboardMarkup(
-        build_menu(button_list, n_cols=2, cancel_button=cancel_button)
-    )
-    display_message_bot(update, context, message, reply_markup)
+    reply_service(update, context, "")
+    logger.info("Request select service executed")
     return DISPLAY_ACTION_SERVICE
 
 
@@ -1095,16 +687,11 @@ def select_sla(update, context):
     Cdata = json.loads(ud['SLA_INFO'])
     slaID = Cdata['SLAID']
     message = get_table_sla_report(LANG, ud[API_VAR], serviceID, slaID)
-    cancel_button = get_cancel_button()
+    display_information = DisplayInformation(LANG, ud[API_VAR])
+    cancel_button = display_information.get_cancel_button()
     button_list = list()
-    button_list.append(
-        InlineKeyboardButton(
-            text=telegramEmojiDict["level slider"] +
-            _("Back to service"),
-            callback_data='{"SID":"' +
-            serviceID + '"}',
-        )
-    )
+    display_information.add_button_in_list(button_list, telegramEmojiDict["level slider"] +_("Back to service"), '{"SID":"' +serviceID + '"}')
+
     reply_markup = InlineKeyboardMarkup(
         build_menu(button_list, n_cols=2, cancel_button=cancel_button)
     )
@@ -1113,8 +700,8 @@ def select_sla(update, context):
         parse_mode=ParseMode.MARKDOWN_V2,
         reply_markup=reply_markup,
     )
+    logger.info("Request select SLA executed")
     return DISPLAY_ACTION_SLA
-
 
 @send_typing_action
 def enable_host(update, context):
@@ -1122,19 +709,15 @@ def enable_host(update, context):
     ud = context.user_data
     Cdata = json.loads(ud["HOST_INFO"])
     host_ID = Cdata["HID"]
-    ud[API_VAR].update_host_status(host_ID, 0)
-    message_update = _("Host enabled OK\n")
-    button_list, cancel_button = display_action_host(context)
-    reply_markup = InlineKeyboardMarkup(
-        build_menu(button_list, n_cols=2, cancel_button=cancel_button)
-    )
-    message_object = display_host_characteristics(context, LANG, ud[API_VAR])
-    update.callback_query.edit_message_text(
-        text=message_update + message_object,
-        parse_mode=ParseMode.MARKDOWN,
-        reply_markup=reply_markup,
-    )
-
+    try:
+        ud[API_VAR].update_host_status(host_ID, 0)
+        message_update = _("Host enabled OK\n")
+    except Exception as e:
+        logger.error("Error to enable host")
+        message_update = _("*Error* to enable host\n\n")
+    display_information = DisplayInformation(LANG, ud[API_VAR])
+    display_information.reply_host(update, context, message_update)
+    logger.info("Request enable host executed")
 
 @send_typing_action
 def disable_host(update, context):
@@ -1142,19 +725,15 @@ def disable_host(update, context):
     ud = context.user_data
     Cdata = json.loads(ud["HOST_INFO"])
     host_ID = Cdata["HID"]
-    ud[API_VAR].update_host_status(host_ID, 1)
-    message_update = _("Host disabled OK\n")
-    button_list, cancel_button = display_action_host(context)
-    reply_markup = InlineKeyboardMarkup(
-        build_menu(button_list, n_cols=2, cancel_button=cancel_button)
-    )
-    message_object = display_host_characteristics(context, LANG, ud[API_VAR])
-    update.callback_query.edit_message_text(
-        text=message_update + message_object,
-        parse_mode=ParseMode.MARKDOWN,
-        reply_markup=reply_markup,
-    )
-
+    try:
+        ud[API_VAR].update_host_status(host_ID, 1)
+        message_update = _("Host disabled OK\n")
+    except Exception as e:
+        logger.error("Error to disable host")
+        message_update = _("*Error* to disable host\n\n")
+    display_information = DisplayInformation(LANG, ud[API_VAR])
+    display_information.reply_host(update, context, message_update)
+    logger.info("Request disable host executed")
 
 @send_typing_action
 def enable_item(update, context):
@@ -1162,19 +741,15 @@ def enable_item(update, context):
     ud = context.user_data
     Cdata = json.loads(ud["ITEM_INFO"])
     item_ID = Cdata["IID"]
-    ud[API_VAR].update_item_status(item_ID, 0)
-    message_update = _("Item enabled OK\n")
-    button_list, cancel_button = display_action_item(context)
-    reply_markup = InlineKeyboardMarkup(
-        build_menu(button_list, n_cols=2, cancel_button=cancel_button)
-    )
-    message_object = display_item_characteristics(context, LANG, ud[API_VAR])
-    update.callback_query.edit_message_text(
-        text=message_update + message_object,
-        parse_mode=ParseMode.MARKDOWN,
-        reply_markup=reply_markup,
-    )
-
+    try:
+        ud[API_VAR].update_item_status(item_ID, 0)
+        message_update = _("Item enabled OK\n")
+    except Exception as e:
+        logger.error("Error to enable item")
+        message_update = _("*Error* to enable item\n\n")
+    display_information = DisplayInformation(LANG, ud[API_VAR])
+    display_information.reply_item(update, context, message_update)
+    logger.info("Request enable item executed")
 
 @send_typing_action
 def disable_item(update, context):
@@ -1182,19 +757,15 @@ def disable_item(update, context):
     ud = context.user_data
     Cdata = json.loads(ud["ITEM_INFO"])
     item_ID = Cdata["IID"]
-    ud[API_VAR].update_item_status(item_ID, 1)
-    message_update = _("Item disabled OK\n")
-    button_list, cancel_button = display_action_item(context)
-    reply_markup = InlineKeyboardMarkup(
-        build_menu(button_list, n_cols=2, cancel_button=cancel_button)
-    )
-    message_object = display_item_characteristics(context, LANG, ud[API_VAR])
-    update.callback_query.edit_message_text(
-        text=message_update + message_object,
-        parse_mode=ParseMode.MARKDOWN,
-        reply_markup=reply_markup,
-    )
-
+    try:
+        ud[API_VAR].update_item_status(item_ID, 1)
+        message_update = _("Item disabled OK\n")
+    except Exception as e:
+        logger.error("Error to disable item")
+        message_update = _("*Error* to disable item\n\n")
+    display_information = DisplayInformation(LANG, ud[API_VAR])
+    display_information.reply_item(update, context, message_update)
+    logger.info("Request disable item executed")
 
 @send_typing_action
 def enable_trigger(update, context):
@@ -1202,19 +773,15 @@ def enable_trigger(update, context):
     ud = context.user_data
     Cdata = json.loads(ud["TRIGGER_INFO"])
     trigger_ID = Cdata["TID"]
-    ud[API_VAR].update_trigger_status(trigger_ID, 0)
-    message_update = _("Trigger enabled OK\n")
-    button_list, cancel_button = display_action_trigger(context)
-    reply_markup = InlineKeyboardMarkup(
-        build_menu(button_list, n_cols=2, cancel_button=cancel_button)
-    )
-    message_object = display_trigger_characteristics(
-        context, LANG, ud[API_VAR])
-    update.callback_query.edit_message_text(
-        text=message_update + message_object,
-        parse_mode=ParseMode.MARKDOWN,
-        reply_markup=reply_markup,
-    )
+    try:
+        ud[API_VAR].update_trigger_status(trigger_ID, 0)
+        message_update = _("Trigger enabled OK\n")
+    except Exception as e:
+        logger.error("Error to enable trigger")
+        message_update = _("*Error* to enable trigger\n\n")
+    display_information = DisplayInformation(LANG, ud[API_VAR])
+    display_information.reply_trigger(update, context, message_update)
+    logger.info("Request enable trigger executed")
 
 
 @send_typing_action
@@ -1223,19 +790,16 @@ def disable_trigger(update, context):
     ud = context.user_data
     Cdata = json.loads(ud["TRIGGER_INFO"])
     trigger_ID = Cdata["TID"]
-    ud[API_VAR].update_trigger_status(trigger_ID, 1)
-    message_update = _("Trigger disabled OK\n")
-    button_list, cancel_button = display_action_trigger(context)
-    reply_markup = InlineKeyboardMarkup(
-        build_menu(button_list, n_cols=2, cancel_button=cancel_button)
-    )
-    message_object = display_trigger_characteristics(
-        context, LANG, ud[API_VAR])
-    update.callback_query.edit_message_text(
-        text=message_update + message_object,
-        parse_mode=ParseMode.MARKDOWN,
-        reply_markup=reply_markup,
-    )
+    try:
+        ud[API_VAR].update_trigger_status(trigger_ID, 1)
+        message_update = _("Trigger disabled OK\n")
+    except Exception as e:
+        logger.error("Error to disable trigger")
+        message_update = _("*Error* to disable trigger\n\n")
+    display_information = DisplayInformation(LANG, ud[API_VAR])
+    display_information.reply_trigger(update, context, message_update)
+    logger.info("Request disable trigger executed")
+
 
 
 @send_typing_action
@@ -1244,19 +808,15 @@ def acknowledge_problem(update, context):
     ud = context.user_data
     Cdata = json.loads(ud["PROBLEM_INFO"])
     problem_ID = Cdata["PID"]
-    ud[API_VAR].action_event(problem_ID, 2)
-    message_update = _("Problem acknowledged OK\n")
-    button_list, cancel_button = display_action_problem(context)
-    reply_markup = InlineKeyboardMarkup(
-        build_menu(button_list, n_cols=2, cancel_button=cancel_button)
-    )
-    message_object = display_problem_characteristics(
-        context, LANG, ud[API_VAR])
-    update.callback_query.edit_message_text(
-        text=message_update + message_object,
-        parse_mode=ParseMode.MARKDOWN,
-        reply_markup=reply_markup,
-    )
+    try:
+        ud[API_VAR].action_event(problem_ID, 2)
+        message_update = _("Problem acknowledged OK\n")
+    except Exception as e:
+        logger.error("Error to acknowledge problem")
+        message_update = _("*Error* to acknowledge problem\n\n")
+    display_information = DisplayInformation(LANG, ud[API_VAR])
+    display_information.reply_problem(update, context, message_update)
+    logger.info("Request acknowledge problem executed")
 
 
 @send_typing_action
@@ -1265,20 +825,15 @@ def unacknowledge_problem(update, context):
     ud = context.user_data
     Cdata = json.loads(ud["PROBLEM_INFO"])
     problem_ID = Cdata["PID"]
-    ud[API_VAR].action_event(problem_ID, 16)
-    message_update = _("Problem unacknowledged OK\n")
-    button_list, cancel_button = display_action_problem(context)
-    reply_markup = InlineKeyboardMarkup(
-        build_menu(button_list, n_cols=2, cancel_button=cancel_button)
-    )
-    message_object = display_problem_characteristics(
-        context, LANG, ud[API_VAR])
-    update.callback_query.edit_message_text(
-        text=message_update + message_object,
-        parse_mode=ParseMode.MARKDOWN,
-        reply_markup=reply_markup,
-    )
-
+    try:
+        ud[API_VAR].action_event(problem_ID, 16)
+        message_update = _("Problem unacknowledged OK\n")
+    except Exception as e:
+        logger.error("Error to unacknowledge problem")
+        message_update = _("*Error* to unacknowledge problem\n\n")
+    display_information = DisplayInformation(LANG, ud[API_VAR])
+    display_information.reply_problem(update, context, message_update)
+    logger.info("Request unacknowledge problem executed")
 
 @send_typing_action
 def show_location_host(update, context):
@@ -1286,23 +841,25 @@ def show_location_host(update, context):
     ud = context.user_data
     Cdata = json.loads(ud["HOST_INFO"])
     host_ID = Cdata["HID"]
-    information_host = ud[API_VAR].get_host_info(host_ID)
-    button_list = list()
-    button_list.append(
-        InlineKeyboardButton(
-            text=telegramEmojiDict["laptop"] +
-            _("Back to host"),
-            callback_data='{"HID":"' +
-            host_ID + '"}',
+    try:
+        information_host = ud[API_VAR].get_host_info(host_ID)
+        button_list = list()
+        display_information = DisplayInformation(LANG, ud[API_VAR])
+        display_information.add_button_in_list(button_list, telegramEmojiDict["laptop"] + _("Back to host"), '{"HID":"' + host_ID + '"}')
+        reply_markup = InlineKeyboardMarkup(
+            build_menu(button_list, n_cols=2)
         )
-    )
-    reply_markup = InlineKeyboardMarkup(
-        build_menu(button_list, n_cols=2)
-    )
-    context.bot.sendLocation(
-        chat_id=update.effective_chat.id, latitude=float(information_host[0]['inventory']['location_lat']), longitude=float(information_host[0]['inventory']['location_lon']), reply_markup=reply_markup
-    )
-    ud['AFTER_GRAPH'] = True
+        context.bot.sendLocation(
+            chat_id=update.effective_chat.id, latitude=float(information_host[0]['inventory']['location_lat']), longitude=float(information_host[0]['inventory']['location_lon']), reply_markup=reply_markup
+        )
+        ud['AFTER_GRAPH'] = True
+    except Exception as e:
+        logger.error("Error to get location")
+        message_update = _("*Error* to get location\n\n")
+        display_information = DisplayInformation(LANG, ud[API_VAR])
+        display_information.reply_host(update, context, message_update)
+        return END
+    logger.info("Request show host location executed")
     return DIPLAY_ACTION_LOCATION
 
 
@@ -1315,55 +872,64 @@ def delete_image_after(list_images):
 @send_document_action
 def send_pdf(update, context):
     ud = context.user_data
-    if ud['OBJECT'] == "host":
-        Cdata = json.loads(ud["HOST_INFO"])
-        host_ID = Cdata["HID"]
-        report_host = ReportHost(
-            api=ud[API_VAR], host_id=host_ID, LANG=LANG)
-        file, list_images = report_host.create_report()
-        button_list = list()
-        button_list.append(
-            InlineKeyboardButton(
-                text=telegramEmojiDict["laptop"] +
-                _("Back to host"),
-                callback_data='{"HID":"'+host_ID+'"}',
-            )
+    display_information = DisplayInformation(LANG, ud[API_VAR])
+    try:
+        if ud['OBJECT'] == "host":
+            Cdata = json.loads(ud["HOST_INFO"])
+            host_ID = Cdata["HID"]
+            report_host = ReportHost(
+                api=ud[API_VAR], host_id=host_ID, LANG=LANG)
+            file, list_images = report_host.create_report()
+            button_list = list()
+            display_information.add_button_in_list(button_list, telegramEmojiDict["laptop"] + _("Back to host"), '{"HID":"'+host_ID+'"}')
+        elif ud['OBJECT'] == 'service':
+            Cdata = json.loads(ud["SERVICE_INFO"])
+            service_ID = Cdata["SID"]
+            report_service = ReportService(
+                api=ud[API_VAR], service_id=service_ID, LANG=LANG)
+            file, list_images = report_service.create_report()
+            button_list = list()
+            display_information.add_button_in_list(button_list, telegramEmojiDict["level slider"] + _("Back to service"), '{"SID":"'+service_ID+'"}')
+        reply_markup = InlineKeyboardMarkup(
+            build_menu(button_list, n_cols=2)
         )
-    elif ud['OBJECT'] == 'service':
-        Cdata = json.loads(ud["SERVICE_INFO"])
-        service_ID = Cdata["SID"]
-        report_service = ReportService(
-            api=ud[API_VAR], service_id=service_ID, LANG=LANG)
-        file, list_images = report_service.create_report()
-        button_list = list()
-        button_list.append(
-            InlineKeyboardButton(
-                text=telegramEmojiDict["level slider"] +
-                _("Back to service"),
-                callback_data='{"SID":"'+service_ID+'"}',
-            )
-        )
-    reply_markup = InlineKeyboardMarkup(
-        build_menu(button_list, n_cols=2)
-    )
-    # send the pdf doc
-    context.bot.sendDocument(
-        chat_id=update.effective_chat.id, document=open(file, 'rb'), reply_markup=reply_markup, timeout=100)
-    ud['AFTER_GRAPH'] = True
-    delete_image_after(list_images=list_images)
+        # send the pdf doc
+        context.bot.sendDocument(
+            chat_id=update.effective_chat.id, document=open(file, 'rb'), reply_markup=reply_markup, timeout=100)
+        ud['AFTER_GRAPH'] = True
+        delete_image_after(list_images=list_images)
+
+    except Exception as e:
+        if ud['OBJECT']=='host':
+            logger.error("Error to generate host report")
+            message_update = _("*Error* to generate host report\n\n")
+            display_information = DisplayInformation(LANG, ud[API_VAR])
+            display_information.reply_host(update, context, message_update)
+            return END
+        elif ud['OBJECT'] == 'service':
+            logger.error("Error to generate service report")
+            message_update = _("*Error* to generate service report\n\n")
+            reply_service(update, context, message_update)
+            return END_SERVICE
+    logger.info("Request send PDF executed")
     return DISPLAY_ACTION_PDF
 
+def reply_service(update, context, message_update):
+    ud = context.user_data
+    display_information = DisplayInformation(LANG, ud[API_VAR])
+    message, list_service = display_service_characteristics(context, LANG, ud[API_VAR])
+    button_list, cancel_button = display_information.display_action_service(context, list_service)
+    reply_markup = InlineKeyboardMarkup(
+        build_menu(button_list, n_cols=2, cancel_button=cancel_button)
+    )
+    display_message_bot(update=update, context=context, message=message_update+message, reply_markup=reply_markup)
 
 def get_service(update, context):
     """Go back to service after last values"""
     ud = context.user_data
     ud["SERVICE_INFO"] = update.callback_query.data
-    message = display_service_characteristics(context, LANG, ud[API_VAR])
-    button_list, cancel_button = display_action_service(context)
-    reply_markup = InlineKeyboardMarkup(
-        build_menu(button_list, n_cols=2, cancel_button=cancel_button)
-    )
-    display_message_bot(update, context, message, reply_markup)
+    reply_service(update, context, "")
+    logger.info("Request get service executed")
     return END_SERVICE
 
 
@@ -1375,6 +941,7 @@ def show_last_value_host(update, context):
     host_ID = Cdata["HID"]
     ud['NUMBER_VALUES'] = 0
     navigation_last_values(update=update, context=context, host_ID=host_ID)
+    logger.info("Request show last value host executed")
     return DIPLAY_ACTION_VALUE
 
 
@@ -1395,32 +962,21 @@ def navigation_last_values(update, context, host_ID):
         elements_list = elements_list[ud["NUMBER_VALUES"]
                                       * numberValueDisplay:]
 
+    display_information = DisplayInformation(LANG, ud[API_VAR])
     # Get elements in button_list
     button_list = list()
-    button_list.append(
-        InlineKeyboardButton(
-            text=telegramEmojiDict["laptop"] +
-            _("Back to host"),
-            callback_data='{"HID":"' +
-            host_ID + '"}',
-        )
-    )
+    display_information.add_button_in_list(button_list, telegramEmojiDict["laptop"] + _("Back to host"), '{"HID":"' + host_ID + '"}')
 
     # Create footer elements
     footer_buttons = list()
     if ud["NUMBER_VALUES"] > 0:
-        footer_buttons.append(
-            InlineKeyboardButton(
-                text="<<", callback_data=str(PRECEDENT_VALUES))
-        )
+        display_information.add_button_in_list(footer_buttons, "<<", str(PRECEDENT_VALUES))
+    
     text_button = _("Page %s") % (str(ud["NUMBER_VALUES"] + 1))
-    footer_buttons.append(
-        InlineKeyboardButton(
-            text=text_button, callback_data=str(ud["NUMBER_VALUES"]))
-    )
+    display_information.add_button_in_list(footer_buttons, text_button, str(ud["NUMBER_VALUES"]))
+    
     if ud["NUMBER_VALUES"] < numberPages:
-        footer_buttons.append(InlineKeyboardButton(
-            text=">>", callback_data=str(NEXT_VALUES)))
+        display_information.add_button_in_list(footer_buttons, ">>", str(NEXT_VALUES))
 
     # Create cancel button
     reply_markup = InlineKeyboardMarkup(
@@ -1473,17 +1029,23 @@ def send_message(update, context):
     ud["MESSAGE_INFO"] = update.message.text
     Cdata = json.loads(ud["PROBLEM_INFO"])
     problem_ID = Cdata["PID"]
-    ud[API_VAR].action_event(problem_ID, 4, ud["MESSAGE_INFO"])
-    message_update = _("Send message to problem OK\n")
-    button_list, cancel_button = display_action_problem(context)
+    try:
+        ud[API_VAR].action_event(problem_ID, 4, ud["MESSAGE_INFO"])
+        message_update = _("Send message to problem OK\n")
+    except Exception as e:
+        logger.error("Error to send message")
+        message_update = _("*Error* to send message\n\n")
+    display_information = DisplayInformation(LANG, ud[API_VAR])
+    message_object, list_problem = display_problem_characteristics(
+        context, LANG, ud[API_VAR])
+    button_list, cancel_button = display_information.display_action_problem(list_problem)
     reply_markup = InlineKeyboardMarkup(
         build_menu(button_list, n_cols=2, cancel_button=cancel_button)
     )
-    message_object = display_problem_characteristics(
-        context, LANG, ud[API_VAR])
     update.message.reply_markdown(
         text=message_update + message_object, reply_markup=reply_markup
     )
+    logger.info("Request send message on problem executed")
     return END
 
 
@@ -1515,6 +1077,7 @@ def choose_severity(update, context):
     context.bot.send_message(
         chat_id=update.effective_chat.id, text=msg, reply_markup=reply_kb_markup
     )
+    logger.info("Request choose severity executed")
     return CHANGE_SEVERITY
 
 
@@ -1537,17 +1100,23 @@ def change_severity(update, context):
         severity = 5
     Cdata = json.loads(ud["PROBLEM_INFO"])
     problem_ID = Cdata["PID"]
-    ud[API_VAR].action_event(problem_ID, 8, severity=severity)
-    message_update = _("Severity change to problem OK\n")
-    button_list, cancel_button = display_action_problem(context)
+    try:
+        ud[API_VAR].action_event(problem_ID, 8, severity=severity)
+        message_update = _("Severity change to problem OK\n")
+    except Exception as e:
+        logger.error("Error to change severity")
+        message_update = _("*Error* to change severity\n\n")
+    display_information = DisplayInformation(LANG, ud[API_VAR])
+    message_object, list_problem = display_problem_characteristics(
+        context, LANG, ud[API_VAR])
+    button_list, cancel_button = display_information.display_action_problem(list_problem)
     reply_markup = InlineKeyboardMarkup(
         build_menu(button_list, n_cols=2, cancel_button=cancel_button)
     )
-    message_object = display_problem_characteristics(
-        context, LANG, ud[API_VAR])
     update.message.reply_markdown(
         text=message_update + message_object, reply_markup=reply_markup
     )
+    logger.info("Request change severity executed")
     return END
 
 
@@ -1559,35 +1128,35 @@ def display_graph(update, context):
     CdataH = json.loads(ud["HOST_INFO"])
     host_id = CdataH["HID"]
     item_id = Cdata["IID"]
-    list_item = ud[API_VAR].get_item_info(item_id)
-    data = ud[API_VAR].get_list_history_item(
-        item_id, list_item[0]['value_type'])
-    name_file = get_image_data(data, list_item, LANG)
-    button_list = list()
-    button_list.append(
-        InlineKeyboardButton(
-            text=telegramEmojiDict["spiral notepad"] + _("Back to item"),
-            callback_data='{"IID":"' + item_id + '"}',
-        )
-    )
-    button_list.append(
-        InlineKeyboardButton(
-            text=telegramEmojiDict["laptop"] + _("Back to host"),
-            callback_data='{"HID":"' + host_id + '"}',
-        )
-    )
-    reply_markup = InlineKeyboardMarkup(build_menu(
-        button_list, n_cols=2))
-    context.bot.send_photo(update.effective_chat.id, photo=open(
-        name_file, 'rb'), reply_markup=reply_markup)
-    ud['AFTER_GRAPH'] = True
-    delete_image_after(list_images=[name_file])
+    try:
+        list_item = ud[API_VAR].get_item_info(item_id)
+        data = ud[API_VAR].get_list_history_item(
+            item_id, list_item[0]['value_type'])
+        name_file = get_image_data(data, list_item, LANG)
+        display_information = DisplayInformation(LANG, ud[API_VAR])
+        button_list = list()
+        display_information.add_button_in_list(button_list, telegramEmojiDict["spiral notepad"] + _("Back to item"), '{"IID":"' + item_id + '"}')
+        display_information.add_button_in_list(button_list, telegramEmojiDict["laptop"] + _("Back to host"), '{"HID":"' + host_id + '"}')
+        reply_markup = InlineKeyboardMarkup(build_menu(
+            button_list, n_cols=2))
+        context.bot.send_photo(update.effective_chat.id, photo=open(
+            name_file, 'rb'), reply_markup=reply_markup)
+        ud['AFTER_GRAPH'] = True
+        delete_image_after(list_images=[name_file])
+    except Exception as e:
+        logger.error("Error to display graph")
+        message_update = _("*Error* to display graph\n\n")
+        display_information = DisplayInformation(LANG, ud[API_VAR])
+        display_information.reply_item(update, context, message_update)
+        return DISPLAY_ACTION_ITEM
+    logger.info("Request display graph executed")
     return DISPLAY_ACTION_GRAPH
 
 
-def start(update, context):
+def start(update, context, message_update=""):
     """start display the start message"""
     context.user_data['AFTER_GRAPH'] = False
+    button_list = list()
     findServ = False
     bot = context.bot
     # If information of server are in environment variables
@@ -1627,124 +1196,83 @@ def start(update, context):
 
     # Create initial message:
     if findServ == True:
-        buttons = [
-            [
-                InlineKeyboardButton(
-                    text=telegramEmojiDict["magnifying glass tilted"]
-                    + telegramEmojiDict["laptop"]
-                    + _("Search host name"),
-                    callback_data=str(HOST_MENU_NAME),
-                ),
-                InlineKeyboardButton(
-                    text=telegramEmojiDict["magnifying glass tilted left"]
-                    + telegramEmojiDict["laptop"]
-                    + _("Search host tag"),
-                    callback_data=str(HOST_MENU_TAG),
-                ),
-            ],
-            [
-                InlineKeyboardButton(
-                    text=telegramEmojiDict["laptop"]
-                    + telegramEmojiDict["laptop"]
-                    + _("Hostgroups"),
-                    callback_data=str(HOST_GROUP_MENU),
-                ),
-                InlineKeyboardButton(
-                    text=telegramEmojiDict["large blue diamond"] +
-                    _("All Hosts"),
-                    callback_data=str(ALL_MENU),
-                ),
-            ],
-            [
-                InlineKeyboardButton(
-                    text=telegramEmojiDict["level slider"]
-                    + _("Services"),
-                    callback_data=str(SERVICE_MENU),
-                ),
-            ],
-            [
-                InlineKeyboardButton(
-                    text=telegramEmojiDict["gear"] + _("Settings"),
-                    callback_data=str(SETTING_MENU),
-                ),
-                InlineKeyboardButton(
-                    text=telegramEmojiDict["waving hand"] + _("Done"),
-                    callback_data=str(END),
-                ),
-            ],
-        ]
-        reply_markup = InlineKeyboardMarkup(buttons)
-        context.user_data[API_VAR] = API(
-            context.user_data[str(ZABBIX_URL)], context.user_data[str(ZABBIX_BOT_USERNAME)],context.user_data[str(ZABBIX_BOT_PASSWORD)]
+        display_information = DisplayInformation(LANG, None)
+        display_information.add_button_in_list(button_list, telegramEmojiDict["magnifying glass tilted"]+ telegramEmojiDict["laptop"]+ _("Search host name"), str(HOST_MENU_NAME))
+        display_information.add_button_in_list(button_list, telegramEmojiDict["magnifying glass tilted left"]+ telegramEmojiDict["laptop"]+ _("Search host tag"), str(HOST_MENU_TAG))
+        display_information.add_button_in_list(button_list, telegramEmojiDict["laptop"]+ telegramEmojiDict["laptop"]+ _("Hostgroups"), str(HOST_GROUP_MENU))
+        display_information.add_button_in_list(button_list, telegramEmojiDict["large blue diamond"] +_("All Hosts"), str(ALL_MENU))
+        display_information.add_button_in_list(button_list, telegramEmojiDict["level slider"]+ _("Services"), str(SERVICE_MENU))
+        footer_buttons = list()
+        display_information.add_button_in_list(footer_buttons, telegramEmojiDict["gear"] + _("Settings"), str(SETTING_MENU))
+        display_information.add_button_in_list(footer_buttons, telegramEmojiDict["waving hand"] + _("Done"), str(END))
+            
+        reply_markup = InlineKeyboardMarkup(
+            build_menu(button_list, n_cols=2, footer_buttons=footer_buttons)
         )
-        message = message + "\n" + \
+        try:
+            context.user_data[API_VAR] = API(
+                context.user_data[str(ZABBIX_URL)], context.user_data[str(ZABBIX_BOT_USERNAME)],context.user_data[str(ZABBIX_BOT_PASSWORD)]
+            )
+            message = message + "\n" + \
             display_global_status(context.user_data[API_VAR], LANG)
-        message = message + \
-            _("\n\nType /help to show all commands\n   Choose an option:")
+            message = message + _("\n\nType /help to show all commands\n   Choose an option:")
+        except Exception as e:
+            message = ("%s - %s") % (e, context.user_data[str(ZABBIX_URL)])
+            display_information.add_button_in_list(button_list, telegramEmojiDict["gear"] + _("Settings"), str(SETTING_MENU))
+            display_information.add_button_in_list(button_list, telegramEmojiDict["waving hand"] + _("Done"), str(END))
+            
+            reply_markup = InlineKeyboardMarkup(
+                build_menu(button_list, n_cols=2)
+            )
 
     else:
-        message = _(
-            "The server is incorrect. Please change the name in setting.")
-        buttons = [
-            [
-                InlineKeyboardButton(
-                    text=telegramEmojiDict["gear"] + _("Settings"),
-                    callback_data=str(SETTING_MENU),
-                )
-            ],
-            [
-                InlineKeyboardButton(
-                    text=telegramEmojiDict["waving hand"] + _("Done"),
-                    callback_data=str(END),
-                )
-            ],
-        ]
-        reply_markup = InlineKeyboardMarkup(buttons)
+        message = _("The server is incorrect. Please change the name in setting.")
+        display_information.add_button_in_list(button_list, telegramEmojiDict["gear"] + _("Settings"), str(SETTING_MENU))
+        display_information.add_button_in_list(button_list, telegramEmojiDict["waving hand"] + _("Done"), str(END))
+        reply_markup = InlineKeyboardMarkup(
+            build_menu(button_list, n_cols=2)
+        )
 
     if context.user_data.get(START_OVER):
         update.callback_query.edit_message_text(
-            text=message, reply_markup=reply_markup, parse_mode=ParseMode.MARKDOWN
+            text=message_update+message, reply_markup=reply_markup, parse_mode=ParseMode.MARKDOWN
         )
     else:
-        update.message.reply_markdown(text=message, reply_markup=reply_markup)
+        update.message.reply_markdown(text=message_update+message, reply_markup=reply_markup)
     context.user_data[START_OVER] = False
+    logger.info("Request start executed")
     return ACTION_START
 
 
 def list_setting(update, context):
     """Create buttons for actions in menu setting"""
+    ud = context.user_data
+    display_information = DisplayInformation(LANG, ud[API_VAR])
     button_list = list()
-    button_list.append(
-        InlineKeyboardButton(
-            text=telegramEmojiDict["white flag"] + _("Change language"),
-            callback_data="language",
-        )
-    )
-    button_list.append(
-        InlineKeyboardButton(
-            text=telegramEmojiDict["electric plug"] + _("Change server"),
-            callback_data="server",
-        )
-    )
-    cancel_button = get_cancel_button()
+    display_information.add_button_in_list(button_list, telegramEmojiDict["white flag"] + _("Change language"), "language")
+    display_information.add_button_in_list(button_list, telegramEmojiDict["electric plug"] + _("Change server"), "server")
+    display_information.add_button_in_list(button_list, telegramEmojiDict["construction"] +_("Change level logger"), "mode_logger")
+    cancel_button = display_information.get_cancel_button()
+
     reply_markup = InlineKeyboardMarkup(
-        build_menu(button_list, n_cols=3, cancel_button=cancel_button)
+        build_menu(button_list, n_cols=2, cancel_button=cancel_button)
     )
     message = _("Choose what you want to change")
     display_message_bot(update, context, message, reply_markup)
+    logger.info("Request list setting executed")
     return CHOOSE_SETTING
 
 
 def select_lang(update, context):
     """Create buttons for select languages"""
     button_list = list()
-    button_list.append(InlineKeyboardButton(
-        text="🇬🇧 English", callback_data="en"))
-    button_list.append(InlineKeyboardButton(
-        text="🇫🇷 French", callback_data="fr"))
+    display_information = DisplayInformation(LANG, context.user_data[API_VAR])
+    display_information.add_button_in_list(button_list, "🇬🇧 English", "en")
+    display_information.add_button_in_list(button_list, "🇫🇷 French", "fr")
     reply_markup = InlineKeyboardMarkup(build_menu(button_list, n_cols=3))
     message = _("Please choose your language")
     display_message_bot(update, context, message, reply_markup)
+    logger.info("Request select language executed")
     return CHOOSE_LANG
 
 
@@ -1754,39 +1282,72 @@ def choose_lang(update, context):
     global LANG, lang_translations, _
     LANG = context.user_data["LANG"]
     lang_translations = gettext.translation(
-        "main", localedir="locales", languages=[LANG]
+        "main", localedir="../locales", languages=[LANG]
     )
     lang_translations.install()
     _ = lang_translations.gettext
     context.user_data[START_OVER] = True
     start(update, context)
+    logger.info("Request choose language executed")
+    return END
+
+def select_mode_logger(update, context):
+    """Create buttons for select logger level"""
+    display_information = DisplayInformation(LANG, context.user_data[API_VAR])
+    button_list = list()
+    display_information.add_button_in_list(button_list, telegramEmojiDict["blue circle"] +"DEBUG", "debug")
+    display_information.add_button_in_list(button_list, telegramEmojiDict["green circle"] +"INFO", "info")
+    display_information.add_button_in_list(button_list, telegramEmojiDict["yellow circle"] +"WARNING", "warning")
+    display_information.add_button_in_list(button_list, telegramEmojiDict["orange circle"] +"ERROR", "error")
+    display_information.add_button_in_list(button_list, telegramEmojiDict["red circle"] +"CRITICAL", "critical")
+    reply_markup = InlineKeyboardMarkup(build_menu(button_list, n_cols=3))
+    message = _("Please choose your level logger")
+    display_message_bot(update, context, message, reply_markup)
+    logger.info("Request select mode logger executed")
+    return CHOOSE_MODE_LOGGER
+
+def choose_mode_logger(update, context):
+    """Get the mode logger choose by the user and change the logging level"""
+    context.user_data["MODE_LOGGER"] = update.callback_query.data
+    level = context.user_data["MODE_LOGGER"]
+    if level == "info":
+        logging.getLogger().setLevel(logging.INFO)
+    elif level == "debug":
+        logging.getLogger().setLevel(logging.DEBUG)
+    elif level == "warning":
+        logging.getLogger().setLevel(logging.WARNING)
+    elif level == "error":
+        logging.getLogger().setLevel(logging.ERROR)
+    elif level == "critical":
+        logging.getLogger().setLevel(logging.CRITICAL)
+    context.user_data[START_OVER] = True
+    start(update, context)
+    logger.info("Request choose mode logger executed")
     return END
 
 
 def get_name_server(update, context):
     """Create buttons list for each server in configuration file"""
+    ud = context.user_data
+    display_information = DisplayInformation(LANG, ud[API_VAR])
     button_list = list()
     if os.path.exists("config.yaml"):
         with open("config.yaml", "r") as stream:
             data_loaded = yaml.safe_load(stream)
             for __, doc in data_loaded.items():
                 for i in range(len(data_loaded["servers"])):
-                    button_list.append(
-                        InlineKeyboardButton(
-                            text=doc[i]["server"],
-                            callback_data='{"SE":"' + doc[i]["server"] + '"}',
-                        )
-                    )
+                    display_information.add_button_in_list(button_list, doc[i]["server"], '{"SE":"' + doc[i]["server"] + '"}')
         message = _("Choose one server or cancel")
     else:
         message = _(
             "The file *config.yaml* doesn't exists. Create file or use environment variables."
         )
-    cancel_button = get_cancel_button()
+    cancel_button = display_information.get_cancel_button()
     reply_markup = InlineKeyboardMarkup(
         build_menu(button_list, n_cols=2, cancel_button=cancel_button)
     )
     display_message_bot(update, context, message, reply_markup)
+    logger.info("Request display name server executed")
     return SERVER
 
 
@@ -1797,6 +1358,7 @@ def change_server(update, context):
     NAME_SERVER = Cdata["SE"]
     context.user_data[START_OVER] = True
     start(update, context)
+    logger.info("Request change server executed")
     return STOPPING
 
 
@@ -1804,6 +1366,7 @@ def cancel(update, context):
     """Stop the conversation and display the main menu"""
     context.user_data[START_OVER] = True
     start(update, context)
+    logger.info("Request cancel executed")
     return STOPPING
 
 
@@ -1811,6 +1374,7 @@ def stop(update, context):
     """End Conversation by command."""
     context.user_data.clear()
     update.message.reply_text(_("Okay, bye."))
+    logger.info("Request stop executed")
     return END
 
 
@@ -1819,6 +1383,7 @@ def stop_nested(update, context):
     context.user_data[START_OVER] = False
     update.message.reply_text("STOP okay.")
     start(update, context)
+    logger.info("Request stop executed")
     return STOPPING
 
 
@@ -1826,6 +1391,7 @@ def end(update, context):
     """End conversation from InlineKeyboardButton."""
     context.user_data.clear()
     update.callback_query.edit_message_text(text=_("See you !"))
+    logger.info("Request end executed")
     return END
 
 
@@ -2134,10 +1700,12 @@ def main():
         states={
             CHOOSE_SETTING: [
                 CallbackQueryHandler(select_lang, pattern="^lang"),
+                CallbackQueryHandler(select_mode_logger, pattern="^mode_logger$"),
                 change_server_conv,
                 CallbackQueryHandler(cancel, pattern="^" + str(CANCEL) + "$"),
             ],
             CHOOSE_LANG: [CallbackQueryHandler(choose_lang)],
+            CHOOSE_MODE_LOGGER: [CallbackQueryHandler(choose_mode_logger)]
         },
         fallbacks=[CommandHandler("stop", stop_nested)],
         map_to_parent={END: ACTION_START, STOPPING: ACTION_START},
@@ -2197,16 +1765,17 @@ def main():
                 service_conv,
                 setting_conv,
                 CallbackQueryHandler(end, pattern="^" + str(END) + "$"),
-            ]
+            ],
+            END:[CallbackQueryHandler(stop)]
         },
         fallbacks=[CommandHandler("stop", stop)],
     )
-
-    dp.add_handler(CommandHandler("help", help_msg))
+    command = Command(START_OVER=START_OVER, _=_, LANG=LANG)
+    dp.add_handler(CommandHandler("help", command.help_msg))
     dp.add_handler(start_conv)
-    dp.add_handler(CommandHandler("global_status", global_status))
-    dp.add_handler(CommandHandler("problems", show_problem))
-    dp.add_handler(CommandHandler("maintenances", show_maintenance))
+    dp.add_handler(CommandHandler("global_status", command.global_status))
+    dp.add_handler(CommandHandler("problems", command.show_problem))
+    dp.add_handler(CommandHandler("maintenances", command.show_maintenance))
 
     # Log all errors:
     dp.add_error_handler(error)

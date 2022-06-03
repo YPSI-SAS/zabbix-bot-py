@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-06-01 12:04+0200\n"
+"POT-Creation-Date: 2022-06-02 16:56+0200\n"
 "PO-Revision-Date: 2022-06-01 12:06+0200\n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -17,311 +17,325 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "X-Generator: Poedit 3.0.1\n"
 
-#: report_host.py:20 report_service.py:22
+#: zabbix-bot/reports/report_host.py:24 zabbix-bot/reports/report_service.py:27
 msgid "General informations"
 msgstr "General informations"
 
-#: report_host.py:23 report.py:79 report.py:103 report.py:127
-#: report_service.py:24 report_service.py:123 report_service.py:142
+#: zabbix-bot/reports/report_host.py:27 zabbix-bot/reports/report.py:79
+#: zabbix-bot/reports/report.py:103 zabbix-bot/reports/report.py:127
+#: zabbix-bot/reports/report_service.py:29
+#: zabbix-bot/reports/report_service.py:129
+#: zabbix-bot/reports/report_service.py:148
 msgid "Status"
 msgstr "Status"
 
-#: report_host.py:25 report.py:105
+#: zabbix-bot/reports/report_host.py:29 zabbix-bot/reports/report.py:105
 msgid "Availability"
 msgstr "Availability"
 
-#: report_host.py:28 report.py:108
+#: zabbix-bot/reports/report_host.py:32 zabbix-bot/reports/report.py:108
 msgid "Latitude"
 msgstr "Latitude"
 
-#: report_host.py:28 report.py:108
+#: zabbix-bot/reports/report_host.py:32 zabbix-bot/reports/report.py:108
 msgid "Longitude"
 msgstr "Longitude"
 
-#: report_host.py:34
+#: zabbix-bot/reports/report_host.py:38
 msgid "Items"
 msgstr "Items"
 
-#: report_host.py:57 report.py:62 report.py:87
+#: zabbix-bot/reports/report_host.py:61 zabbix-bot/reports/report.py:62
+#: zabbix-bot/reports/report.py:87
 msgid "Host"
 msgstr "Host"
 
-#: report.py:49
+#: zabbix-bot/reports/report.py:49
 msgid "Problems"
 msgstr "Problems"
 
-#: report.py:56 report.py:83
+#: zabbix-bot/reports/report.py:56 zabbix-bot/reports/report.py:83
 msgid "Severity"
 msgstr "Severity"
 
-#: report.py:58
+#: zabbix-bot/reports/report.py:58
 msgid "Acknowledged"
 msgstr "Acknowledged"
 
-#: report.py:60
+#: zabbix-bot/reports/report.py:60
 msgid "Duration"
 msgstr "Duration"
 
-#: report.py:65
+#: zabbix-bot/reports/report.py:65
 msgid "Trigger"
 msgstr "Trigger"
 
-#: report.py:72
+#: zabbix-bot/reports/report.py:72
 msgid "Triggers"
 msgstr "Triggers"
 
-#: report.py:81
+#: zabbix-bot/reports/report.py:81
 msgid "Expression"
 msgstr "Expression"
 
-#: report.py:85 report.py:290 report_service.py:39
+#: zabbix-bot/reports/report.py:85 zabbix-bot/reports/report.py:290
+#: zabbix-bot/reports/report_service.py:44
 msgid "Value"
 msgstr "Value"
 
-#: report.py:89 report.py:122 report.py:125
+#: zabbix-bot/reports/report.py:89 zabbix-bot/reports/report.py:122
+#: zabbix-bot/reports/report.py:125
 msgid "Item"
 msgstr "Item"
 
-#: report.py:96
+#: zabbix-bot/reports/report.py:96
 msgid "Hosts"
 msgstr "Hosts"
 
-#: report.py:129
+#: zabbix-bot/reports/report.py:129
 msgid "Last value"
 msgstr "Last value"
 
-#: report.py:131
+#: zabbix-bot/reports/report.py:131
 msgid "Last check"
 msgstr "Last check"
 
-#: report.py:146
+#: zabbix-bot/reports/report.py:146
 msgid "Acknowledge actions"
 msgstr "Acknowledge actions"
 
-#: report.py:152
+#: zabbix-bot/reports/report.py:152
 msgid "Acknowledge event"
 msgstr "Acknowledge event"
 
-#: report.py:155
+#: zabbix-bot/reports/report.py:155
 msgid "Add message"
 msgstr "Add message"
 
-#: report.py:159
+#: zabbix-bot/reports/report.py:159
 msgid "Acknowledge event + Add message"
 msgstr "Acknowledge event + Add message"
 
-#: report.py:163
+#: zabbix-bot/reports/report.py:163
 msgid "Change severity"
 msgstr "Change severity"
 
-#: report.py:167
+#: zabbix-bot/reports/report.py:167
 msgid "Acknowledge event + Change severity"
 msgstr "Acknowledge event + Change severity"
 
-#: report.py:171 report.py:176
+#: zabbix-bot/reports/report.py:171 zabbix-bot/reports/report.py:176
 msgid "Add message + Change severity"
 msgstr "Add message + Change severity"
 
-#: report.py:181
+#: zabbix-bot/reports/report.py:181
 msgid "Acknowledge event + Add message + Change severity"
 msgstr "Acknowledge event + Add message + Change severity"
 
-#: report.py:186
+#: zabbix-bot/reports/report.py:186
 msgid "Unacknowledge event"
 msgstr "Unacknowledge event"
 
-#: report.py:189
+#: zabbix-bot/reports/report.py:189
 msgid "Unacknowledge event + Add message"
 msgstr "Unacknowledge event + Add message"
 
-#: report.py:193
+#: zabbix-bot/reports/report.py:193
 msgid "Unacknowledge event + Change severity"
 msgstr "Unacknowledge event + Change severity"
 
-#: report.py:197
+#: zabbix-bot/reports/report.py:197
 msgid "Unacknowledge event + Add message + Change severity"
 msgstr "Unacknowledge event + Add message + Change severity"
 
-#: report.py:203
+#: zabbix-bot/reports/report.py:203
 msgid "Message"
 msgstr "Message"
 
-#: report.py:206
+#: zabbix-bot/reports/report.py:206
 msgid "Old severity"
 msgstr "Old severity"
 
-#: report.py:208
+#: zabbix-bot/reports/report.py:208
 msgid "New severity"
 msgstr "New severity"
 
-#: report.py:210
+#: zabbix-bot/reports/report.py:210
 msgid "At"
 msgstr "At"
 
-#: report.py:212
+#: zabbix-bot/reports/report.py:212
 msgid "By"
 msgstr "By"
 
-#: report.py:218
+#: zabbix-bot/reports/report.py:218
 msgid "set status to OK"
 msgstr "set status to OK"
 
-#: report.py:219
+#: zabbix-bot/reports/report.py:219
 msgid "most critical if all children have problems"
 msgstr "most critical if all children have problems"
 
-#: report.py:220
+#: zabbix-bot/reports/report.py:220
 msgid "most critical of child services"
 msgstr "most critical of child services"
 
-#: report.py:227
+#: zabbix-bot/reports/report.py:227
 msgid "enabled"
 msgstr "enabled"
 
-#: report.py:228
+#: zabbix-bot/reports/report.py:228
 msgid "disabled"
 msgstr "disabled"
 
-#: report.py:235
+#: zabbix-bot/reports/report.py:235
 msgid "Unknown"
 msgstr "Unknown"
 
-#: report.py:236
+#: zabbix-bot/reports/report.py:236
 msgid "Available"
 msgstr "Available"
 
-#: report.py:237
+#: zabbix-bot/reports/report.py:237
 msgid "Not available"
 msgstr "Not available"
 
-#: report.py:244
+#: zabbix-bot/reports/report.py:244
 msgid "equals"
 msgstr "equals"
 
-#: report.py:245
+#: zabbix-bot/reports/report.py:245
 msgid "like"
 msgstr "like"
 
-#: report.py:252 report.py:280
+#: zabbix-bot/reports/report.py:252 zabbix-bot/reports/report.py:280
 msgid "OK"
 msgstr "OK"
 
-#: report.py:253
+#: zabbix-bot/reports/report.py:253
 msgid "Not classified"
 msgstr "Not classified"
 
-#: report.py:254
+#: zabbix-bot/reports/report.py:254
 msgid "Information"
 msgstr "Information"
 
-#: report.py:255
+#: zabbix-bot/reports/report.py:255
 msgid "Warning"
 msgstr "Warning"
 
-#: report.py:256
+#: zabbix-bot/reports/report.py:256
 msgid "Average"
 msgstr "Average"
 
-#: report.py:257
+#: zabbix-bot/reports/report.py:257
 msgid "High"
 msgstr "High"
 
-#: report.py:258
+#: zabbix-bot/reports/report.py:258
 msgid "Disaster"
 msgstr "Disaster"
 
-#: report.py:265
+#: zabbix-bot/reports/report.py:265
 msgid "NO"
 msgstr "NO"
 
-#: report.py:266
+#: zabbix-bot/reports/report.py:266
 msgid "YES"
 msgstr "YES"
 
-#: report.py:281
+#: zabbix-bot/reports/report.py:281
 msgid "PROBLEM"
 msgstr "PROBLEM"
 
-#: report.py:290 report_service.py:39
+#: zabbix-bot/reports/report.py:290 zabbix-bot/reports/report_service.py:44
 msgid "Name"
 msgstr "Name"
 
-#: report_service.py:26 report_service.py:125 report_service.py:144
+#: zabbix-bot/reports/report_service.py:31
+#: zabbix-bot/reports/report_service.py:131
+#: zabbix-bot/reports/report_service.py:150
 msgid "Algorithm"
 msgstr "Algorithm"
 
-#: report_service.py:28 report_service.py:127 report_service.py:146
+#: zabbix-bot/reports/report_service.py:33
+#: zabbix-bot/reports/report_service.py:133
+#: zabbix-bot/reports/report_service.py:152
 msgid "Sort order"
 msgstr "Sort order"
 
-#: report_service.py:30 report_service.py:129 report_service.py:148
+#: zabbix-bot/reports/report_service.py:35
+#: zabbix-bot/reports/report_service.py:135
+#: zabbix-bot/reports/report_service.py:154
 msgid "Description"
 msgstr "Description"
 
-#: report_service.py:32 report_service.py:131 report_service.py:150
+#: zabbix-bot/reports/report_service.py:37
+#: zabbix-bot/reports/report_service.py:137
+#: zabbix-bot/reports/report_service.py:156
 msgid "Created at"
 msgstr "Created at"
 
-#: report_service.py:37
+#: zabbix-bot/reports/report_service.py:42
 msgid "Problem tags"
 msgstr "Problem tags"
 
-#: report_service.py:39
+#: zabbix-bot/reports/report_service.py:44
 msgid "Operator"
 msgstr "Operator"
 
-#: report_service.py:60
+#: zabbix-bot/reports/report_service.py:66
 msgid "SLA"
 msgstr "SLA"
 
-#: report_service.py:77
+#: zabbix-bot/reports/report_service.py:83
 msgid "SLO"
 msgstr "SLO"
 
-#: report_service.py:77
+#: zabbix-bot/reports/report_service.py:83
 msgid "SLI"
 msgstr "SLI"
 
-#: report_service.py:77
+#: zabbix-bot/reports/report_service.py:83
 msgid "Uptime"
 msgstr "Uptime"
 
-#: report_service.py:77
+#: zabbix-bot/reports/report_service.py:83
 msgid "Downtime"
 msgstr "Downtime"
 
-#: report_service.py:77
+#: zabbix-bot/reports/report_service.py:83
 msgid "Error budget"
 msgstr "Error budget"
 
-#: report_service.py:106
+#: zabbix-bot/reports/report_service.py:112
 msgid "Day"
 msgstr "Day"
 
-#: report_service.py:107
+#: zabbix-bot/reports/report_service.py:113
 msgid "Week"
 msgstr "Week"
 
-#: report_service.py:108
+#: zabbix-bot/reports/report_service.py:114
 msgid "Month"
 msgstr "Month"
 
-#: report_service.py:109
+#: zabbix-bot/reports/report_service.py:115
 msgid "Quarter"
 msgstr "Quarter"
 
-#: report_service.py:110
+#: zabbix-bot/reports/report_service.py:116
 msgid "Year"
 msgstr "Year"
 
-#: report_service.py:117
+#: zabbix-bot/reports/report_service.py:123
 msgid "Parents"
 msgstr "Parents"
 
-#: report_service.py:136
+#: zabbix-bot/reports/report_service.py:142
 msgid "Children"
 msgstr "Children"
 
-#: report_service.py:173
+#: zabbix-bot/reports/report_service.py:179
 msgid "Service"
 msgstr "Service"

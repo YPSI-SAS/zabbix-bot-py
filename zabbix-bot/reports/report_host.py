@@ -1,18 +1,22 @@
 from reportlab.lib import colors
 from reportlab.platypus import SimpleDocTemplate, Spacer, Image, Table, TableStyle
-from reportlab.lib.units import inch, cm
-from action import get_time, get_image_data
+from reportlab.lib.units import cm
 
-from report import Report
+from reports.report import Report
+import logging
 
+logger = logging.getLogger(__name__)
 
 class ReportHost(Report):
 
     def __init__(self, api, host_id, LANG) -> None:
         super().__init__(api, LANG)
         self.host_id = host_id
-        self.information_host = self.api.get_host_info(self.host_id)[
-            0]
+        try:
+            self.information_host = self.api.get_host_info(self.host_id)[0]
+        except Exception as e:
+            logger.error("Error to get host information")
+            raise Exception(e)
 
     def write_general_information(self, part, _):
         """Write general information of service in report"""
@@ -48,7 +52,7 @@ class ReportHost(Report):
     def create_report(self):
         """Create report for a specific service"""
 
-        name_file = "./documents/hosts/%s.pdf" % (
+        name_file = "../documents/hosts/%s.pdf" % (
             self.information_host['name'])
         doc = SimpleDocTemplate(name_file,
                                 rightMargin=2*cm, leftMargin=2*cm,

@@ -40,5 +40,12 @@ telegramEmojiDict = {
     'memo': u'\U0001f4dd',
     'world map': u'\U0001f5fa',
     'bar chart': u'\U0001f4ca',
-    'page with curl': u'\U0001f4c3'
+    'page with curl': u'\U0001f4c3',
+    'blue circle': u'\U0001f535',
+    'green circle': u'\U0001f7e2',
+    'yellow circle': u'\U0001f7e1',
+    'orange circle' :u'\U0001f7e0',
+    'red circle': u'\U0001f534',
+    'construction':u'\U0001f6a7',
+
 }

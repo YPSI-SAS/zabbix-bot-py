@@ -1,4 +1,5 @@
 import gettext
+from shutil import ExecError
 from more_itertools import last
 from telegram import InlineKeyboardButton
 from emojiDict import telegramEmojiDict
@@ -11,7 +12,10 @@ import numpy as np
 import os
 import prettytable as pt
 from textwrap import fill
+import logging
 
+
+logger = logging.getLogger(__name__)
 ACK_MENU, CANCEL = map(chr, range(2))
 
 
@@ -28,7 +32,7 @@ def build_menu(buttons, n_cols, footer_buttons=None, cancel_button=None):
 def display_object_button(object, object_list, LANG):
     """Display all differents objects in the form of buttons"""
     lang_translations = gettext.translation(
-        'action', localedir='locales', languages=[LANG])
+        'action', localedir='../locales', languages=[LANG])
     lang_translations.install()
     _ = lang_translations.gettext
     button_list = list()
@@ -163,135 +167,161 @@ def get_status_emoji(status):
 def display_host_characteristics(context, LANG, API_VAR):
     """Recovery and create message of host selected by the user"""
     lang_translations = gettext.translation(
-        'action', localedir='locales', languages=[LANG])
+        'action', localedir='../locales', languages=[LANG])
     lang_translations.install()
     _ = lang_translations.gettext
     ud = context.user_data
     message = str()
-
+    list_host = []
     Cdata = json.loads(ud['HOST_INFO'])
     hostID = Cdata['HID']
-    list_host = API_VAR.get_host_info(hostID)
-    for host in list_host:
-        stateV = get_state_string(host['status'], _)
-        availabilityV = get_status_string(
-            host['interfaces'][0]['available'], _)
-        message_tag = ('Tags:')
-        for tag in host["tags"]:
-            message_tag = message_tag + '\n\t\t' + \
-                tag['tag']+' : ' + ('*%s*') % tag['value']
-        message = _('Host *%s* is *%s*\nAvailability: *%s*\n%s') % (
-            host['name'], stateV, availabilityV, message_tag)
+    try:
+        list_host = API_VAR.get_host_info(hostID)
+        for host in list_host:
+            stateV = get_state_string(host['status'], _)
+            availabilityV = get_status_string(
+                host['interfaces'][0]['available'], _)
+            message_tag = ('Tags:')
+            for tag in host["tags"]:
+                message_tag = message_tag + '\n\t\t' + \
+                    tag['tag']+' : ' + ('*%s*') % tag['value']
+            message = _('Host *%s* is *%s*\nAvailability: *%s*\n%s') % (
+                host['name'], stateV, availabilityV, message_tag)
+    except Exception as e:
+        logger.error("Error in get_host_info to display host characteristics")
+        message = (_("*Error* in get\_host\_info"))  
 
-    return message
+    return message, list_host
 
 
 def display_item_characteristics(context, LANG, API_VAR):
     """Recovery and create message of item selected by the user"""
     lang_translations = gettext.translation(
-        'action', localedir='locales', languages=[LANG])
+        'action', localedir='../locales', languages=[LANG])
     lang_translations.install()
     _ = lang_translations.gettext
     ud = context.user_data
     message = str()
-
+    list_item = []
     Cdata = json.loads(ud['ITEM_INFO'])
     itemID = Cdata['IID']
-    list_item = API_VAR.get_item_info(itemID)
-    for item in list_item:
-        stateV = get_state_string(item['status'], _)
-        message_tag = ('Tags:')
-        for tag in item["tags"]:
-            message_tag = message_tag + '\n\t\t' + \
-                tag['tag']+' : ' + ('*%s*') % tag['value']
 
-        message = _('Host *%s*\nItem *%s* is *%s*\nLast value: *%s %s*\nLast check: *%s*\n %s') % (
-            item['hosts'][0]['name'], item['name'], stateV, item['lastvalue'], item['units'], get_time(item['lastclock']), message_tag)
+    try:
+        list_item = API_VAR.get_item_info(itemID)
+        for item in list_item:
+            stateV = get_state_string(item['status'], _)
+            message_tag = ('Tags:')
+            for tag in item["tags"]:
+                message_tag = message_tag + '\n\t\t' + \
+                    tag['tag']+' : ' + ('*%s*') % tag['value']
 
-    return message
+            message = _('Host *%s*\nItem *%s* is *%s*\nLast value: *%s %s*\nLast check: *%s*\n %s') % (
+                item['hosts'][0]['name'], item['name'], stateV, item['lastvalue'], item['units'], get_time(item['lastclock']), message_tag)
+    except Exception as e:
+        logger.error("Error in get_item_info to display item characteristics")
+        message = (_("*Error* in get\_item\_info"))
+
+    return message, list_item
 
 
 def display_trigger_characteristics(context, LANG, API_VAR):
     """Recovery and create message of trigger selected by the user"""
     lang_translations = gettext.translation(
-        'action', localedir='locales', languages=[LANG])
+        'action', localedir='../locales', languages=[LANG])
     lang_translations.install()
     _ = lang_translations.gettext
     ud = context.user_data
     message = str()
+    list_trigger = []
 
     Cdata = json.loads(ud['TRIGGER_INFO'])
     triggerID = Cdata['TID']
-    list_trigger = API_VAR.get_trigger_info(triggerID)
-    for trigger in list_trigger:
-        stateV = get_state_string(trigger['status'], _)
-        severityV = get_severity_string(trigger['priority'], _)
-        valueV = get_value_string(trigger['value'], _)
-        message_tag = ('Tags:')
-        for tag in trigger["tags"]:
-            message_tag = message_tag + '\n\t\t' + \
-                tag['tag']+' : ' + ('*%s*') % tag['value']
-        message = _('Host *%s*\nTrigger *%s* is *%s*\nExpression: *%s*\nSeverity: *%s*\nValue: *%s* since *%s*\n %s') % (
-            trigger['hosts'][0]['name'], trigger['description'], stateV, trigger['expression'], severityV, valueV, get_time(trigger['lastchange']), message_tag)
-    return message
+    try:
+        list_trigger = API_VAR.get_trigger_info(triggerID)
+        for trigger in list_trigger:
+            stateV = get_state_string(trigger['status'], _)
+            severityV = get_severity_string(trigger['priority'], _)
+            valueV = get_value_string(trigger['value'], _)
+            message_tag = ('Tags:')
+            for tag in trigger["tags"]:
+                message_tag = message_tag + '\n\t\t' + \
+                    tag['tag']+' : ' + ('*%s*') % tag['value']
+            message = _('Host *%s*\nTrigger *%s* is *%s*\nExpression: *%s*\nSeverity: *%s*\nValue: *%s* since *%s*\n %s') % (
+                trigger['hosts'][0]['name'], trigger['description'], stateV, trigger['expression'], severityV, valueV, get_time(trigger['lastchange']), message_tag)
+    except Exception as e:
+        logger.error("Error in get_trigger_info to display trigger characteristics")
+        message = (_("*Error* in get\_trigger\_info"))
+
+    return message, list_trigger
 
 
 def display_problem_characteristics(context, LANG, API_VAR):
     """Recovery and create message of problem selected by the user"""
     lang_translations = gettext.translation(
-        'action', localedir='locales', languages=[LANG])
+        'action', localedir='../locales', languages=[LANG])
     lang_translations.install()
     _ = lang_translations.gettext
     ud = context.user_data
     message = str()
+    list_problem = []
 
     Cdata = json.loads(ud['PROBLEM_INFO'])
     problemID = Cdata['PID']
-    list_problem = API_VAR.get_event_info(problemID)
-    for problem in list_problem:
-        severityV = get_severity_string(problem['severity'], _)
-        acknowledgedV = get_acknowledged_emoji(problem['acknowledged'])
-        message_tag = ('Tags:')
-        for tag in problem["tags"]:
-            message_tag = message_tag + '\n\t\t' + \
-                tag['tag']+' : ' + ('*%s*') % tag['value']
-        message = _('Problem on *%s*\t\t*%s*\nSince: *%s*\nAcknowledged: *%s*\n%s') % (
-            problem['hosts'][0]['name'], severityV, get_time(problem['clock']), acknowledgedV, message_tag)
-    return message
+
+    try:
+        list_problem = API_VAR.get_event_info(problemID)
+        for problem in list_problem:
+            severityV = get_severity_string(problem['severity'], _)
+            acknowledgedV = get_acknowledged_emoji(problem['acknowledged'])
+            message_tag = ('Tags:')
+            for tag in problem["tags"]:
+                message_tag = message_tag + '\n\t\t' + \
+                    tag['tag']+' : ' + ('*%s*') % tag['value']
+            message = _('Problem on *%s*\t\t*%s*\nSince: *%s*\nAcknowledged: *%s*\n%s') % (
+                problem['hosts'][0]['name'], severityV, get_time(problem['clock']), acknowledgedV, message_tag)
+    except Exception as e:
+        logger.error("Error in get_event_info to display problem characteristics")
+        message = (_("*Error* in get\_event\_info"))
+
+    return message, list_problem
 
 
 def display_service_characteristics(context, LANG, API_VAR):
     """Recovery and create message of service selected by the user"""
     lang_translations = gettext.translation(
-        'action', localedir='locales', languages=[LANG])
+        'action', localedir='../locales', languages=[LANG])
     lang_translations.install()
     _ = lang_translations.gettext
     ud = context.user_data
     message = str()
-
+    list_service = []
     Cdata = json.loads(ud['SERVICE_INFO'])
     serviceID = Cdata['SID']
-    list_service = API_VAR.get_service_info(serviceID)
-    for service in list_service:
-        stateV = get_status_service_string(service['status'], _)
-        message_tag = ('Tags:')
-        for tag in service["tags"]:
-            message_tag = message_tag + '\n\t\t' + \
-                tag['tag']+' : ' + ('*%s*') % tag['value']
-        message_problem_tag = ('Problem tags:')
-        for tag in service["problem_tags"]:
-            if tag['operator'] == "0":
-                msg = tag['tag']+(' %s *%s*') % ("equals", tag['value'])
-            elif tag['operator'] == "2":
-                msg = tag['tag']+(' %s *%s*') % ("like", tag['value'])
-            else:
-                tag['tag']+' : ' + ('*%s*') % tag['value']
-            message_problem_tag = message_problem_tag + '\n\t\t' + msg
+    try:
+        list_service = API_VAR.get_service_info(serviceID)
+        for service in list_service:
+            stateV = get_status_service_string(service['status'], _)
+            message_tag = ('Tags:')
+            for tag in service["tags"]:
+                message_tag = message_tag + '\n\t\t' + \
+                    tag['tag']+' : ' + ('*%s*') % tag['value']
+            message_problem_tag = ('Problem tags:')
+            for tag in service["problem_tags"]:
+                if tag['operator'] == "0":
+                    msg = tag['tag']+(' %s *%s*') % ("equals", tag['value'])
+                elif tag['operator'] == "2":
+                    msg = tag['tag']+(' %s *%s*') % ("like", tag['value'])
+                else:
+                    tag['tag']+' : ' + ('*%s*') % tag['value']
+                message_problem_tag = message_problem_tag + '\n\t\t' + msg
 
-        message = _('Service *%s* is *%s*\nCreated at: *%s*\n%s\n%s') % (
-            service['name'], stateV, datetime.fromtimestamp(int(service['created_at'])), message_tag, message_problem_tag)
+            message = _('Service *%s* is *%s*\nCreated at: *%s*\n%s\n%s') % (
+                service['name'], stateV, datetime.fromtimestamp(int(service['created_at'])), message_tag, message_problem_tag)
+    except Exception as e:
+        logger.error("Error in get_service_info to display service characteristics")
+        message = (_("*Error* in get\_service\_info"))  
 
-    return message
+    return message, list_service
 
 
 def get_status_service_string(status, _):
@@ -310,7 +340,7 @@ def get_status_service_string(status, _):
 def display_global_status(api, LANG):
     """Get all informations about a server"""
     lang_translations = gettext.translation(
-        'action', localedir='locales', languages=[LANG])
+        'action', localedir='../locales', languages=[LANG])
     lang_translations.install()
     _ = lang_translations.gettext
     available_host = 0
@@ -323,35 +353,39 @@ def display_global_status(api, LANG):
     high_problem = 0
     disaster_problem = 0
 
-    list_host = api.get_list_hosts()
-    list_problem = api.get_list_problems()
+    try:
+        list_host = api.get_list_hosts()
+        list_problem = api.get_list_problems()
 
-    for host in list_host:
-        status_host = host['interfaces'][0]['available']
-        if status_host == "0":
-            unknown_host = unknown_host+1
-        elif status_host == "1":
-            available_host = available_host+1
-        elif status_host == "2":
-            unavailable_host = unavailable_host+1
+        for host in list_host:
+            status_host = host['interfaces'][0]['available']
+            if status_host == "0":
+                unknown_host = unknown_host+1
+            elif status_host == "1":
+                available_host = available_host+1
+            elif status_host == "2":
+                unavailable_host = unavailable_host+1
 
-    for problem in list_problem:
-        status_problem = problem['severity']
-        if status_problem == "0":
-            not_classified_problem = not_classified_problem+1
-        elif status_problem == "1":
-            information_problem = information_problem+1
-        elif status_problem == "2":
-            warning_problem = warning_problem+1
-        elif status_problem == "3":
-            average_problem = average_problem+1
-        elif status_problem == "4":
-            high_problem = high_problem+1
-        elif status_problem == "5":
-            disaster_problem = disaster_problem+1
+        for problem in list_problem:
+            status_problem = problem['severity']
+            if status_problem == "0":
+                not_classified_problem = not_classified_problem+1
+            elif status_problem == "1":
+                information_problem = information_problem+1
+            elif status_problem == "2":
+                warning_problem = warning_problem+1
+            elif status_problem == "3":
+                average_problem = average_problem+1
+            elif status_problem == "4":
+                high_problem = high_problem+1
+            elif status_problem == "5":
+                disaster_problem = disaster_problem+1
 
-    message = _('*Host availability*\n%s : %d\n%s : %d\n%s : %d\nTOTAL: %d\n\n*Problems by severity*\n%s : %d\n%s : %d\n%s : %d\n%s : %d\n%s : %d\n%s : %d\nTOTAL: %d') % (telegramEmojiDict['green square']+_("Available"), available_host, telegramEmojiDict['red square']+_("Not available"), unavailable_host, telegramEmojiDict['white large square']+_("Unknown"), unknown_host, len(list_host), telegramEmojiDict['red square']+_(
-        "Disaster"), disaster_problem, telegramEmojiDict['brown square']+_("High"), high_problem, telegramEmojiDict['orange square']+_("Average"), average_problem, telegramEmojiDict['yellow square']+_("Warning"), warning_problem, telegramEmojiDict['blue square']+_("Information"), information_problem, telegramEmojiDict['white large square']+_("Not classified"), not_classified_problem, len(list_problem))
+        message = _('*Host availability*\n%s : %d\n%s : %d\n%s : %d\nTOTAL: %d\n\n*Problems by severity*\n%s : %d\n%s : %d\n%s : %d\n%s : %d\n%s : %d\n%s : %d\nTOTAL: %d') % (telegramEmojiDict['green square']+_("Available"), available_host, telegramEmojiDict['red square']+_("Not available"), unavailable_host, telegramEmojiDict['white large square']+_("Unknown"), unknown_host, len(list_host), telegramEmojiDict['red square']+_(
+            "Disaster"), disaster_problem, telegramEmojiDict['brown square']+_("High"), high_problem, telegramEmojiDict['orange square']+_("Average"), average_problem, telegramEmojiDict['yellow square']+_("Warning"), warning_problem, telegramEmojiDict['blue square']+_("Information"), information_problem, telegramEmojiDict['white large square']+_("Not classified"), not_classified_problem, len(list_problem))
+    except Exception as e:
+        logger.error("Error to get global status")
+        message = _("*Error* to get global information")
     return message
 
 
@@ -445,7 +479,7 @@ def get_unity(i):
 def get_image_data(data, list_item, LANG):
     """Create graph for item and save at image"""
     lang_translations = gettext.translation(
-        'action', localedir='locales', languages=[LANG])
+        'action', localedir='../locales', languages=[LANG])
     lang_translations.install()
     _ = lang_translations.gettext
 
@@ -494,62 +528,74 @@ def get_image_data(data, list_item, LANG):
     plt.grid()
 
     # Save the graph to image
-    if os.path.exists("./documents/images/"+str(list_item[0]["itemid"])+".png"):
-        os.remove("./documents/images/"+str(list_item[0]["itemid"])+".png")
-    plt.savefig("./documents/images/"+str(list_item[0]["itemid"])+".png")
-    return "./documents/images/"+str(list_item[0]["itemid"])+".png"
+    if os.path.exists("../documents/images/"+str(list_item[0]["itemid"])+".png"):
+        os.remove("../documents/images/"+str(list_item[0]["itemid"])+".png")
+    plt.savefig("../documents/images/"+str(list_item[0]["itemid"])+".png")
+    return "../documents/images/"+str(list_item[0]["itemid"])+".png"
 
 
 def get_table_information_problem(api, LANG):
     """"Get problems information about Zabbix server"""
     lang_translations = gettext.translation(
-        'action', localedir='locales', languages=[LANG])
+        'action', localedir='../locales', languages=[LANG])
     lang_translations.install()
     _ = lang_translations.gettext
-    table = pt.PrettyTable(
-        [_('Host'), _('Severity-Problem'), _('Duration'), _('Ack')])
-    table.align[_('Severity-Problem')] = 'l'
-    table.align[_('Host')] = 'l'
-    list_problem = api.get_list_problems()
-    for problem in list_problem:
-        host_info = api.get_event_info(problem['eventid'])
-        severity_emoji = get_severity_emoji(problem['severity'])
-        time = get_time(int(problem['clock']))
-        acknowledged_emoji = get_acknowledged_emoji(problem['acknowledged'])
-        table.add_row([fill(host_info[0]["hosts"][0]["name"], width=30), fill(
-            severity_emoji+problem['name'], width=30), time, acknowledged_emoji])
-    return table
+    try:
+        table = pt.PrettyTable(
+            [_('Host'), _('Severity-Problem'), _('Duration'), _('Ack')])
+        table.align[_('Severity-Problem')] = 'l'
+        table.align[_('Host')] = 'l'
+    
+        list_problem = api.get_list_problems()
+        for problem in list_problem:
+            host_info = api.get_event_info(problem['eventid'])
+            severity_emoji = get_severity_emoji(problem['severity'])
+            time = get_time(int(problem['clock']))
+            acknowledged_emoji = get_acknowledged_emoji(problem['acknowledged'])
+            table.add_row([fill(host_info[0]["hosts"][0]["name"], width=30), fill(
+                severity_emoji+problem['name'], width=30), time, acknowledged_emoji])
+        return table
+    except Exception as e:
+        logger.error("Error to get problem information")
+        message = _("\nError to get problem information")
+        return message
 
 
 def get_table_information_maintenance(api, LANG):
     """"Get maintenances information about Zabbix server"""
     lang_translations = gettext.translation(
-        'action', localedir='locales', languages=[LANG])
+        'action', localedir='../locales', languages=[LANG])
     lang_translations.install()
     _ = lang_translations.gettext
-    table = pt.PrettyTable(
-        [_('Name'), _('Active since'), _('Active till'), _('State')])
-    table.align[_('Name')] = 'l'
-    table.align[_('State')] = 'l'
-    now = datetime.now()
-    list_maintenance = api.get_list_maintenances()
-    for maintenance in list_maintenance:
-        if now > datetime.fromtimestamp(int(maintenance['active_since'])) and now < datetime.fromtimestamp(int(maintenance['active_till'])):
-            table.add_row([fill(maintenance['name'], width=30), datetime.fromtimestamp(int(maintenance['active_since'])),
-                           datetime.fromtimestamp(int(maintenance['active_till'])), telegramEmojiDict['green square']+_("Active")])
-        elif now > datetime.fromtimestamp(int(maintenance['active_till'])):
-            table.add_row([fill(maintenance['name'], width=30), datetime.fromtimestamp(int(maintenance['active_since'])),
-                           datetime.fromtimestamp(int(maintenance['active_till'])), telegramEmojiDict['red square']+_("Expired")])
-        elif now < datetime.fromtimestamp(int(maintenance['active_since'])):
-            table.add_row([fill(maintenance['name'], width=30), datetime.fromtimestamp(int(maintenance['active_since'])),
-                           datetime.fromtimestamp(int(maintenance['active_till'])), telegramEmojiDict['orange square']+_("Approaching")])
-    return table
+    try:
+        table = pt.PrettyTable(
+            [_('Name'), _('Active since'), _('Active till'), _('State')])
+        table.align[_('Name')] = 'l'
+        table.align[_('State')] = 'l'
+        now = datetime.now()
+        
+        list_maintenance = api.get_list_maintenances()
+        for maintenance in list_maintenance:
+            if now > datetime.fromtimestamp(int(maintenance['active_since'])) and now < datetime.fromtimestamp(int(maintenance['active_till'])):
+                table.add_row([fill(maintenance['name'], width=30), datetime.fromtimestamp(int(maintenance['active_since'])),
+                            datetime.fromtimestamp(int(maintenance['active_till'])), telegramEmojiDict['green square']+_("Active")])
+            elif now > datetime.fromtimestamp(int(maintenance['active_till'])):
+                table.add_row([fill(maintenance['name'], width=30), datetime.fromtimestamp(int(maintenance['active_since'])),
+                            datetime.fromtimestamp(int(maintenance['active_till'])), telegramEmojiDict['red square']+_("Expired")])
+            elif now < datetime.fromtimestamp(int(maintenance['active_since'])):
+                table.add_row([fill(maintenance['name'], width=30), datetime.fromtimestamp(int(maintenance['active_since'])),
+                            datetime.fromtimestamp(int(maintenance['active_till'])), telegramEmojiDict['orange square']+_("Approaching")])
+        return table
+    except Exception as e:
+        logger.error("Error to get maintenance information")
+        message = _("\nError to get maintenance information")
+        return message
 
 
 def get_table_last_values_host(LANG, element_items, host_name):
     """"Get all last values for host"""
     lang_translations = gettext.translation(
-        'action', localedir='locales', languages=[LANG])
+        'action', localedir='../locales', languages=[LANG])
     lang_translations.install()
     _ = lang_translations.gettext
 
@@ -571,41 +617,46 @@ def get_table_last_values_host(LANG, element_items, host_name):
 def get_table_sla_report(LANG, api, service_id, sla_id):
     """Get SLA report for service"""
     lang_translations = gettext.translation(
-        'action', localedir='locales', languages=[LANG])
+        'action', localedir='../locales', languages=[LANG])
     lang_translations.install()
     _ = lang_translations.gettext
 
-    sla_report = api.get_sla_report_by_service(sla_id, service_id)
-    sla_info = api.get_sla_by_service(sla_id=sla_id)
-    sla_report_period = sla_report['periods']
-    sla_report_period.reverse()
-    sla_report_sli = list()
-    for i in range(len(sla_report_period)):
-        sla_report_sli.append(sla_report['sli'][i][0])
-    sla_report_sli.reverse()
+    table = pt.PrettyTable()
+    
+    try:
+        sla_report = api.get_sla_report_by_service(sla_id, service_id)
+        sla_info = api.get_sla_by_service(sla_id=sla_id)
+        sla_report_period = sla_report['periods']
+        sla_report_period.reverse()
+        sla_report_sli = list()
+        for i in range(len(sla_report_period)):
+            sla_report_sli.append(sla_report['sli'][i][0])
+        sla_report_sli.reverse()
 
-    table = pt.PrettyTable(
-        [get_column_name(sla_info[0]['period'], _), _('SLO'), _('SLI'), _('Uptime'), _('Downtime'), _('Error budget')])
+        table = pt.PrettyTable([get_column_name(sla_info[0]['period'], _), _('SLO'), _('SLI'), _('Uptime'), _('Downtime'), _('Error budget')])
 
-    # Limit to display in telegram
-    number_max_val = 40
-    if len(sla_report_period) < number_max_val:
-        number_max_val = len(sla_report_period)
+        # Limit to display in telegram
+        number_max_val = 40
+        if len(sla_report_period) < number_max_val:
+            number_max_val = len(sla_report_period)
 
-    for i in range(number_max_val):
-        period = get_date_value_depending_period(
-            sla_info[0]['period'], sla_report_period[i]['period_from'], sla_report_period[i]['period_to'])
-        sli = float(np.round(sla_report_sli[i]['sli'], 4))
-        uptime = get_val_time(sla_report_sli[i]['uptime'])
-        downtime = get_val_time(sla_report_sli[i]['downtime'])
-        error_budget = get_val_time(abs(sla_report_sli[i]['error_budget']))
-        if sla_report_sli[i]['error_budget'] < 0:
-            error_budget = "-" + error_budget
-        table.add_row([period, sla_info[0]['slo'], sli,
-                      uptime, downtime, error_budget])
+        for i in range(number_max_val):
+            period = get_date_value_depending_period(
+                sla_info[0]['period'], sla_report_period[i]['period_from'], sla_report_period[i]['period_to'])
+            sli = float(np.round(sla_report_sli[i]['sli'], 4))
+            uptime = get_val_time(sla_report_sli[i]['uptime'])
+            downtime = get_val_time(sla_report_sli[i]['downtime'])
+            error_budget = get_val_time(abs(sla_report_sli[i]['error_budget']))
+            if sla_report_sli[i]['error_budget'] < 0:
+                error_budget = "-" + error_budget
+            table.add_row([period, sla_info[0]['slo'], sli,
+                        uptime, downtime, error_budget])
+        
+        return table.get_string(title=sla_info[0]['name'])
 
-    return table.get_string(title=sla_info[0]['name'])
-
+    except Exception as e:
+        logger.error("Error in get_sla_report")
+        return _("\nError to get sla values")
 
 def get_val_time(val_second):
     minutes, seconds = divmod(int(val_second), 60)

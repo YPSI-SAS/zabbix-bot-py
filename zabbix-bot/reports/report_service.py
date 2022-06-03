@@ -1,11 +1,13 @@
 
 from reportlab.lib import colors
 from reportlab.platypus import SimpleDocTemplate, Spacer, Image, Table, TableStyle
-from reportlab.lib.units import inch, cm
+from reportlab.lib.units import cm
 from action import get_date_value_depending_period, get_val_time
-from report import Report
+from reports.report import Report
 import numpy as np
+import logging
 
+logger = logging.getLogger(__name__)
 
 class ReportService(Report):
     def __init__(self, api, service_id, LANG) -> None:
@@ -13,8 +15,11 @@ class ReportService(Report):
         self.service_id = service_id
         self.host_ids = []
         self.trigger_ids = []
-        self.information_service = self.api.get_service_info(self.service_id)[
-            0]
+        try:
+            self.information_service = self.api.get_service_info(self.service_id)[0]
+        except Exception as e:
+            logger.error("Error to get service information")
+            raise Exception(e)
 
     def write_general_information(self, part, _):
         """Write general information of service in report"""
@@ -165,7 +170,7 @@ class ReportService(Report):
     def create_report(self):
         """Create report for a specific service"""
 
-        name_file = "./documents/services/%s.pdf" % (
+        name_file = "../documents/services/%s.pdf" % (
             self.information_service['name'])
         doc = SimpleDocTemplate(name_file,
                                 rightMargin=2*cm, leftMargin=2*cm,

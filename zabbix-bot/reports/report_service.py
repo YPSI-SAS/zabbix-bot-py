@@ -167,7 +167,7 @@ class ReportService(Report):
                         event_info['relatedObject']['triggerid'])
         super().write_problems_information(part, _, problems_list)
 
-    def create_report(self):
+    def create_report(self, version):
         """Create report for a specific service"""
 
         name_file = "../documents/services/%s.pdf" % (
@@ -183,7 +183,7 @@ class ReportService(Report):
         self.write_children_information("4", self._)
         self.write_problems_information(
             "5", self._, self.information_service['problem_events'])
-        self.write_host_information("6", self._, self.host_ids)
+        self.write_host_information("6", self._, self.host_ids, version)
         self.write_trigger_information("7", self._, self.trigger_ids)
         doc.build(self.story)
         return name_file, self.list_images

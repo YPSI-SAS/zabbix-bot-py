@@ -17,11 +17,12 @@ class API:
         except Exception as e:
             logger.error('Problems getting token authentication - %s', e)
             raise ZabbixAPIException(e) 
-            
+        self.api_version = self.request_api_version()
+        self.zabbix_version = int(self.api_version.split(".")[0])            
 
-    def request_post(self, params, method, login=None):
+    def request_post(self, params, method, withoutLogin=None):
         """Send a post request to API"""
-        if login == True:
+        if withoutLogin == True:
             payload = {'jsonrpc': '2.0', 'method': method,
                    'params': params, 'id': 1}
         else:
@@ -66,6 +67,10 @@ class API:
         
         return json_data['result']
         
+    def request_api_version(self):
+        """Get version of zabbix server"""
+        params={}
+        return self.request_post(params=params, method="apiinfo.version", withoutLogin=True)
 
 
     def request_login(self, username, password):
@@ -74,47 +79,76 @@ class API:
             "user" : username,
             "password": password
         }
-        return self.request_post(params=params, method='user.login', login=True)
+        return self.request_post(params=params, method='user.login', withoutLogin=True)
         
 
     def get_list_hosts(self):
         """Get all hosts"""
-        params = {
-            'output': ['name', 'status', 'hostid'],
-            'sortfield': 'name',
-            "selectInterfaces": ["available"]
-        }
+        if self.zabbix_version >=6:
+            params = {
+                "output": ["name", "status", "hostid"],
+                "sortfield": "name",
+                "selectInterfaces": ["available"]
+            }
+        else:
+            params = {
+                "output": ["name", "status", "hostid", "available"],
+                "sortfield": "name"
+            }
         return self.request_post(params=params, method='host.get')
         
 
     def get_list_hosts_with_name(self, name):
         """Get all hosts with a specific name"""
-        params = {
-            'output': ['name', 'status', 'hostid'],
-            'sortfield': 'name',
-            'search': {
-                'host': '*'+name+'*'
-            },
-            'searchWildcardsEnabled': True,
-            "selectInterfaces": ["available"]
-        }
+        if self.zabbix_version>=6:
+            params = {
+                "output": ["name", "status", "hostid"],
+                "sortfield": "name",
+                "search": {
+                    "host": "*"+name+"*"
+                },
+                "searchWildcardsEnabled": True,
+                "selectInterfaces": ["available"]
+            }
+        else:
+            params = {
+                "output": ["name", "status", "hostid", "available"],
+                "sortfield": "name",
+                "search": {
+                    "host": "*"+name+"*"
+                },
+                "searchWildcardsEnabled": True
+            }
+        
         return self.request_post(params=params, method='host.get')
         
 
     def get_list_hosts_with_tag(self, tag):
         """Get all hosts with a specific tag"""
         tags = tag.split("=")
-        params = {
-            'output': ['name', 'status', 'hostid'],
-            'sortfield': 'name',
-            'tags': [
-                {
-                    'tag': tags[0],
-                    'value': tags[1]
-                }
-            ],
-            "selectInterfaces": ["available"]
-        }
+        if self.zabbix_version >=6:
+            params = {
+                "output": ["name", "status", "hostid"],
+                "sortfield": "name",
+                "tags": [
+                    {
+                        "tag": tags[0],
+                        "value": tags[1]
+                    }
+                ],
+                "selectInterfaces": ["available"]
+            }
+        else:
+            params = {
+                "output": ["name", "status", "hostid", "available"],
+                "sortfield": "name",
+                "tags": [
+                    {
+                        "tag": tags[0],
+                        "value": tags[1]
+                    }
+                ]
+            }
         return self.request_post(params=params, method='host.get')
         
 
@@ -128,25 +162,43 @@ class API:
 
     def get_list_hosts_with_hostgroup(self, id_hostgroup):
         """Get all hosts in hosts group"""
-        params = {
-            'output': ['name', 'status', 'hostid'],
-            'sortfield': 'name',
-            'groupids': id_hostgroup,
-            "selectInterfaces": ["available"]
-        }
+        if self.zabbix_version >=6:
+            params = {
+                'output': ['name', 'status', 'hostid'],
+                'sortfield': 'name',
+                'groupids': id_hostgroup,
+                "selectInterfaces": ["available"]
+            }
+        else:
+            params = {
+                'output': ['name', 'status', 'hostid', 'available'],
+                'sortfield': 'name',
+                'groupids': id_hostgroup
+            }
         return self.request_post(params=params, method='host.get')
         
 
     def get_host_info(self, id_host):
         """Get all information of the selected host"""
-        params = {
+        if self.zabbix_version >=6:
+            params = {
+                "hostids": id_host,
+                "output": ["name", "status", "hostid"],
+                "selectItems": ["name", "itemid", "lastvalue", "lastclock"],
+                "selectTriggers": ["triggerid", "description", "value", "priority"],
+                "selectTags": ["tag", "value"],
+                "selectInventory": ["location_lat", "location_lon"],
+                "selectInterfaces": ["available"],
+                "selectGroups": ["name", "groupid"]
+            }
+        else:
+            params = {
             "hostids": id_host,
-            "output": ["name", "status", "hostid"],
+            "output": ["name", "status", "hostid", "available"],
             "selectItems": ["name", "itemid", "lastvalue", "lastclock"],
             "selectTriggers": ["triggerid", "description", "value", "priority"],
             "selectTags": ["tag", "value"],
             "selectInventory": ["location_lat", "location_lon"],
-            "selectInterfaces": ["available"],
             "selectGroups": ["name", "groupid"]
         }
         return self.request_post(params=params, method='host.get')
@@ -230,15 +282,6 @@ class API:
             "expandExpression": "true"
         }
         return self.request_post(params=params, method='trigger.get')
-        
-
-    def get_trigger_problem(self, id_trigger):
-        """Get all problems of the selected trigger"""
-        params = {
-            "objectids": id_trigger,
-            "output": ["eventid", "name", "clock", "acknowledged", "severity"]
-        }
-        return self.request_post(params=params, method='problem.get')
         
 
     def update_trigger_status(self, id_trigger, status):

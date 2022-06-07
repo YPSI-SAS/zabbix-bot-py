@@ -129,9 +129,9 @@ class DisplayInformation:
         triggerID = Cdata["TID"]
 
         try:
-            list_trigger_problems = self.api.get_trigger_problem(triggerID)
+            list_trigger_problems = self.api.get_list_problems_by_trigger(triggerID)
         except Exception as e:
-            logger.error("Error in get_trigger_problem for display action trigger")
+            logger.error("Error in get_list_problems_by_trigger for display action trigger")
             list_trigger_problems = []
 
         for trigger in list_trigger:
@@ -180,7 +180,7 @@ class DisplayInformation:
             if problem["acknowledged"] == "0":
                 text=telegramEmojiDict["check mark button"] +self._("Acknowledge")
                 self.add_button_in_list(button_list, text, "acknowledge")
-            else:
+            elif problem["acknowledged"] == "1" and self.api.zabbix_version >=5:
                 text=telegramEmojiDict["cross mark"] + self._("Unacknowledge")
                 self.add_button_in_list(button_list, text, "unacknowledge")
                 

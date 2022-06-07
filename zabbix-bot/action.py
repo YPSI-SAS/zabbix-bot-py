@@ -29,7 +29,7 @@ def build_menu(buttons, n_cols, footer_buttons=None, cancel_button=None):
     return menu
 
 
-def display_object_button(object, object_list, LANG):
+def display_object_button(object, object_list, LANG, api):
     """Display all differents objects in the form of buttons"""
     lang_translations = gettext.translation(
         'action', localedir='../locales', languages=[LANG])
@@ -48,7 +48,11 @@ def display_object_button(object, object_list, LANG):
                 message = _(
                     'I found many hosts. Please choose one host or cancel\n')
             for host in object_list:
-                button_list.append(InlineKeyboardButton(text=get_status_host_emoji(host['interfaces'][0]['available'])+host['name'],
+                if api.zabbix_version  >= 6:
+                    status_host = host['interfaces'][0]['available']
+                else:
+                    status_host = host['available']
+                button_list.append(InlineKeyboardButton(text=get_status_host_emoji(status_host)+host['name'],
                                                         callback_data='{"HID":"'+host['hostid']+'"}'))
     elif object == "HG":  # Display host group buttons
         if not object_list:
@@ -184,12 +188,18 @@ def display_host_characteristics(context, LANG, API_VAR):
         #Create message with host information
         for host in list_host:
             stateV = get_state_string(host['status'], _)
-            availabilityV = get_status_string(
-                host['interfaces'][0]['available'], _)
-            message_tag = ('Tags:')
-            for tag in host["tags"]:
-                message_tag = message_tag + '\n\t\t' + \
-                    tag['tag']+' : ' + ('*%s*') % tag['value']
+            if API_VAR.zabbix_version >=6:
+                status_host = host['interfaces'][0]['available']
+            else:
+                status_host = host['available']
+            availabilityV = get_status_string(status_host
+                , _)
+            message_tag = ""
+            if API_VAR.zabbix_version >=5:
+                message_tag = ('Tags:')
+                for tag in host["tags"]:
+                    message_tag = message_tag + '\n\t\t' + \
+                        tag['tag']+' : ' + ('*%s*') % tag['value']
             message = _('Host *%s* is *%s*\nAvailability: *%s*\n%s') % (
                 host['name'], stateV, availabilityV, message_tag)
     except Exception as e:
@@ -218,10 +228,12 @@ def display_item_characteristics(context, LANG, API_VAR):
         #Create message with item information
         for item in list_item:
             stateV = get_state_string(item['status'], _)
-            message_tag = ('Tags:')
-            for tag in item["tags"]:
-                message_tag = message_tag + '\n\t\t' + \
-                    tag['tag']+' : ' + ('*%s*') % tag['value']
+            message_tag=""
+            if API_VAR.zabbix_version >=6:
+                message_tag = ('Tags:')
+                for tag in item["tags"]:
+                    message_tag = message_tag + '\n\t\t' + \
+                        tag['tag']+' : ' + ('*%s*') % tag['value']
 
             message = _('Host *%s*\nItem *%s* is *%s*\nLast value: *%s %s*\nLast check: *%s*\n %s') % (
                 item['hosts'][0]['name'], item['name'], stateV, item['lastvalue'], item['units'], get_time(item['lastclock']), message_tag)
@@ -373,19 +385,24 @@ def display_global_status(api, LANG):
     high_problem = 0
     disaster_problem = 0
     try:
-        #Get host and problem information
+        #Get host information
         list_host = api.get_list_hosts()
-        list_problem = api.get_list_problems()
 
         #Calculate number of host in each state
         for host in list_host:
-            status_host = host['interfaces'][0]['available']
+            if api.zabbix_version >=6:
+                status_host = host['interfaces'][0]['available']
+            else:
+                status_host = host['available']
             if status_host == "0":
                 unknown_host = unknown_host+1
             elif status_host == "1":
                 available_host = available_host+1
             elif status_host == "2":
                 unavailable_host = unavailable_host+1
+
+        #Get problem information
+        list_problem = api.get_list_problems()
 
         #Calculate number of problem in each state
         for problem in list_problem:

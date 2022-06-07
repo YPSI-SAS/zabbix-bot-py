@@ -209,7 +209,7 @@ def navigation_elements(update, context):
 
         # Get elements in button_list
         message, button_list = display_object_button(
-            ud["OBJECT"], elements_list, LANG)
+            ud["OBJECT"], elements_list, LANG, ud[API_VAR])
 
         display_information = DisplayInformation(LANG, ud[API_VAR])
         # Create footer elements
@@ -849,7 +849,7 @@ def send_pdf(update, context):
             host_ID = Cdata["HID"]
             report_host = ReportHost(
                 api=ud[API_VAR], host_id=host_ID, LANG=LANG)
-            file, list_images = report_host.create_report()
+            file, list_images = report_host.create_report(version=ud[API_VAR].zabbix_version)
             button_list = list()
             display_information.add_button_in_list(button_list, telegramEmojiDict["laptop"] + _("Back to host"), '{"HID":"'+host_ID+'"}')
         elif ud['OBJECT'] == 'service':
@@ -857,7 +857,7 @@ def send_pdf(update, context):
             service_ID = Cdata["SID"]
             report_service = ReportService(
                 api=ud[API_VAR], service_id=service_ID, LANG=LANG)
-            file, list_images = report_service.create_report()
+            file, list_images = report_service.create_report(version=ud[API_VAR].zabbix_version)
             button_list = list()
             display_information.add_button_in_list(button_list, telegramEmojiDict["level slider"] + _("Back to service"), '{"SID":"'+service_ID+'"}')
         reply_markup = InlineKeyboardMarkup(
@@ -1166,19 +1166,6 @@ def start(update, context, message_update=""):
 
     # Create initial message:
     if findServ == True:
-        display_information = DisplayInformation(LANG, None)
-        display_information.add_button_in_list(button_list, telegramEmojiDict["magnifying glass tilted"]+ telegramEmojiDict["laptop"]+ _("Search host name"), str(HOST_MENU_NAME))
-        display_information.add_button_in_list(button_list, telegramEmojiDict["magnifying glass tilted left"]+ telegramEmojiDict["laptop"]+ _("Search host tag"), str(HOST_MENU_TAG))
-        display_information.add_button_in_list(button_list, telegramEmojiDict["laptop"]+ telegramEmojiDict["laptop"]+ _("Hostgroups"), str(HOST_GROUP_MENU))
-        display_information.add_button_in_list(button_list, telegramEmojiDict["large blue diamond"] +_("All Hosts"), str(ALL_MENU))
-        display_information.add_button_in_list(button_list, telegramEmojiDict["level slider"]+ _("Services"), str(SERVICE_MENU))
-        footer_buttons = list()
-        display_information.add_button_in_list(footer_buttons, telegramEmojiDict["gear"] + _("Settings"), str(SETTING_MENU))
-        display_information.add_button_in_list(footer_buttons, telegramEmojiDict["waving hand"] + _("Done"), str(END))
-            
-        reply_markup = InlineKeyboardMarkup(
-            build_menu(button_list, n_cols=2, footer_buttons=footer_buttons)
-        )
         try:
             context.user_data[API_VAR] = API(
                 context.user_data[str(ZABBIX_URL)], context.user_data[str(ZABBIX_BOT_USERNAME)],context.user_data[str(ZABBIX_BOT_PASSWORD)]
@@ -1194,6 +1181,22 @@ def start(update, context, message_update=""):
             reply_markup = InlineKeyboardMarkup(
                 build_menu(button_list, n_cols=2)
             )
+        display_information = DisplayInformation(LANG, None)
+        display_information.add_button_in_list(button_list, telegramEmojiDict["magnifying glass tilted"]+ telegramEmojiDict["laptop"]+ _("Search host name"), str(HOST_MENU_NAME))
+        if context.user_data[API_VAR].zabbix_version >=5:
+            display_information.add_button_in_list(button_list, telegramEmojiDict["magnifying glass tilted left"]+ telegramEmojiDict["laptop"]+ _("Search host tag"), str(HOST_MENU_TAG))
+        display_information.add_button_in_list(button_list, telegramEmojiDict["laptop"]+ telegramEmojiDict["laptop"]+ _("Hostgroups"), str(HOST_GROUP_MENU))
+        display_information.add_button_in_list(button_list, telegramEmojiDict["large blue diamond"] +_("All Hosts"), str(ALL_MENU))
+        if context.user_data[API_VAR].zabbix_version >=6:
+            display_information.add_button_in_list(button_list, telegramEmojiDict["level slider"]+ _("Services"), str(SERVICE_MENU))
+        footer_buttons = list()
+        display_information.add_button_in_list(footer_buttons, telegramEmojiDict["gear"] + _("Settings"), str(SETTING_MENU))
+        display_information.add_button_in_list(footer_buttons, telegramEmojiDict["waving hand"] + _("Done"), str(END))
+            
+        reply_markup = InlineKeyboardMarkup(
+            build_menu(button_list, n_cols=2, footer_buttons=footer_buttons)
+        )
+        
 
     else:
         message = _("The server is incorrect. Please change the name in setting.")

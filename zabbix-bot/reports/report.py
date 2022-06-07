@@ -90,7 +90,7 @@ class Report:
             self.story.append(Spacer(1, 12))
             self.write_table_tag(trigger_info['tags'], _)
 
-    def write_host_information(self, part, _, hosts_list):
+    def write_host_information(self, part, _, hosts_list, version):
         """Write host information which attached to problem"""
         self.write_paragraph(
             part+". "+_("Hosts"), 'Heading1Set')
@@ -109,9 +109,9 @@ class Report:
 
             self.write_table_tag(host_info['tags'], _)
             self.write_item_information(
-                items=host_info['items'], index=index, part=part, _=_)
+                items=host_info['items'], index=index, part=part, _=_, version=version)
 
-    def write_item_information(self, items, part, _, index=None):
+    def write_item_information(self, items, part, _, version, index=None):
         """Write item information which attached to host"""
         for item in items:
             item_index = items.index(item)+1
@@ -130,15 +130,16 @@ class Report:
             self.write_paragraph(
                 "<b>"+_("Last check")+"</b> " + self.convert_datetime_to_text(item_info['lastclock']), 'Normal')
             self.story.append(Spacer(1, 12))
-            self.write_table_tag(item_info['tags'], _)
-            if item_info["value_type"] == "0" or item_info["value_type"] == "3":
-                data = self.api.get_list_history_item(
-                    item_info['itemid'], item_info['value_type'])
-                name_file = get_image_data(
-                    data=data, list_item=items_info, LANG="en")
-                im = Image(name_file, 7*inch, 3*inch)
-                self.story.append(im)
-                self.list_images.append(name_file)
+            if version>=6:
+                self.write_table_tag(item_info['tags'], _)
+                if item_info["value_type"] == "0" or item_info["value_type"] == "3":
+                    data = self.api.get_list_history_item(
+                        item_info['itemid'], item_info['value_type'])
+                    name_file = get_image_data(
+                        data=data, list_item=items_info, LANG="en")
+                    im = Image(name_file, 7*inch, 3*inch)
+                    self.story.append(im)
+                    self.list_images.append(name_file)
 
     def write_acknowledge_informations(self, event, index, part, _):
         """Write acknowledge information of problem"""

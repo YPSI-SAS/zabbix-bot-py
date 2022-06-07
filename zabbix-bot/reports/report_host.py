@@ -18,25 +18,29 @@ class ReportHost(Report):
             logger.error("Error to get host information")
             raise Exception(e)
 
-    def write_general_information(self, part, _):
+    def write_general_information(self, part, _, version):
         """Write general information of service in report"""
         self.write_paragraph(
             part+". "+_("General informations"), 'Heading1Set')
 
         self.write_paragraph(
             "<b>"+_("Status")+":</b> "+self.convert_general_status_to_text(self.information_host['status'], _), 'Normal')
+        if version>=6:
+            availability_host = self.information_host['interfaces'][0]['available']
+        else:
+            availability_host = self.information_host['available']
         self.write_paragraph(
-            "<b>"+_("Availability")+":</b> "+self.convert_availability_to_text(self.information_host['interfaces'][0]['available'], _), 'Normal')
+                "<b>"+_("Availability")+":</b> "+self.convert_availability_to_text(availability_host, _), 'Normal')
         if type(self.information_host['inventory']) != list and self.information_host['inventory']['location_lat'] != "" and self.information_host['inventory']['location_lon'] != "":
             self.write_paragraph(
                 "<b>"+_("Latitude")+":</b> "+self.information_host['inventory']['location_lat']+" <b>"+_("Longitude")+":</b> " + self.information_host['inventory']['location_lon'], 'Normal')
+        if version >=5:
+            self.write_table_tag(self.information_host['tags'], _)
 
-        self.write_table_tag(self.information_host['tags'], _)
-
-    def write_item_information(self, items, part, _):
+    def write_item_information(self, items, part, _, version):
         self.write_paragraph(
             part+". "+_("Items"), 'Heading1Set')
-        super().write_item_information(items=items, part=part, _=_)
+        super().write_item_information(items=items, part=part, _=_, version=version)
 
     def write_problems_information(self, part, _):
         problems_list = self.api.get_host_problem(
@@ -49,7 +53,7 @@ class ReportHost(Report):
             list_triggers.append(trigger['triggerid'])
         super().write_trigger_information(part, _, list_triggers)
 
-    def create_report(self):
+    def create_report(self, version):
         """Create report for a specific service"""
 
         name_file = "../documents/hosts/%s.pdf" % (
@@ -59,9 +63,9 @@ class ReportHost(Report):
                                 topMargin=2*cm, bottomMargin=2*cm)
         self.write_paragraph(
             '<a name="HOST_'+self.information_host['hostid']+'"/>'+self._("Host")+" : "+self.information_host['name'], 'TitleSet')
-        self.write_general_information("1", self._)
+        self.write_general_information("1", self._, version)
         self.write_item_information(
-            items=self.information_host['items'], part="2", _=self._)
+            items=self.information_host['items'], part="2", _=self._, version=version)
         self.write_trigger_information(
             "3", self._)
         self.write_problems_information(

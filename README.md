@@ -1,5 +1,7 @@
 # Zabbix-Bot-Py
 
+Zabbix Bot is a Telegram bot compatible Zabbix version 4, 5 and 6.
+
 ## Environment variables
 The variable BOT_TOKEN is obligatory for know the bot.
 The variables ZABBIX_URL, ZABBIX_BOT_USERNAME, ZABBIX_BOT_PASSWORD are obligatory if you won't use the config file and manage only one server

@@ -136,8 +136,8 @@ def send_photo_action(func):
 
 def display_message_bot(update, context, message, reply_markup):
     """Display message and keyboard in conversation"""
-    if context.user_data['AFTER_GRAPH'] == True:
-        context.user_data['AFTER_GRAPH'] = False
+    if context.user_data['AFTER_BOT_SEND'] == True:
+        context.user_data['AFTER_BOT_SEND'] = False
         context.bot.send_message(update.effective_chat.id, text=message,
                                  parse_mode=ParseMode.MARKDOWN, reply_markup=reply_markup)
         context.user_data[START_OVER] = False
@@ -248,13 +248,15 @@ def navigation_elements(update, context):
         logger.error("Error in "+ud["TYPE_REQUEST"])
         return True
 
+def create_user_data_to_list_element(context, type_request, object, number):
+    ud = context.user_data
+    ud["TYPE_REQUEST"] = type_request
+    ud["OBJECT"] = object
+    ud["NUMBER"] = number
 
 def list_host(update, context):
     """Display all hosts"""
-    ud = context.user_data
-    ud["TYPE_REQUEST"] = "get_list_hosts"
-    ud["OBJECT"] = "host"
-    ud["NUMBER"] = 0
+    create_user_data_to_list_element(context, "get_list_hosts", "host", 0)
     error = navigation_elements(update, context)
     if error :
         context.user_data[START_OVER] = True
@@ -328,9 +330,7 @@ def list_host_with_name(update, context):
     """Display the list of host which contains the name of the host enter by the user"""
     ud = context.user_data
     ud["NAME_HOST"] = update.message.text
-    ud["TYPE_REQUEST"] = "get_list_hosts_with_name"
-    ud["OBJECT"] = "host"
-    ud["NUMBER"] = 0
+    create_user_data_to_list_element(context, "get_list_hosts_with_name", "host", 0)
     error = navigation_elements(update, context)
     if error :
         context.user_data[START_OVER] = False
@@ -344,9 +344,7 @@ def list_host_with_tag(update, context):
     """Display the list of host which contains the tag of the host enter by the user"""
     ud = context.user_data
     ud["TAG_HOST"] = update.message.text
-    ud["TYPE_REQUEST"] = "get_list_hosts_with_tag"
-    ud["OBJECT"] = "host"
-    ud["NUMBER"] = 0
+    create_user_data_to_list_element(context, "get_list_hosts_with_tag", "host", 0)
     error = navigation_elements(update, context)
     if error :
         context.user_data[START_OVER] = False
@@ -359,11 +357,9 @@ def list_host_with_tag(update, context):
 def list_item(update, context):
     """Display the list of item for the host selected by the user"""
     ud = context.user_data
-    ud["TYPE_REQUEST"] = "get_list_items"
+    create_user_data_to_list_element(context, "get_list_items", "item", 0)
     Cdata = json.loads(ud["HOST_INFO"])
     ud["ID_HOST"] = Cdata["HID"]
-    ud["OBJECT"] = "item"
-    ud["NUMBER"] = 0
     error = navigation_elements(update, context)
     if error:
         message_update = _("*Error* to list items\n\n")
@@ -374,12 +370,11 @@ def list_item(update, context):
 
 
 def list_sla_service(update, context):
+    """Display the list of SLA for the service selected by the user"""
     ud = context.user_data
-    ud["TYPE_REQUEST"] = "get_sla_by_service"
+    create_user_data_to_list_element(context, "get_sla_by_service", "sla", 0)
     Cdata = json.loads(ud["SERVICE_INFO"])
     ud["ID_SERVICE"] = Cdata["SID"]
-    ud["OBJECT"] = "sla"
-    ud["NUMBER"] = 0
     error = navigation_elements(update, context)
     if error:
         message_update = _("*Error* to list SLA\n\n")
@@ -390,10 +385,7 @@ def list_sla_service(update, context):
 
 def list_hostgroups(update, context):
     """Display all hostgroups"""
-    ud = context.user_data
-    ud["TYPE_REQUEST"] = "get_list_hostgroups"
-    ud["OBJECT"] = "HG"
-    ud["NUMBER"] = 0
+    create_user_data_to_list_element(context, "get_list_hostgroups", "HG", 0)
     error = navigation_elements(update, context)
     if error :
         context.user_data[START_OVER] = True
@@ -405,10 +397,7 @@ def list_hostgroups(update, context):
 
 def list_services(update, context):
     """Display all services"""
-    ud = context.user_data
-    ud["TYPE_REQUEST"] = "get_list_services"
-    ud["OBJECT"] = "service"
-    ud["NUMBER"] = 0
+    create_user_data_to_list_element(context, "get_list_services", "service", 0)
     error = navigation_elements(update, context)
     if error :
         context.user_data[START_OVER] = True
@@ -436,11 +425,8 @@ def list_service_parent(update, context):
         reply_service(update, context, message_update)
         return DISPLAY_ACTION_SERVICE
 
-    ud["PARENT_CHILD_ID"] = concatenate_id(
-        value[0], "parents", "serviceid")
-    ud["TYPE_REQUEST"] = "get_list_services_parent_child"
-    ud["OBJECT"] = "service"
-    ud["NUMBER"] = 0
+    ud["PARENT_CHILD_ID"] = concatenate_id(value[0], "parents", "serviceid")
+    create_user_data_to_list_element(context, "get_list_services_parent_child", "service", 0)
     error = navigation_elements(update, context)
     if error:
         message_update = _("*Error* to list parents service\n\n")
@@ -461,11 +447,8 @@ def list_service_child(update, context):
         reply_service(update, context, message_update)
         return DISPLAY_ACTION_SERVICE
 
-    ud["PARENT_CHILD_ID"] = concatenate_id(
-        value[0], "children", "serviceid")
-    ud["TYPE_REQUEST"] = "get_list_services_parent_child"
-    ud["OBJECT"] = "service"
-    ud["NUMBER"] = 0
+    ud["PARENT_CHILD_ID"] = concatenate_id(value[0], "children", "serviceid")
+    create_user_data_to_list_element(context, "get_list_services_parent_child", "service", 0)
     error = navigation_elements(update, context)
     if error:
         message_update = _("*Error* to list children service\n\n")
@@ -477,7 +460,6 @@ def list_service_child(update, context):
 def list_problem_by_service(update, context):
     """Display the list of problem for the service selected by the user"""
     ud = context.user_data
-    ud["TYPE_REQUEST"] = "get_list_problems_by_service"
     Cdata = json.loads(update.callback_query.data)
 
     try:
@@ -487,10 +469,8 @@ def list_problem_by_service(update, context):
         reply_service(update, context, message_update)
         return DISPLAY_ACTION_SERVICE
 
-    ud["PROBLEM_ID"] = concatenate_id(
-        value[0], "problem_events", "eventid")
-    ud["OBJECT"] = "problem"
-    ud["NUMBER"] = 0
+    ud["PROBLEM_ID"] = concatenate_id(value[0], "problem_events", "eventid")
+    create_user_data_to_list_element(context, "get_list_problems_by_service", "problem", 0)
     error = navigation_elements(update, context)
     if error:
         message_update = _("*Error* to list problems\n\n")
@@ -502,11 +482,9 @@ def list_problem_by_service(update, context):
 def list_trigger_by_host(update, context):
     """Display the list of trigger for the host selected by the user"""
     ud = context.user_data
-    ud["TYPE_REQUEST"] = "get_list_triggers_by_host"
+    create_user_data_to_list_element(context, "get_list_triggers_by_host", "trigger", 0)
     Cdata = json.loads(ud["HOST_INFO"])
     ud["ID_HOST"] = Cdata["HID"]
-    ud["OBJECT"] = "trigger"
-    ud["NUMBER"] = 0
     error = navigation_elements(update, context)
     if error:
         message_update = _("*Error* to list triggers\n\n")
@@ -519,11 +497,9 @@ def list_trigger_by_host(update, context):
 def list_trigger_by_item(update, context):
     """Display the list of trigger for the item selected by the user"""
     ud = context.user_data
-    ud["TYPE_REQUEST"] = "get_list_triggers_by_item"
+    create_user_data_to_list_element(context, "get_list_triggers_by_item", "trigger", 0)
     Cdata = json.loads(ud["ITEM_INFO"])
     ud["ID_ITEM"] = Cdata["IID"]
-    ud["OBJECT"] = "trigger"
-    ud["NUMBER"] = 0
     error = navigation_elements(update, context)
     if error:
         message_update = _("*Error* to list triggers\n\n")
@@ -536,12 +512,10 @@ def list_trigger_by_item(update, context):
 def select_hostgroups(update, context):
     """Display host belonging to hostgroup"""
     ud = context.user_data
+    create_user_data_to_list_element(context, "get_list_hosts_with_hostgroup", "host", 0)
     ud["HOSTGROUP_INFO"] = update.callback_query.data
     Cdata = json.loads(ud["HOSTGROUP_INFO"])
     ud["ID_HOSTGROUP"] = Cdata["HGID"]
-    ud["TYPE_REQUEST"] = "get_list_hosts_with_hostgroup"
-    ud["OBJECT"] = "host"
-    ud["NUMBER"] = 0
     error = navigation_elements(update, context)
     if error :
         context.user_data[START_OVER] = True
@@ -555,11 +529,9 @@ def select_hostgroups(update, context):
 def list_problem_by_host(update, context):
     """Display the list of problem for the host selected by the user"""
     ud = context.user_data
-    ud["TYPE_REQUEST"] = "get_list_problems_by_host"
+    create_user_data_to_list_element(context, "get_list_problems_by_host", "problem", 0)
     Cdata = json.loads(ud["HOST_INFO"])
     ud["ID_HOST"] = Cdata["HID"]
-    ud["OBJECT"] = "problem"
-    ud["NUMBER"] = 0
     error = navigation_elements(update, context)
     if error:
         message_update = _("*Error* to list problems\n\n")
@@ -572,11 +544,9 @@ def list_problem_by_host(update, context):
 def list_problem_by_trigger(update, context):
     """Display the list of problem for the trigger selected by the user"""
     ud = context.user_data
-    ud["TYPE_REQUEST"] = "get_list_problems_by_trigger"
+    create_user_data_to_list_element(context, "get_list_problems_by_trigger", "problem", 0)
     Cdata = json.loads(ud["TRIGGER_INFO"])
     ud["ID_TRIGGER"] = Cdata["TID"]
-    ud["OBJECT"] = "problem"
-    ud["NUMBER"] = 0
     error = navigation_elements(update, context)
     if error:
         message_update = _("*Error* to list problems\n\n")
@@ -852,7 +822,7 @@ def show_location_host(update, context):
         context.bot.sendLocation(
             chat_id=update.effective_chat.id, latitude=float(information_host[0]['inventory']['location_lat']), longitude=float(information_host[0]['inventory']['location_lon']), reply_markup=reply_markup
         )
-        ud['AFTER_GRAPH'] = True
+        ud['AFTER_BOT_SEND'] = True
     except Exception as e:
         logger.error("Error to get location")
         message_update = _("*Error* to get location\n\n")
@@ -896,7 +866,7 @@ def send_pdf(update, context):
         # send the pdf doc
         context.bot.sendDocument(
             chat_id=update.effective_chat.id, document=open(file, 'rb'), reply_markup=reply_markup, timeout=100)
-        ud['AFTER_GRAPH'] = True
+        ud['AFTER_BOT_SEND'] = True
         delete_image_after(list_images=list_images)
 
     except Exception as e:
@@ -1141,7 +1111,7 @@ def display_graph(update, context):
             button_list, n_cols=2))
         context.bot.send_photo(update.effective_chat.id, photo=open(
             name_file, 'rb'), reply_markup=reply_markup)
-        ud['AFTER_GRAPH'] = True
+        ud['AFTER_BOT_SEND'] = True
         delete_image_after(list_images=[name_file])
     except Exception as e:
         logger.error("Error to display graph")
@@ -1155,7 +1125,7 @@ def display_graph(update, context):
 
 def start(update, context, message_update=""):
     """start display the start message"""
-    context.user_data['AFTER_GRAPH'] = False
+    context.user_data['AFTER_BOT_SEND'] = False
     button_list = list()
     findServ = False
     bot = context.bot
@@ -1233,6 +1203,7 @@ def start(update, context, message_update=""):
             build_menu(button_list, n_cols=2)
         )
 
+    #Send initial message
     if context.user_data.get(START_OVER):
         update.callback_query.edit_message_text(
             text=message_update+message, reply_markup=reply_markup, parse_mode=ParseMode.MARKDOWN

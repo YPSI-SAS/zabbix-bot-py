@@ -133,6 +133,7 @@ def display_object_button(object, object_list, LANG):
 
 
 def get_status_service_emoji(status):
+    """Convert status number of service to status emoji"""
     switcher = {
         "-1": telegramEmojiDict['green square'],
         "0": telegramEmojiDict['white large square'],
@@ -166,6 +167,7 @@ def get_status_emoji(status):
 
 def display_host_characteristics(context, LANG, API_VAR):
     """Recovery and create message of host selected by the user"""
+    #Get translation
     lang_translations = gettext.translation(
         'action', localedir='../locales', languages=[LANG])
     lang_translations.install()
@@ -173,10 +175,13 @@ def display_host_characteristics(context, LANG, API_VAR):
     ud = context.user_data
     message = str()
     list_host = []
+    #Recovery host ID
     Cdata = json.loads(ud['HOST_INFO'])
     hostID = Cdata['HID']
     try:
+        #Get information about the host
         list_host = API_VAR.get_host_info(hostID)
+        #Create message with host information
         for host in list_host:
             stateV = get_state_string(host['status'], _)
             availabilityV = get_status_string(
@@ -196,6 +201,7 @@ def display_host_characteristics(context, LANG, API_VAR):
 
 def display_item_characteristics(context, LANG, API_VAR):
     """Recovery and create message of item selected by the user"""
+    #Get translation
     lang_translations = gettext.translation(
         'action', localedir='../locales', languages=[LANG])
     lang_translations.install()
@@ -203,11 +209,13 @@ def display_item_characteristics(context, LANG, API_VAR):
     ud = context.user_data
     message = str()
     list_item = []
+    #Recovery item ID
     Cdata = json.loads(ud['ITEM_INFO'])
     itemID = Cdata['IID']
-
     try:
+        #Get information about the item
         list_item = API_VAR.get_item_info(itemID)
+        #Create message with item information
         for item in list_item:
             stateV = get_state_string(item['status'], _)
             message_tag = ('Tags:')
@@ -226,6 +234,7 @@ def display_item_characteristics(context, LANG, API_VAR):
 
 def display_trigger_characteristics(context, LANG, API_VAR):
     """Recovery and create message of trigger selected by the user"""
+    #Get translation
     lang_translations = gettext.translation(
         'action', localedir='../locales', languages=[LANG])
     lang_translations.install()
@@ -233,11 +242,13 @@ def display_trigger_characteristics(context, LANG, API_VAR):
     ud = context.user_data
     message = str()
     list_trigger = []
-
+    #Recovery trigger ID
     Cdata = json.loads(ud['TRIGGER_INFO'])
     triggerID = Cdata['TID']
     try:
+        #Get information about the trigger
         list_trigger = API_VAR.get_trigger_info(triggerID)
+        #Create message with trigger information
         for trigger in list_trigger:
             stateV = get_state_string(trigger['status'], _)
             severityV = get_severity_string(trigger['priority'], _)
@@ -257,6 +268,7 @@ def display_trigger_characteristics(context, LANG, API_VAR):
 
 def display_problem_characteristics(context, LANG, API_VAR):
     """Recovery and create message of problem selected by the user"""
+    #Get translation
     lang_translations = gettext.translation(
         'action', localedir='../locales', languages=[LANG])
     lang_translations.install()
@@ -264,12 +276,13 @@ def display_problem_characteristics(context, LANG, API_VAR):
     ud = context.user_data
     message = str()
     list_problem = []
-
+    #Recovery problem ID
     Cdata = json.loads(ud['PROBLEM_INFO'])
     problemID = Cdata['PID']
-
     try:
+        #Get information about the problem
         list_problem = API_VAR.get_event_info(problemID)
+        #Create message with problem information
         for problem in list_problem:
             severityV = get_severity_string(problem['severity'], _)
             acknowledgedV = get_acknowledged_emoji(problem['acknowledged'])
@@ -288,6 +301,7 @@ def display_problem_characteristics(context, LANG, API_VAR):
 
 def display_service_characteristics(context, LANG, API_VAR):
     """Recovery and create message of service selected by the user"""
+    #Get translation
     lang_translations = gettext.translation(
         'action', localedir='../locales', languages=[LANG])
     lang_translations.install()
@@ -295,10 +309,13 @@ def display_service_characteristics(context, LANG, API_VAR):
     ud = context.user_data
     message = str()
     list_service = []
+    #Recovery service ID
     Cdata = json.loads(ud['SERVICE_INFO'])
     serviceID = Cdata['SID']
     try:
+        #Get information about the service
         list_service = API_VAR.get_service_info(serviceID)
+        #Create message with service information
         for service in list_service:
             stateV = get_status_service_string(service['status'], _)
             message_tag = ('Tags:')
@@ -325,6 +342,7 @@ def display_service_characteristics(context, LANG, API_VAR):
 
 
 def get_status_service_string(status, _):
+    """Convert status number of service to string"""
     switcher = {
         "-1": telegramEmojiDict['green square']+_("OK"),
         "0": telegramEmojiDict['white large square']+_("Not classified"),
@@ -339,10 +357,12 @@ def get_status_service_string(status, _):
 
 def display_global_status(api, LANG):
     """Get all informations about a server"""
+    #Get translation
     lang_translations = gettext.translation(
         'action', localedir='../locales', languages=[LANG])
     lang_translations.install()
     _ = lang_translations.gettext
+    #Init state variables
     available_host = 0
     unavailable_host = 0
     unknown_host = 0
@@ -352,11 +372,12 @@ def display_global_status(api, LANG):
     average_problem = 0
     high_problem = 0
     disaster_problem = 0
-
     try:
+        #Get host and problem information
         list_host = api.get_list_hosts()
         list_problem = api.get_list_problems()
 
+        #Calculate number of host in each state
         for host in list_host:
             status_host = host['interfaces'][0]['available']
             if status_host == "0":
@@ -366,6 +387,7 @@ def display_global_status(api, LANG):
             elif status_host == "2":
                 unavailable_host = unavailable_host+1
 
+        #Calculate number of problem in each state
         for problem in list_problem:
             status_problem = problem['severity']
             if status_problem == "0":
@@ -478,11 +500,13 @@ def get_unity(i):
 
 def get_image_data(data, list_item, LANG):
     """Create graph for item and save at image"""
+    #Get translation
     lang_translations = gettext.translation(
         'action', localedir='../locales', languages=[LANG])
     lang_translations.install()
     _ = lang_translations.gettext
 
+    #Get values and time
     values = list()
     time = list()
     for val in data:
@@ -492,6 +516,7 @@ def get_image_data(data, list_item, LANG):
     values.reverse()
     time.reverse()
 
+    #Create subplot
     __, ax = plt.subplots(figsize=(12, 6))
     ax.plot(time, values, label=list_item[0]['units'])
 
@@ -516,6 +541,7 @@ def get_image_data(data, list_item, LANG):
     if len(time) > 30:
         ax.xaxis.set_ticks(np.arange(start, end, len(time) / 30))
 
+    #Change differents params of the graph
     plt.title(list_item[0]['name'])
     plt.xticks(rotation=90)
     plt.subplots_adjust(bottom=0.30)
@@ -536,18 +562,23 @@ def get_image_data(data, list_item, LANG):
 
 def get_table_information_problem(api, LANG):
     """"Get problems information about Zabbix server"""
+    #Get translation
     lang_translations = gettext.translation(
         'action', localedir='../locales', languages=[LANG])
     lang_translations.install()
     _ = lang_translations.gettext
+
     try:
+        #Create table header
         table = pt.PrettyTable(
             [_('Host'), _('Severity-Problem'), _('Duration'), _('Ack')])
         table.align[_('Severity-Problem')] = 'l'
         table.align[_('Host')] = 'l'
-    
+
+        #Get problem list
         list_problem = api.get_list_problems()
         for problem in list_problem:
+            #Get problem information
             host_info = api.get_event_info(problem['eventid'])
             severity_emoji = get_severity_emoji(problem['severity'])
             time = get_time(int(problem['clock']))
@@ -563,19 +594,24 @@ def get_table_information_problem(api, LANG):
 
 def get_table_information_maintenance(api, LANG):
     """"Get maintenances information about Zabbix server"""
+    #Get translation
     lang_translations = gettext.translation(
         'action', localedir='../locales', languages=[LANG])
     lang_translations.install()
     _ = lang_translations.gettext
+
     try:
+        #Create table header
         table = pt.PrettyTable(
             [_('Name'), _('Active since'), _('Active till'), _('State')])
         table.align[_('Name')] = 'l'
         table.align[_('State')] = 'l'
         now = datetime.now()
         
+        #Get maintenance list
         list_maintenance = api.get_list_maintenances()
         for maintenance in list_maintenance:
+            #Calculate if the maintenance is passed or not
             if now > datetime.fromtimestamp(int(maintenance['active_since'])) and now < datetime.fromtimestamp(int(maintenance['active_till'])):
                 table.add_row([fill(maintenance['name'], width=30), datetime.fromtimestamp(int(maintenance['active_since'])),
                             datetime.fromtimestamp(int(maintenance['active_till'])), telegramEmojiDict['green square']+_("Active")])
@@ -594,15 +630,18 @@ def get_table_information_maintenance(api, LANG):
 
 def get_table_last_values_host(LANG, element_items, host_name):
     """"Get all last values for host"""
+    #Get translation
     lang_translations = gettext.translation(
         'action', localedir='../locales', languages=[LANG])
     lang_translations.install()
     _ = lang_translations.gettext
 
+    #Get table header
     table = pt.PrettyTable(
         [_('Name'), _('Last check'), _('Last value')])
     table.align[_('Name')] = 'l'
     table.align[_('Last value')] = 'l'
+    #Add value of items in table
     for item in element_items:
         last_value = item['lastvalue']
         if len(last_value) > 200:
@@ -616,6 +655,7 @@ def get_table_last_values_host(LANG, element_items, host_name):
 
 def get_table_sla_report(LANG, api, service_id, sla_id):
     """Get SLA report for service"""
+    #Get translation
     lang_translations = gettext.translation(
         'action', localedir='../locales', languages=[LANG])
     lang_translations.install()
@@ -624,6 +664,7 @@ def get_table_sla_report(LANG, api, service_id, sla_id):
     table = pt.PrettyTable()
     
     try:
+        #Get SLA information
         sla_report = api.get_sla_report_by_service(sla_id, service_id)
         sla_info = api.get_sla_by_service(sla_id=sla_id)
         sla_report_period = sla_report['periods']
@@ -633,6 +674,7 @@ def get_table_sla_report(LANG, api, service_id, sla_id):
             sla_report_sli.append(sla_report['sli'][i][0])
         sla_report_sli.reverse()
 
+        #Create table header
         table = pt.PrettyTable([get_column_name(sla_info[0]['period'], _), _('SLO'), _('SLI'), _('Uptime'), _('Downtime'), _('Error budget')])
 
         # Limit to display in telegram
@@ -640,6 +682,7 @@ def get_table_sla_report(LANG, api, service_id, sla_id):
         if len(sla_report_period) < number_max_val:
             number_max_val = len(sla_report_period)
 
+        #Add value of SLA in table
         for i in range(number_max_val):
             period = get_date_value_depending_period(
                 sla_info[0]['period'], sla_report_period[i]['period_from'], sla_report_period[i]['period_to'])
@@ -659,6 +702,7 @@ def get_table_sla_report(LANG, api, service_id, sla_id):
         return _("\nError to get sla values")
 
 def get_val_time(val_second):
+    """Convert time to elapsed time until now"""
     minutes, seconds = divmod(int(val_second), 60)
     hours, minutes = divmod(minutes, 60)
     days, hours = divmod(hours, 24)
